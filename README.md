@@ -73,7 +73,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.pianoman911:mapengine-api:1.3.1'
+    compileOnly 'de.pianoman911:mapengine-api:1.3.1'
 }
 ```
 
@@ -90,7 +90,7 @@ repositories {
 }
 
 dependencies {
-    implementation("de.pianoman911:mapengine-api:1.3.1")
+    compileOnly("de.pianoman911:mapengine-api:1.3.1")
 }
 ```
 
