@@ -103,12 +103,13 @@ dependencies {
 public class Bar {
 
     // getting the api instance
-    private static final MapEngine MAP_ENGINE = Bukkit.getServicesManager().getRegistration(MapEngineApi.class).getProvider();
+    private static final MapEngineApi MAP_ENGINE = Bukkit.getServicesManager().getRegistration(MapEngineApi.class).getProvider();
 
     public void foo(BufferedImage image, BlockVector cornerA, BlockVector cornerB, BlockFace facing, Player viewer) {
         // create a map display instance
         IMapDisplay display = MAP_ENGINE.displayProvider().createBasic(cornerA, cornerB, facing);
-
+        display.spawn(viewer); // spawn the map display for the player
+        
         // create a color buffer for 2x2 item frames (128x128 pixels per map)
         FullSpacedColorBuffer buffer = new FullSpacedColorBuffer(256, 256);
 
