@@ -40,5 +40,10 @@ subprojects {
             artifactId = "${rootProject.name}-${project.name}".lowercase()
             from(components["java"])
         }
+        repositories.maven("https://repo.thejocraft.net/releases/") {
+            name = "tjcserver"
+            authentication { create<BasicAuthentication>("basic") }
+            credentials(PasswordCredentials::class)
+        }
     }
 }
