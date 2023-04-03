@@ -2,8 +2,9 @@
 
 <img src="https://imgur.com/x3tR7jb.png" alt="logo" width="200">
 
-[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/TheJoCraftNET/MapEngine?style=flat-square)](./#)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/TheJoCraftNET/MapEngine?style=flat-square)](#)
 [![AGPLv3 License](https://img.shields.io/badge/License-AGPL%20v3-yellow.svg)](https://opensource.org/license/agpl-v3/)
+[![Status Alpha](https://img.shields.io/badge/Status-Alpha-red?style=flat-square)](#)
 
 ## Description
 
