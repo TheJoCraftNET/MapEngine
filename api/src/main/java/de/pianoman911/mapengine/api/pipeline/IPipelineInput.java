@@ -20,4 +20,11 @@ public interface IPipelineInput extends IPipelineNode {
      * @return the pipeline context of this drawing space
      */
     IPipelineContext ctx();
+
+    /**
+     * Flushes the drawing space to the display using the display's pipeline
+     */
+    default void flush() {
+        ctx().display().pipeline().flush(this);
+    }
 }
