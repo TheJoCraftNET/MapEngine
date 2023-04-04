@@ -9,4 +9,8 @@ public interface IDisplayProvider {
     IMapDisplay createRawPipelineDisplay(BlockVector a, BlockVector b, BlockFace direction, IPipeline pipeline);
 
     IMapDisplay createBasic(BlockVector a, BlockVector b, BlockFace direction);
+
+    IHoldableDisplay createRawPipelineHoldableDisplay(IPipeline pipeline);
+
+    IHoldableDisplay createHoldableDisplay();
 }

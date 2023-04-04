@@ -1,6 +1,7 @@
 package de.pianoman911.mapengine.api;
 
 import de.pianoman911.mapengine.api.clientside.IDisplayProvider;
+import de.pianoman911.mapengine.api.clientside.IHoldableDisplay;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.colors.IMapColors;
 import de.pianoman911.mapengine.api.pipeline.IPipelineProvider;
@@ -19,7 +20,10 @@ public interface MapEngineApi {
     IDisplayProvider displayProvider();
 
     @Unmodifiable
-    Set<IMapDisplay> displays();
+    Set<IMapDisplay> mapDisplays();
+
+    @Unmodifiable
+    Set<IHoldableDisplay> holdableDisplays();
 
     @Nullable
     IMapDisplay displayInView(Player player, int maxDistance);

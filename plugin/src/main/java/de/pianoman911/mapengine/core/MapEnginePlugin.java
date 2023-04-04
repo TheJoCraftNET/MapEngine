@@ -4,6 +4,7 @@ import de.pianoman911.mapengine.api.MapEngineApi;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.core.api.ImplMapEngineApi;
 import de.pianoman911.mapengine.core.colors.ColorPalette;
+import de.pianoman911.mapengine.core.map.HoldableManager;
 import de.pianoman911.mapengine.core.map.MapManager;
 import de.pianoman911.mapengine.core.platform.ImplListenerBridge;
 import de.pianoman911.mapengine.core.platform.PlatformUtil;
@@ -17,6 +18,7 @@ public class MapEnginePlugin extends JavaPlugin {
     private IPlatform<?> platform;
     private ColorPalette colorPalette;
     private MapManager mapManager;
+    private HoldableManager holdableManager;
     private ImplMapEngineApi api;
 
     @Override
@@ -28,7 +30,9 @@ public class MapEnginePlugin extends JavaPlugin {
     public void onEnable() {
         this.platform = PlatformUtil.getPlatform(this, this.getClassLoader(), new ImplListenerBridge(this));
         this.colorPalette = new ColorPalette(this);
+
         this.mapManager = new MapManager(this);
+        this.holdableManager = new HoldableManager(this);
 
         this.api = new ImplMapEngineApi(this);
         Bukkit.getServicesManager().register(MapEngineApi.class, this.api, this, ServicePriority.Normal);
@@ -48,5 +52,9 @@ public class MapEnginePlugin extends JavaPlugin {
 
     public ImplMapEngineApi api() {
         return api;
+    }
+
+    public HoldableManager holdableManager() {
+        return holdableManager;
     }
 }

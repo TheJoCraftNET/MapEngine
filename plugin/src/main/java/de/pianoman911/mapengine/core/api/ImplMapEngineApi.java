@@ -2,6 +2,7 @@ package de.pianoman911.mapengine.core.api;
 
 import de.pianoman911.mapengine.api.MapEngineApi;
 import de.pianoman911.mapengine.api.clientside.IDisplayProvider;
+import de.pianoman911.mapengine.api.clientside.IHoldableDisplay;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.colors.IMapColors;
 import de.pianoman911.mapengine.api.drawing.IDrawingSpace;
@@ -123,12 +124,27 @@ public class ImplMapEngineApi implements MapEngineApi {
             public IMapDisplay createBasic(BlockVector a, BlockVector b, BlockFace direction) {
                 return plugin.mapManager().createDisplay(a, b, direction);
             }
+
+            @Override
+            public IHoldableDisplay createRawPipelineHoldableDisplay(IPipeline pipeline) {
+                return plugin.holdableManager().createDisplay((Pipeline) pipeline);
+            }
+
+            @Override
+            public IHoldableDisplay createHoldableDisplay() {
+                return plugin.holdableManager().createDisplay();
+            }
         };
     }
 
     @Override
-    public @Unmodifiable Set<IMapDisplay> displays() {
+    public @Unmodifiable Set<IMapDisplay> mapDisplays() {
         return Set.copyOf(plugin.mapManager().displays());
+    }
+
+    @Override
+    public @Unmodifiable Set<IHoldableDisplay> holdableDisplays() {
+        return Set.copyOf(plugin.holdableManager().displays());
     }
 
     @Override
