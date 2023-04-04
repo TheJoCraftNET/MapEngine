@@ -1,11 +1,12 @@
 package de.pianoman911.mapengine.api.drawing;
 
 import de.pianoman911.mapengine.api.pipeline.IPipelineContext;
+import de.pianoman911.mapengine.api.pipeline.IPipelineInput;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 
 import java.util.List;
 
-public interface ILayeredDrawingSpace {
+public interface ILayeredDrawingSpace extends IPipelineInput {
 
     /**
      * Returns all layers of this drawing space

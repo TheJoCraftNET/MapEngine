@@ -5,6 +5,7 @@ import de.pianoman911.mapengine.api.drawing.ILayeredDrawingSpace;
 import de.pianoman911.mapengine.api.pipeline.IPipelineContext;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.pipeline.PipelineContext;
+import it.unimi.dsi.fastutil.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,8 @@ public class LayeredDrawingSpace implements ILayeredDrawingSpace {
     private final FullSpacedColorBuffer resultBuffer;
     private final PipelineContext context;
 
-    public LayeredDrawingSpace(FullSpacedColorBuffer resultSpace, PipelineContext context) {
-        this.resultBuffer = resultSpace;
+    public LayeredDrawingSpace(FullSpacedColorBuffer initialBuffer, PipelineContext context) {
+        this.resultBuffer = initialBuffer;
         this.context = context;
     }
 
@@ -31,6 +32,24 @@ public class LayeredDrawingSpace implements ILayeredDrawingSpace {
     }
 
     @Override
+    public Pair<FullSpacedColorBuffer, IPipelineContext> combined() {
+        return Pair.of(resultBuffer, context);
+    }
+
+    @Override
+    public FullSpacedColorBuffer buffer() {
+        if (layers.isEmpty()) {
+            return resultBuffer;
+        } else {
+            FullSpacedColorBuffer result = resultBuffer.copy();
+            for (IDrawingSpace layer : layers) {
+                result.buffer(layer.buffer(), 0, 0);
+            }
+            return result;
+        }
+    }
+
+    @Override
     public IPipelineContext ctx() {
         return context;
     }
@@ -42,7 +61,7 @@ public class LayeredDrawingSpace implements ILayeredDrawingSpace {
 
     @Override
     public IDrawingSpace newLayer() {
-        DrawingSpace drawingSpace = new DrawingSpace(resultBuffer, context);
+        DrawingSpace drawingSpace = new DrawingSpace(resultBuffer.copy(), context);
         layers.add(drawingSpace);
         return drawingSpace;
     }
