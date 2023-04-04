@@ -26,6 +26,24 @@ Using lightweight and asynchronous techniques MapEngine has a very low impact on
 
 </details>
 
+<details>
+<summary><strong>Live streaming via RTMP on maps</strong></summary>
+This is an example of a live stream on a map. The stream is played on a 7x4 map array.
+The Stream source is 1920x1080@20 streamed with OBS.
+
+[![Watch it here](https://i.imgur.com/h1e9ROE.png)](https://youtu.be/5tg_DX84eLw)
+
+</details>
+
+<details>
+<summary><strong>Floyd Sternberg dithering</strong></summary>
+This is an example of a map with Floyd-Steinberg dithering enabled. The stream is played on a 7x4 map array.
+The Stream source is 1920x1080@20 streamed with OBS.
+
+[![Watch it here](https://i.imgur.com/Q8Jg0oo.png)](https://youtu.be/b2wxlgllsQs)
+
+</details>
+
 ### Support
 
 | Server Version | Supported |
