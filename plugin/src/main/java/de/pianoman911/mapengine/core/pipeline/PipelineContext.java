@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,28 @@ public class PipelineContext implements IPipelineContext {
     public void receivers(Collection<? extends Player> receivers) {
         this.receivers.clear();
         this.receivers.addAll(receivers);
+    }
+
+    @Override
+    public void addReceiver(Player... players) {
+        Collections.addAll(receivers, players);
+    }
+
+    @Override
+    public void removeReceiver(Player... players) {
+        for (Player player : players) {
+            receivers.remove(player);
+        }
+    }
+
+    @Override
+    public boolean isReceiver(Player player) {
+        return receivers.contains(player);
+    }
+
+    @Override
+    public void clearReceivers() {
+        receivers.clear();
     }
 
     @Override

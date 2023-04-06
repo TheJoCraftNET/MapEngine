@@ -15,6 +15,14 @@ public interface IPipelineContext {
 
     void receivers(Collection<? extends Player> receivers);
 
+    void addReceiver(Player... players);
+
+    void removeReceiver(Player... players);
+
+    boolean isReceiver(Player player);
+
+    void clearReceivers();
+
     IMapDisplay display();
 
     boolean full();
