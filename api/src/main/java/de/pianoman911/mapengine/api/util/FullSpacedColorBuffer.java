@@ -85,6 +85,80 @@ public class FullSpacedColorBuffer {
         pixels(buffer.buffer(), x, y, buffer.width(), buffer.height());
     }
 
+    public FullSpacedColorBuffer scale(double scale, boolean smooth) {
+        return scale(scale, scale, smooth);
+    }
+
+    @SuppressWarnings("Duplicates")
+    public FullSpacedColorBuffer scale(double scaleX, double scaleY, boolean smooth) {
+        int newWidth = (int) (width * scaleX);
+        int newHeight = (int) (height * scaleY);
+        int[] newData = new int[newWidth * newHeight];
+
+        double xRatio = (double) width / newWidth;
+        double yRatio = (double) height / newHeight;
+
+        for (int y = 0; y < newHeight; y++) {
+            for (int x = 0; x < newWidth; x++) {
+                int scrX = (int) (x * xRatio);
+                int scrY = (int) (y * yRatio);
+                int scrIndex = scrX + scrY * width;
+                if (scrX >= width || scrY >= height) {
+                    continue;
+                }
+                if (smooth) {
+                    int color = data[scrIndex];
+                    int alpha = (color >> 24) & 0xFF;
+                    if (alpha == 0) {
+                        continue;
+                    }
+
+                    int red = (color >> 16) & 0xFF;
+                    int green = (color >> 8) & 0xFF;
+                    int blue = color & 0xFF;
+
+                    int count = 1;
+                    if (scrX + 1 < width) {
+                        color = data[scrIndex + 1];
+                        alpha = (color >> 24) & 0xFF;
+                        if (alpha != 0) {
+                            red += (color >> 16) & 0xFF;
+                            green += (color >> 8) & 0xFF;
+                            blue += color & 0xFF;
+                            count++;
+                        }
+                    }
+                    if (scrY + 1 < height) {
+                        color = data[scrIndex + width];
+                        alpha = (color >> 24) & 0xFF;
+                        if (alpha != 0) {
+                            red += (color >> 16) & 0xFF;
+                            green += (color >> 8) & 0xFF;
+                            blue += color & 0xFF;
+                            count++;
+                        }
+                    }
+                    if (scrX + 1 < width && scrY + 1 < height) {
+                        color = data[scrIndex + width + 1];
+                        alpha = (color >> 24) & 0xFF;
+                        if (alpha != 0) {
+                            red += (color >> 16) & 0xFF;
+                            green += (color >> 8) & 0xFF;
+                            blue += color & 0xFF;
+                            count++;
+                        }
+                    }
+
+                    newData[x + y * newWidth] = (alpha << 24) | ((red / count) << 16) | ((green / count) << 8) | (blue / count);
+                } else {
+                    newData[x + y * newWidth] = data[scrIndex];
+                }
+            }
+        }
+
+        return new FullSpacedColorBuffer(newData, newWidth, newHeight);
+    }
+
     public FullSpacedColorBuffer copy() {
         return new FullSpacedColorBuffer(data.clone(), width, height);
     }
