@@ -68,7 +68,12 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public void sendPacket(Player player, PacketContainer<Packet<ClientGamePacketListener>> packet) {
-        ((CraftPlayer) player).getHandle().connection.send(packet.getPacket());
+         ((CraftPlayer) player).getHandle().connection.connection.channel.write(packet.getPacket());
+    }
+
+    @Override
+    public void flush(Player player) {
+        ((CraftPlayer) player).getHandle().connection.connection.channel.flush();
     }
 
     @SuppressWarnings("deprecation") // magic values

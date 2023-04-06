@@ -116,6 +116,7 @@ public class FrameContainer implements IMapDisplay {
             frame.spawnPacket().send(player);
             frame.setIdPacket(0, false).send(player);
         }
+        plugin.platform().flush(player);
     }
 
     @Override
@@ -125,6 +126,7 @@ public class FrameContainer implements IMapDisplay {
             ids.add(frame.entityId);
         }
         plugin.platform().createRemoveEntitiesPacket(ids).send(player);
+        plugin.platform().flush(player);
     }
 
     @Override
@@ -132,7 +134,7 @@ public class FrameContainer implements IMapDisplay {
         for (Frame frame : frames) {
             frame.setIdPacket(z, true).send(player);
         }
-
+        plugin.platform().flush(player);
     }
 
     @Override
@@ -143,6 +145,7 @@ public class FrameContainer implements IMapDisplay {
             }
             frames[i].updatePacket((MapUpdateData) data[i], fullData, z, cursors).send(player);
         }
+        plugin.platform().flush(player);
     }
 
     @Override

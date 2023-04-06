@@ -13,6 +13,8 @@ public interface IPlatform<T> {
 
     void sendPacket(Player player, PacketContainer<T> packet);
 
+    void flush(Player player);
+
     PacketContainer<T> createMapDataPacket(MapUpdateData data, boolean fullData, int mapId, MapCursorCollection cursors);
 
     PacketContainer<T> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing);
