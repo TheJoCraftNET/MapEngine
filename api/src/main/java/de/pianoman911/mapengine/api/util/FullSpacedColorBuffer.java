@@ -1,5 +1,7 @@
 package de.pianoman911.mapengine.api.util;
 
+import java.awt.image.BufferedImage;
+
 public class FullSpacedColorBuffer {
 
     private final int[] data;
@@ -157,6 +159,12 @@ public class FullSpacedColorBuffer {
         }
 
         return new FullSpacedColorBuffer(newData, newWidth, newHeight);
+    }
+
+    public BufferedImage snapshot() {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        image.setRGB(0, 0, width, height, data, 0, width);
+        return image;
     }
 
     public FullSpacedColorBuffer copy() {
