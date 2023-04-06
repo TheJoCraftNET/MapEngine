@@ -44,7 +44,7 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void buffer(FullSpacedColorBuffer buffer, int x, int y) {
-        buffer.buffer(buffer, x, y);
+        this.buffer.buffer(buffer, x, y);
     }
 
     @Override
