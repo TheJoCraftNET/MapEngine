@@ -36,7 +36,7 @@ public interface IMapColors {
 
     default ColorBuffer convertDirect(FullSpacedColorBuffer buffer) {
         int[] rgb = buffer.buffer();
-        return new ColorBuffer(colors(rgb), buffer.x(), buffer.y());
+        return new ColorBuffer(colors(rgb), buffer.width(), buffer.height());
     }
 
     byte[] convertImage(BufferedImage image);

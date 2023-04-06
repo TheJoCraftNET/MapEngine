@@ -2,49 +2,49 @@ package de.pianoman911.mapengine.api.util;
 
 public class FullSpacedColorBuffer {
 
-    private final int[] buffer;
-    private final int x;
-    private final int y;
+    private final int[] data;
+    private final int width;
+    private final int height;
 
-    public FullSpacedColorBuffer(int[] buffer, int x, int y) {
-        this.buffer = buffer;
-        this.x = x;
-        this.y = y;
+    public FullSpacedColorBuffer(int[] data, int width, int height) {
+        this.data = data;
+        this.width = width;
+        this.height = height;
     }
 
-    public FullSpacedColorBuffer(int size, int x, int y) {
-        this.buffer = new int[size];
-        this.x = x;
-        this.y = y;
+    public FullSpacedColorBuffer(int size, int width, int height) {
+        this.data = new int[size];
+        this.width = width;
+        this.height = height;
     }
 
-    public FullSpacedColorBuffer(int x, int y) {
-        this.buffer = new int[x * y];
-        this.x = x;
-        this.y = y;
+    public FullSpacedColorBuffer(int width, int height) {
+        this.data = new int[width * height];
+        this.width = width;
+        this.height = height;
     }
 
     public int[] buffer() {
-        return buffer;
+        return data;
     }
 
     public int size() {
-        return buffer.length;
+        return data.length;
     }
 
-    public int x() {
-        return x;
+    public int width() {
+        return width;
     }
 
-    public int y() {
-        return y;
+    public int height() {
+        return height;
     }
 
     public void pixel(int x, int y, int newColor) {
         int newAlpha = (newColor >> 24) & 0xFF;
         if (newAlpha == 255) {
             // completely opaque pixel, overwrite
-            this.buffer[x + y * x()] = newColor;
+            this.data[x + y * width()] = newColor;
             return;
         }
 
@@ -55,8 +55,8 @@ public class FullSpacedColorBuffer {
 
         // 0 < newAlpha < 255 -> alpha blending
 
-        int colorIndex = x + y * x();
-        int oldColor = this.buffer[colorIndex];
+        int colorIndex = x + y * width();
+        int oldColor = this.data[colorIndex];
         int oldAlpha = (oldColor >> 24) & 0xFF;
 
         // actual alpha blending
@@ -68,24 +68,24 @@ public class FullSpacedColorBuffer {
         int blue = ((oldColor & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255)
                 + ((newColor & 0xFF) * newAlpha * alpha) / (255 * 255);
 
-        this.buffer[colorIndex] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+        this.data[colorIndex] = (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
 
     public void pixels(int[] pixels, int x, int y, int width, int height) {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (x + j >= 0 && x + j < x() && y + i >= 0 && y + i < y()) {
-                    pixel(x + j, y + i, pixels[j + i * width]);
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                if (x + w >= 0 && x + w < width() && y + h >= 0 && y + h < height()) {
+                    pixel(x + w, y + h, pixels[w + h * width]);
                 }
             }
         }
     }
 
     public void buffer(FullSpacedColorBuffer buffer, int x, int y) {
-        pixels(buffer.buffer(), x, y, buffer.x(), buffer.y());
+        pixels(buffer.buffer(), x, y, buffer.width(), buffer.height());
     }
 
     public FullSpacedColorBuffer copy() {
-        return new FullSpacedColorBuffer(buffer.clone(), x, y);
+        return new FullSpacedColorBuffer(data.clone(), width, height);
     }
 }

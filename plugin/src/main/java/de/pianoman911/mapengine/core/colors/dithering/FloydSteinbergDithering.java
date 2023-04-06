@@ -32,8 +32,8 @@ public class FloydSteinbergDithering {
         CompletableFuture<?>[] futures = new CompletableFuture[threads];
 
         int[] src = buffer.buffer();
-        int w = buffer.x();
-        int h = buffer.y();
+        int w = buffer.width();
+        int h = buffer.height();
 
         int size = h / threads;
         for (int i = 0; i < threads; i++) {
@@ -115,6 +115,6 @@ public class FloydSteinbergDithering {
             }
         }
 
-        return new ColorBuffer(palette.colors(src), buffer.x(), buffer.y());
+        return new ColorBuffer(palette.colors(src), buffer.width(), buffer.height());
     }
 }

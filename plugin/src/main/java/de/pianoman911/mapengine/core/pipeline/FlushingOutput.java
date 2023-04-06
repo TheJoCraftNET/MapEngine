@@ -19,7 +19,7 @@ public class FlushingOutput implements IPipelineOutput {
 
     public static ColorBuffer[] splitColorBuffer(ColorBuffer colorBuffer, int width, int height) {
         ColorBuffer[] result = new ColorBuffer[width * height];
-        byte[] rawData = colorBuffer.buffer();
+        byte[] rawData = colorBuffer.data();
 
         for (int i = 0; i < result.length; i++) {
             ColorBuffer buffer = new ColorBuffer(16384, 128, 128);
@@ -27,7 +27,7 @@ public class FlushingOutput implements IPipelineOutput {
             int y = i / width;
             for (int y1 = 0; y1 < 128; y1++) {
                 for (int x1 = 0; x1 < 128; x1++) {
-                    buffer.buffer()[y1 * 128 + x1] = rawData[(y * 128 + y1) * width * 128 + x * 128 + x1];
+                    buffer.data()[y1 * 128 + x1] = rawData[(y * 128 + y1) * width * 128 + x * 128 + x1];
                 }
             }
             result[i] = buffer;
@@ -50,7 +50,7 @@ public class FlushingOutput implements IPipelineOutput {
             if (previous != null) {
                 ColorBuffer[] previousBuffers = splitColorBuffer(convert(previous, ctx), ctx.display().width(), ctx.display().height());
                 for (int i = 0; i < previousBuffers.length; i++) {
-                    previousData[i] = MapUpdateData.createMapUpdateData(previousBuffers[i].buffer(), null, 0);
+                    previousData[i] = MapUpdateData.createMapUpdateData(previousBuffers[i].data(), null, 0);
                 }
             } else {
                 plugin.getLogger().warning("Previous buffer is null! Please set the previous buffer before calling the pipeline, if you want to use the tile update mode!");
@@ -58,7 +58,7 @@ public class FlushingOutput implements IPipelineOutput {
         }
 
         for (int i = 0; i < buffers.length; i++) {
-            data[i] = MapUpdateData.createMapUpdateData(buffers[i].buffer(), previousData[i], 0);
+            data[i] = MapUpdateData.createMapUpdateData(buffers[i].data(), previousData[i], 0);
         }
 
         for (Player receiver : ctx.receivers()) {

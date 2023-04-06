@@ -2,35 +2,35 @@ package de.pianoman911.mapengine.api.util;
 
 public class ColorBuffer {
 
-    private final byte[] buffer;
-    private final int x;
-    private final int y;
+    private final byte[] data;
+    private final int width;
+    private final int height;
 
-    public ColorBuffer(byte[] buffer, int x, int y) {
-        this.buffer = buffer;
-        this.x = x;
-        this.y = y;
+    public ColorBuffer(byte[] data, int width, int height) {
+        this.data = data;
+        this.width = width;
+        this.height = height;
     }
 
-    public ColorBuffer(int size, int x, int y) {
-        this.buffer = new byte[size];
-        this.x = x;
-        this.y = y;
+    public ColorBuffer(int size, int width, int height) {
+        this.data = new byte[size];
+        this.width = width;
+        this.height = height;
     }
 
-    public byte[] buffer() {
-        return buffer;
+    public byte[] data() {
+        return data;
     }
 
     public int size() {
-        return buffer.length;
+        return data.length;
     }
 
-    public int x() {
-        return x;
+    public int width() {
+        return width;
     }
 
-    public int y() {
-        return y;
+    public int height() {
+        return height;
     }
 }

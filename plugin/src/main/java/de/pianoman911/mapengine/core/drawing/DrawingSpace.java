@@ -28,7 +28,7 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     @Override
     public void clear(int x, int y, int width, int height) {
         for (int i = 0; i < height; i++) {
-            Arrays.fill(buffer.buffer(), x + (y + i) * buffer.x(), x + (y + i) * buffer.x() + width, ALPHA);
+            Arrays.fill(buffer.buffer(), x + (y + i) * buffer.width(), x + (y + i) * buffer.width() + width, ALPHA);
         }
     }
 
