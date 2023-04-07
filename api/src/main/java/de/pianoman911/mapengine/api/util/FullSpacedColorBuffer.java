@@ -161,6 +161,10 @@ public class FullSpacedColorBuffer {
         return new FullSpacedColorBuffer(newData, newWidth, newHeight);
     }
 
+    public FullSpacedColorBuffer scale(int newWidth, int newHeight, boolean smooth) {
+        return scale((double) newWidth / width, (double) newHeight / height, smooth);
+    }
+
     public BufferedImage snapshot() {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         image.setRGB(0, 0, width, height, data, 0, width);
