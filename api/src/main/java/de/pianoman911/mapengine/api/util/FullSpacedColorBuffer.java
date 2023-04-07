@@ -162,7 +162,7 @@ public class FullSpacedColorBuffer {
     }
 
     public FullSpacedColorBuffer scale(int newWidth, int newHeight, boolean smooth) {
-        return scale((double) newWidth / width, (double) newHeight / height, smooth);
+        return scale((double) width / newWidth, (double) height / newHeight, smooth);
     }
 
     public BufferedImage snapshot() {
