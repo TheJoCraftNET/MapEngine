@@ -63,12 +63,9 @@ public class FullSpacedColorBuffer {
 
         // actual alpha blending
         int alpha = 255 - ((255 - oldAlpha) * (255 - newAlpha)) / 255;
-        int red = (((oldColor >> 16) & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255)
-                + (((newColor >> 16) & 0xFF) * newAlpha * alpha) / (255 * 255);
-        int green = (((oldColor >> 8) & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255)
-                + (((newColor >> 8) & 0xFF) * newAlpha * alpha) / (255 * 255);
-        int blue = ((oldColor & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255)
-                + ((newColor & 0xFF) * newAlpha * alpha) / (255 * 255);
+        int red = (((oldColor >> 16) & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255) + (((newColor >> 16) & 0xFF) * newAlpha * alpha) / (255 * 255);
+        int green = (((oldColor >> 8) & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255) + (((newColor >> 8) & 0xFF) * newAlpha * alpha) / (255 * 255);
+        int blue = ((oldColor & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255) + ((newColor & 0xFF) * newAlpha * alpha) / (255 * 255);
 
         this.data[colorIndex] = (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
@@ -155,6 +152,37 @@ public class FullSpacedColorBuffer {
                 } else {
                     newData[x + y * newWidth] = data[scrIndex];
                 }
+            }
+        }
+
+        return new FullSpacedColorBuffer(newData, newWidth, newHeight);
+    }
+
+
+    public FullSpacedColorBuffer rotate(Rotation rotation) {
+        int newWidth = rotation == Rotation.CLOCKWISE || rotation == Rotation.COUNTER_CLOCKWISE ? height : width;
+        int newHeight = rotation == Rotation.CLOCKWISE || rotation == Rotation.COUNTER_CLOCKWISE ? width : height;
+        int[] newData = new int[newWidth * newHeight];
+
+        for (int y = 0; y < newHeight; y++) {
+            for (int x = 0; x < newWidth; x++) {
+                int newX = x;
+                int newY = y;
+                switch (rotation) {
+                    case CLOCKWISE -> {
+                        newX = y; // x is used as a y-coordinate here because of the rotation
+                        newY = newHeight - x - 1;
+                    }
+                    case COUNTER_CLOCKWISE -> {
+                        newX = newWidth - y - 1;
+                        newY = x; // y is used as an x-coordinate here because of the rotation
+                    }
+                    case UPSIDE_DOWN -> {
+                        newX = newWidth - x - 1;
+                        newY = newHeight - y - 1;
+                    }
+                }
+                newData[x + y * newWidth] = data[newX + newY * width];
             }
         }
 
