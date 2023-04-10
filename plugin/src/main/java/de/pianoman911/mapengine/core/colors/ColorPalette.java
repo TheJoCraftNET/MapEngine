@@ -4,7 +4,11 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.pianoman911.mapengine.api.colors.IMapColors;
+import de.pianoman911.mapengine.api.util.ColorBuffer;
+import de.pianoman911.mapengine.api.util.Converter;
+import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
+import de.pianoman911.mapengine.core.colors.dithering.FloydSteinbergDithering;
 import org.bukkit.Bukkit;
 import org.bukkit.map.MapPalette;
 
@@ -73,6 +77,20 @@ public class ColorPalette implements IMapColors {
         int[] rgb = new int[image.getWidth() * image.getHeight()];
         image.getRGB(0, 0, image.getWidth(), image.getHeight(), rgb, 0, image.getWidth());
         return colors(rgb);
+    }
+
+    @Override
+    public FullSpacedColorBuffer adjustColors(FullSpacedColorBuffer buffer, Converter converter) {
+        return switch (converter) {
+            case DIRECT -> {
+                ColorBuffer mc = convertDirect(buffer);
+                yield new FullSpacedColorBuffer(plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
+            }
+            case FLOYD_STEINBERG -> {
+                ColorBuffer mc = FloydSteinbergDithering.dither(buffer, plugin.colorPalette(), buffer.height() / 128 + 1);
+                yield new FullSpacedColorBuffer(plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
+            }
+        };
     }
 
     @Override
@@ -206,8 +224,18 @@ public class ColorPalette implements IMapColors {
         generateColors();
     }
 
+    @Override
     public int toRGB(byte color) {
         return rgb[color >= 0 ? color : color + 256];
+    }
+
+    @Override
+    public int[] toRGBs(byte[] colors) {
+        int[] rgb = new int[colors.length];
+        for (int i = 0; i < colors.length; i++) {
+            rgb[i] = toRGB(colors[i]);
+        }
+        return rgb;
     }
 
     public int closestColor(int rgb) {

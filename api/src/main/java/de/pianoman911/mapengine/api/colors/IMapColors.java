@@ -1,6 +1,7 @@
 package de.pianoman911.mapengine.api.colors;
 
 import de.pianoman911.mapengine.api.util.ColorBuffer;
+import de.pianoman911.mapengine.api.util.Converter;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 
 import java.awt.Color;
@@ -39,8 +40,14 @@ public interface IMapColors {
         return new ColorBuffer(colors(rgb), buffer.width(), buffer.height());
     }
 
+    FullSpacedColorBuffer adjustColors(FullSpacedColorBuffer buffer, Converter converter);
+
     byte[] convertImage(BufferedImage image);
 
     Color toColor(byte color);
+
+    int toRGB(byte color);
+
+    int[] toRGBs(byte[] colors);
 
 }
