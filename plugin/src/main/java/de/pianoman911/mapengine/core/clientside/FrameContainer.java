@@ -44,7 +44,9 @@ public class FrameContainer implements IMapDisplay {
                 for (int i = 0; i < frames.length; i++) {
                     int x = i % width;
                     int y = i / width;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(min.getBlockX() + x, min.getBlockY() + y, max.getBlockZ()));
+
+                    x = direction == BlockFace.NORTH ? max.getBlockX() - x - 1 : min.getBlockX() + x;
+                    frames[i] = new Frame(plugin, direction, new BlockVector(x, max.getBlockY() - y - 1, max.getBlockZ()));
                 }
 
                 if (direction == BlockFace.NORTH) {
@@ -63,7 +65,9 @@ public class FrameContainer implements IMapDisplay {
                 for (int i = 0; i < frames.length; i++) {
                     int z = i % width;
                     int y = i / width;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(max.getBlockX(), min.getBlockY() + y, min.getBlockZ() + z));
+
+                    z = direction == BlockFace.EAST ? max.getBlockZ() - z - 1 : min.getBlockZ() + z;
+                    frames[i] = new Frame(plugin, direction, new BlockVector(max.getBlockX(), max.getBlockY() - y - 1, z));
                 }
 
                 if (direction == BlockFace.WEST) {
@@ -83,7 +87,9 @@ public class FrameContainer implements IMapDisplay {
                 for (int i = 0; i < frames.length; i++) {
                     int x = i % width;
                     int z = i / width;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(min.getBlockX() + x, max.getBlockY(), min.getBlockZ() + z));
+
+                    x = direction == BlockFace.UP ? max.getBlockX() - x - 1 : min.getBlockX() + x;
+                    frames[i] = new Frame(plugin, direction, new BlockVector(x, max.getBlockY(), max.getBlockZ() - z - 1));
                 }
             }
             default -> throw new IllegalArgumentException("Unknown direction: " + direction);
