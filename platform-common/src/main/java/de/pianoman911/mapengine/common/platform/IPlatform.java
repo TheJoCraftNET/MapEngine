@@ -6,6 +6,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 public interface IPlatform<T> {
 
@@ -22,4 +23,8 @@ public interface IPlatform<T> {
     PacketContainer<T> createMapSetIdPacket(int entityId, int mapId, boolean invisible);
 
     PacketContainer<T> createRemoveEntitiesPacket(IntList entityIds);
+
+    PacketContainer<?> createInteractionEntitySpawnPacket(int interactionId, Vector pos, BlockFace direction);
+
+    PacketContainer<?> createInteractionEntityBlockSizePacket(int interactionId);
 }

@@ -6,11 +6,17 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 public class Frame extends FilledMap {
 
-    @SuppressWarnings("deprecation") // unsafe api, don't care + didn't ask
+    public static final double INVISIBLE_MAP_DEPTH = 0.0078125;
+    public static final double INTERACTION_OFFSET = 0.0626;
+
+    @SuppressWarnings("deprecation") // unsafe api, don't care + don't ask
     protected final int entityId = Bukkit.getUnsafe().nextEntityId();
+    @SuppressWarnings("deprecation")
+    protected final int interactionId = Bukkit.getUnsafe().nextEntityId();
     protected final BlockFace direction;
     protected final BlockVector pos;
 
@@ -22,6 +28,34 @@ public class Frame extends FilledMap {
 
     protected PacketContainer<?> spawnPacket() {
         return plugin.platform().createMapEntitySpawnPacket(entityId, pos, direction);
+    }
+
+    protected PacketContainer<?> interactionEntity() {
+        Vector interactionPos;
+        switch (direction) {
+            case WEST -> {
+                interactionPos = new Vector(pos.getX() + 1.5, pos.getY(), pos.getZ() + 0.5);
+                interactionPos.setX(interactionPos.getX() - INTERACTION_OFFSET);
+            }
+            case EAST -> {
+                interactionPos = new Vector(pos.getX() - 0.5, pos.getY(), pos.getZ() + 0.5);
+                interactionPos.setX(interactionPos.getX() + INTERACTION_OFFSET);
+            }
+            case NORTH -> {
+                interactionPos = new Vector(pos.getX() + 0.5, pos.getY(), pos.getZ() + 1.5);
+                interactionPos.setZ(interactionPos.getZ() - INTERACTION_OFFSET);
+            }
+            case SOUTH -> {
+                interactionPos = new Vector(pos.getX() + 0.5, pos.getY(), pos.getZ() - 0.5);
+                interactionPos.setZ(interactionPos.getZ() + INTERACTION_OFFSET);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + direction);
+        }
+        return plugin.platform().createInteractionEntitySpawnPacket(interactionId, interactionPos, direction);
+    }
+
+    protected PacketContainer<?> interactionEntitySize() {
+        return plugin.platform().createInteractionEntityBlockSizePacket(interactionId);
     }
 
     protected PacketContainer<?> removePacket() {

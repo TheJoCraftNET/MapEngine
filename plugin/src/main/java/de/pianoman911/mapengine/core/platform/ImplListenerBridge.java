@@ -4,17 +4,17 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.pianoman911.mapengine.api.event.MapClickEvent;
 import de.pianoman911.mapengine.api.util.MapClickType;
-import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
+import de.pianoman911.mapengine.core.clientside.Frame;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.util.RayTraceUtil;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public final class ImplListenerBridge implements IListenerBridge {
@@ -41,26 +41,42 @@ public final class ImplListenerBridge implements IListenerBridge {
         return map;
     }
 
-    private void handleUnspecificPosition(Player player, int entityId, MapClickType type) {
-        FrameContainer map = this.checkMap(player, entityId);
-        if (map == null) {
-            return;
-        }
-
-        Vector framePos = Objects.requireNonNull(map.locOfFrame(entityId));
-        Location clipped = RayTraceUtil.clipBox(player, RayTraceUtil.createFrameBBox(framePos, map.direction()),
+    private void executeAtExactPosition(Player player, FrameContainer map, MapClickType type) {
+        Pair<Vector, BlockFace> clipped = RayTraceUtil.clipBox(player, map.interactionBox(),
                 player.getGameMode() == GameMode.CREATIVE ? 6f : 3f);
-        if (clipped == null) {
+        if (clipped == null || clipped.second() != map.direction()) {
             return;
         }
 
-        Vec2i absolutePos = map.absolute(clipped.toVector());
-        new MapClickEvent(map, type, player, absolutePos.x(), absolutePos.y()).callEvent();
+        Vector clickedPos = clipped.left().subtract(map.interactionBox().getCenter().setY(map.box().getMinY()));
+        handleData(player, map, clickedPos.getX(), clickedPos.getY(), clickedPos.getZ(), type);
     }
 
-    @Override
-    public void handleInteract(Player player, int entityId) {
-        this.handleUnspecificPosition(player, entityId, MapClickType.RIGHT_CLICK);
+    private void handleData(Player player, FrameContainer map, double posX, double posY, double posZ, MapClickType type) {
+        int x;
+        int y;
+
+        switch (map.direction()) {
+            case EAST -> {
+                x = (int) ((map.width() - (posZ + map.width() / 2.0)) * 128);
+                y = (int) ((map.height() - posY) * 128);
+            }
+            case WEST -> {
+                x = (int) ((posZ + map.width() / 2.0) * 128);
+                y = (int) ((map.height() - posY) * 128);
+            }
+            case SOUTH -> {
+                x = (int) ((posX + map.width() / 2.0) * 128);
+                y = (int) ((map.height() - posY) * 128);
+            }
+            case NORTH -> {
+                x = (int) ((map.width() - (posX + map.width() / 2.0)) * 128);
+                y = (int) ((map.height() - posY) * 128);
+            }
+
+            default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());
+        }
+        new MapClickEvent(map, type, player, x, y).callEvent();
     }
 
     @Override
@@ -70,40 +86,24 @@ public final class ImplListenerBridge implements IListenerBridge {
             return;
         }
 
-        Vector framePos = Objects.requireNonNull(map.locOfFrame(entityId));
-        Vector relativeInteractPoint = new Vector((posX + 0.375d) / 0.75d, (posY + 0.375d) / 0.75d, (posZ + 0.375d) / 0.75d);
-
-        int relativeX = 0, relativeY = 0;
-        switch (map.direction()) {
-            case NORTH -> {
-                relativeX = 96 - (int) (relativeInteractPoint.getX() * 96);
-                relativeY = 96 - (int) (relativeInteractPoint.getY() * 96);
-            }
-            case SOUTH -> {
-                relativeX = (int) (relativeInteractPoint.getX() * 96);
-                relativeY = 96 - (int) (relativeInteractPoint.getY() * 96);
-            }
-            case WEST -> {
-                relativeX = (int) (relativeInteractPoint.getZ() * 96);
-                relativeY = 96 - (int) (relativeInteractPoint.getY() * 96);
-            }
-            case EAST -> {
-                relativeX = 96 - (int) (relativeInteractPoint.getZ() * 96);
-                relativeY = 96 - (int) (relativeInteractPoint.getY() * 96);
-            }
-            case UP, DOWN -> {
-            }
+        // Only handle clicks on the right side of the box
+        if (switch (map.direction()) {
+            case EAST -> posX >= 0.5 - Frame.INTERACTION_OFFSET;
+            case WEST -> posX <= -0.5 + Frame.INTERACTION_OFFSET;
+            case SOUTH -> posZ >= 0.5 - Frame.INTERACTION_OFFSET;
+            case NORTH -> posZ <= -0.5 + Frame.INTERACTION_OFFSET;
+            default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());
+        }) {
+            executeAtExactPosition(player, map, MapClickType.RIGHT_CLICK);
         }
-
-        relativeX += 16;
-        relativeY += 16;
-
-        int[] absolute = map.addTileOffset(framePos, relativeX, relativeY);
-        new MapClickEvent(map, MapClickType.RIGHT_CLICK, player, absolute[0], absolute[1]).callEvent();
     }
 
     @Override
     public void handleAttack(Player player, int entityId) {
-        this.handleUnspecificPosition(player, entityId, MapClickType.LEFT_CLICK);
+        FrameContainer map = this.checkMap(player, entityId);
+        if (map == null) {
+            return;
+        }
+        this.executeAtExactPosition(player, map, MapClickType.LEFT_CLICK);
     }
 }

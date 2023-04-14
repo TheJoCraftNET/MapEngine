@@ -27,7 +27,7 @@ public class MapManager {
 
     public FrameContainer display(int entityId) {
         for (FrameContainer display : displays) {
-            if (display.hasEntity(entityId)) {
+            if (display.isInteraction(entityId) || display.hasEntity(entityId)) {
                 return display;
             }
         }

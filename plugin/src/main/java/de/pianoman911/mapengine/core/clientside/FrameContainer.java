@@ -3,11 +3,9 @@ package de.pianoman911.mapengine.core.clientside;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.data.IMapUpdateData;
 import de.pianoman911.mapengine.api.pipeline.IPipeline;
-import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
-import de.pianoman911.mapengine.core.util.MapUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.bukkit.block.BlockFace;
@@ -15,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
 
 public class FrameContainer implements IMapDisplay {
 
@@ -24,70 +21,84 @@ public class FrameContainer implements IMapDisplay {
     private final MapEnginePlugin plugin;
     private final Pipeline pipeline;
     private final BlockFace direction;
-    private final BlockVector min;
-    private final BlockVector max;
     private final BoundingBox box;
+    private final BoundingBox interactionBox;
 
     public FrameContainer(BlockVector a, BlockVector b, BlockFace direction, MapEnginePlugin plugin, Pipeline pipeline) {
         this.plugin = plugin;
         this.pipeline = pipeline;
         this.direction = direction;
-        min = new BlockVector(Math.min(a.getBlockX(), b.getBlockX()), Math.min(a.getBlockY(), b.getBlockY()), Math.min(a.getBlockZ(), b.getBlockZ()));
-        max = new BlockVector(Math.max(a.getBlockX(), b.getBlockX()), Math.max(a.getBlockY(), b.getBlockY()), Math.max(a.getBlockZ(), b.getBlockZ()));
+        BlockVector min = new BlockVector(Math.min(a.getBlockX(), b.getBlockX()), Math.min(a.getBlockY(), b.getBlockY()), Math.min(a.getBlockZ(), b.getBlockZ()));
+        BlockVector max = new BlockVector(Math.max(a.getBlockX(), b.getBlockX()), Math.max(a.getBlockY(), b.getBlockY()), Math.max(a.getBlockZ(), b.getBlockZ()));
 
         switch (direction) {
             case NORTH, SOUTH -> {
-                this.width = max.getBlockX() - min.getBlockX() + 1;
-                this.height = max.getBlockY() - min.getBlockY() + 1;
+                max.setX(max.getBlockX() + 1);
+                max.setY(max.getBlockY() + 1);
+
+                this.width = max.getBlockX() - min.getBlockX();
+                this.height = max.getBlockY() - min.getBlockY();
 
                 frames = new Frame[width * height];
 
-                if (direction == BlockFace.SOUTH) {
-                    max.setX(min.getBlockX());
-                }
-
-                byte factor = (byte) (direction.equals(BlockFace.SOUTH) ? 1 : -1);
                 for (int i = 0; i < frames.length; i++) {
                     int x = i % width;
                     int y = i / width;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(max.getBlockX() + factor * x, max.getBlockY() - y, max.getBlockZ()));
+                    frames[i] = new Frame(plugin, direction, new BlockVector(min.getBlockX() + x, min.getBlockY() + y, max.getBlockZ()));
+                }
+
+                if (direction == BlockFace.NORTH) {
+                    min.setZ(min.getBlockZ() + 1);
+                    max.setZ(max.getBlockZ() + 1);
                 }
             }
             case EAST, WEST -> {
-                this.width = max.getBlockZ() - min.getBlockZ() + 1;
-                this.height = max.getBlockY() - min.getBlockY() + 1;
+                max.setY(max.getBlockY() + 1);
+                max.setZ(max.getBlockZ() + 1);
+
+                this.width = max.getBlockZ() - min.getBlockZ();
+                this.height = max.getBlockY() - min.getBlockY();
                 frames = new Frame[width * height];
 
-                if (direction.equals(BlockFace.WEST)) {
-                    max.setZ(min.getBlockZ());
-                }
-
-                byte factor = (byte) (direction.equals(BlockFace.WEST) ? 1 : -1);
                 for (int i = 0; i < frames.length; i++) {
                     int z = i % width;
                     int y = i / width;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(max.getBlockX(), max.getBlockY() - y, max.getBlockZ() + factor * z));
+                    frames[i] = new Frame(plugin, direction, new BlockVector(max.getBlockX(), min.getBlockY() + y, min.getBlockZ() + z));
+                }
+
+                if (direction == BlockFace.WEST) {
+                    min.setX(min.getBlockX() + 1);
+                    max.setX(max.getBlockX() + 1);
                 }
             }
 
             case UP, DOWN -> {
-                this.width = max.getBlockX() - min.getBlockX() + 1;
-                this.height = max.getBlockZ() - min.getBlockZ() + 1;
+                max.setX(max.getBlockX() + 1);
+                max.setZ(max.getBlockZ() + 1);
+
+                this.width = max.getBlockX() - min.getBlockX();
+                this.height = max.getBlockZ() - min.getBlockZ();
                 frames = new Frame[width * height];
 
-                if (direction.equals(BlockFace.UP)) {
-                    max.setZ(min.getBlockZ());
-                }
-                byte factor = (byte) (direction.equals(BlockFace.UP) ? 1 : -1);
                 for (int i = 0; i < frames.length; i++) {
                     int x = i % width;
                     int z = i / width;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(max.getBlockX() + x, max.getBlockY(), max.getBlockZ() + factor * z));
+                    frames[i] = new Frame(plugin, direction, new BlockVector(min.getBlockX() + x, max.getBlockY(), min.getBlockZ() + z));
                 }
             }
             default -> throw new IllegalArgumentException("Unknown direction: " + direction);
         }
         this.box = BoundingBox.of(min, max);
+
+        switch (direction) {
+            case NORTH -> interactionBox = box.clone().shift(0, 0, -Frame.INVISIBLE_MAP_DEPTH);
+            case SOUTH -> interactionBox = box.clone().shift(0, 0, Frame.INVISIBLE_MAP_DEPTH);
+            case EAST -> interactionBox = box.clone().shift(Frame.INVISIBLE_MAP_DEPTH, 0, 0);
+            case WEST -> interactionBox = box.clone().shift(-Frame.INVISIBLE_MAP_DEPTH, 0, 0);
+            case UP -> interactionBox = box.clone().shift(0, Frame.INVISIBLE_MAP_DEPTH, 0);
+            case DOWN -> interactionBox = box.clone().shift(0, -Frame.INVISIBLE_MAP_DEPTH, 0);
+            default -> throw new IllegalArgumentException("Unknown direction: " + direction);
+        }
     }
 
     @Override
@@ -98,6 +109,16 @@ public class FrameContainer implements IMapDisplay {
     @Override
     public int height() {
         return height;
+    }
+
+    @Override
+    public int pixelWidth() {
+        return width * 128;
+    }
+
+    @Override
+    public int pixelHeight() {
+        return height * 128;
     }
 
     @Override
@@ -114,7 +135,9 @@ public class FrameContainer implements IMapDisplay {
     public void spawn(Player player) {
         for (Frame frame : frames) {
             frame.spawnPacket().send(player);
-            frame.setIdPacket(0, false).send(player);
+            frame.interactionEntity().send(player);
+            frame.interactionEntitySize().send(player);
+            frame.setIdPacket(0, true).send(player);
         }
         plugin.platform().flush(player);
     }
@@ -124,7 +147,9 @@ public class FrameContainer implements IMapDisplay {
         IntList ids = new IntArrayList();
         for (Frame frame : frames) {
             ids.add(frame.entityId);
+            ids.add(frame.interactionId);
         }
+
         plugin.platform().createRemoveEntitiesPacket(ids).send(player);
         plugin.platform().flush(player);
     }
@@ -162,6 +187,15 @@ public class FrameContainer implements IMapDisplay {
         return false;
     }
 
+    public boolean isInteraction(int entityId) {
+        for (Frame frame : frames) {
+            if (frame.interactionId == entityId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean hasBlock(BlockVector blockVector) {
         for (Frame frame : frames) {
             if (frame.pos.equals(blockVector)) {
@@ -171,68 +205,7 @@ public class FrameContainer implements IMapDisplay {
         return false;
     }
 
-    public Vector locOfFrame(int entityId) {
-        for (Frame frame : frames) {
-            if (frame.entityId == entityId) {
-                return frame.pos;
-            }
-        }
-        return null;
-    }
-
-    public Vec2i absolute(Vector vector) {
-        Vector interactPoint = MapUtil.itemFrameOffset(vector, direction);
-        BlockVector realBlockVector = MapUtil.toRealBlockVector(interactPoint);
-
-        Vector relativeInteractPoint = realBlockVector.subtract(interactPoint);
-
-        relativeInteractPoint.setX(Math.abs(relativeInteractPoint.getX()));
-        relativeInteractPoint.setY(Math.abs(relativeInteractPoint.getY()));
-        relativeInteractPoint.setZ(Math.abs(relativeInteractPoint.getZ()));
-
-        int relativeX = 0;
-        int relativeY = 0;
-        switch (direction) {
-            case NORTH -> {
-                relativeX = 128 - (int) (relativeInteractPoint.getX() * 128);
-                relativeY = 128 - (int) (relativeInteractPoint.getY() * 128);
-            }
-            case SOUTH -> {
-                relativeX = (int) (relativeInteractPoint.getX() * 128);
-                relativeY = 128 - (int) (relativeInteractPoint.getY() * 128);
-            }
-            case WEST -> {
-                relativeX = (int) (relativeInteractPoint.getZ() * 128);
-                relativeY = 128 - (int) (relativeInteractPoint.getY() * 128);
-            }
-            case EAST -> {
-                relativeX = 128 - (int) (relativeInteractPoint.getZ() * 128);
-                relativeY = 128 - (int) (relativeInteractPoint.getY() * 128);
-            }
-        }
-        int[] absolute = addTileOffset(interactPoint, relativeX, relativeY);
-        return new Vec2i(absolute[0], absolute[1]);
-    }
-
-    public int[] addTileOffset(Vector pos, int rx, int ry) {
-        Vector offset = MapUtil.toRealBlockVector(switch (direction) {
-            case EAST, NORTH, UP, DOWN -> max;
-            case WEST, SOUTH -> min.clone().setY(max.getBlockY());
-            default -> throw new IllegalArgumentException("Unknown direction - How did you get here?");
-        }).subtract(MapUtil.toRealBlockVector(pos));
-
-        MapUtil.absVector(offset);
-        switch (direction) {
-            case NORTH, SOUTH -> {
-                return new int[]{offset.getBlockX() * 128 + rx, offset.getBlockY() * 128 + ry};
-            }
-            case EAST, WEST -> {
-                return new int[]{offset.getBlockZ() * 128 + rx, offset.getBlockY() * 128 + ry};
-            }
-            case UP, DOWN -> {
-                return new int[]{offset.getBlockX() * 128 + rx, offset.getBlockZ() * 128 + ry};
-            }
-            default -> throw new IllegalArgumentException("Unknown direction - How did you get here?");
-        }
+    public BoundingBox interactionBox() {
+        return interactionBox;
     }
 }

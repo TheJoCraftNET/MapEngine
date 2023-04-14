@@ -1,5 +1,6 @@
 package de.pianoman911.mapengine.core.util;
 
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -9,30 +10,8 @@ import org.bukkit.util.Vector;
 public class RayTraceUtil {
 
     private static final double CLIP_THRESHOLD = 1e-7;
-    private static final double FRAME_SHIT_OFFSET = 0.03125d; // <:mojank:897231139259973673>
 
-    private static final double FRAME_HWIDTH = 0.375d;
-    private static final double FRAME_HHEIGHT = 0.03125d;
-
-    public static BoundingBox createFrameBBox(Vector frameLocation, BlockFace facing) {
-        double centerX = frameLocation.getX() + (facing.getModX() != 0d ? facing.getModX() * FRAME_SHIT_OFFSET : 0.5d);
-        double centerY = frameLocation.getY() + (facing.getModY() != 0d ? facing.getModY() * FRAME_SHIT_OFFSET : 0.5d);
-        double centerZ = frameLocation.getZ() + (facing.getModZ() != 0d ? facing.getModZ() * FRAME_SHIT_OFFSET : 0.5d);
-
-        double sizeX = FRAME_HWIDTH, sizeY = FRAME_HHEIGHT, sizeZ = FRAME_HWIDTH;
-        if (facing.getModY() == 0d) { // neither top nor down, special handling
-            sizeY = FRAME_HWIDTH;
-            if (facing.getModX() == 0d) { // check if north/south
-                sizeZ = FRAME_HHEIGHT;
-            } else { // else assume east/west
-                sizeX = FRAME_HHEIGHT;
-            }
-        }
-
-        return new BoundingBox(centerX - sizeX, centerY - sizeY, centerZ - sizeZ, centerX + sizeX, centerY + sizeY, centerZ + sizeZ);
-    }
-
-    public static Location clipBox(Player player, BoundingBox targetBox, double maxDistance) {
+    public static Pair<Vector, BlockFace> clipBox(Player player, BoundingBox targetBox, double maxDistance) {
         Location startLoc = player.getEyeLocation();
         Vector viewVec = startLoc.toVector();
         Vector endLoc = viewVec.clone();
@@ -80,7 +59,7 @@ public class RayTraceUtil {
         }
 
         double dist = distArr[0];
-        return startLoc.clone().add(dist * diffX, dist * diffY, dist * diffZ);
+        return Pair.of(startLoc.toVector().add(new Vector(dist * diffX, dist * diffY, dist * diffZ)), clippedBs);
     }
 
     // idk what the fuck this does, i just pressed CTRL+C and CTRL+V (AABB#clipPoint)

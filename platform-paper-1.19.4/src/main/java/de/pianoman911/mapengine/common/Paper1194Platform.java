@@ -36,6 +36,7 @@ import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,8 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
 
     private static final Entity FAKED_ENTITY = new ThrownEgg(MinecraftServer.getServer().overworld(), 0, 0, 0);
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
+    private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_WIDTH_ID = EntityDataSerializers.FLOAT.createAccessor(8);
+    private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_HEIGHT_ID = EntityDataSerializers.FLOAT.createAccessor(9);
 
     private final IListenerBridge bridge;
 
@@ -138,5 +141,27 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
     @Override
     public PacketContainer<Packet<ClientGamePacketListener>> createRemoveEntitiesPacket(IntList entityIds) {
         return PacketContainer.wrap(this, new ClientboundRemoveEntitiesPacket(entityIds));
+    }
+
+    @Override
+    public PacketContainer<?> createInteractionEntitySpawnPacket(int interactionId, Vector pos, BlockFace direction) {
+        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(interactionId, UUID.randomUUID(),
+                pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.INTERACTION, 0, Vec3.ZERO, 0));
+    }
+
+    @Override
+    public PacketContainer<?> createInteractionEntityBlockSizePacket(int interactionId) {
+        SynchedEntityData entityData = new SynchedEntityData(FAKED_ENTITY);
+
+        entityData.define(DATA_INTERACTION_BOX_WIDTH_ID, 0f); // default
+        entityData.set(DATA_INTERACTION_BOX_WIDTH_ID, 1f);
+
+        entityData.define(DATA_INTERACTION_BOX_HEIGHT_ID, 0f); // default
+        entityData.set(DATA_INTERACTION_BOX_HEIGHT_ID, 1f);
+
+        entityData.define(DATA_SHARED_FLAGS_ID, (byte) 0x00); // default
+        entityData.set(DATA_SHARED_FLAGS_ID, (byte) 0x20); // invisible
+
+        return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(interactionId, Objects.requireNonNull(entityData.packDirty())));
     }
 }

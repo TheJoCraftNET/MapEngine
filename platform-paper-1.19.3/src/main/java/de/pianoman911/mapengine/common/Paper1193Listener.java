@@ -39,12 +39,12 @@ public final class Paper1193Listener extends MessageToMessageDecoder<Packet<?>> 
 
     @Override
     public void onInteraction(@NotNull InteractionHand hand) {
-        this.bridge.handleInteract(this.player, this.entityId);
+        // onInteraction(InteractionHand, Vec3) is called instead
     }
 
     @Override
     public void onInteraction(@NotNull InteractionHand hand, Vec3 pos) {
-        this.bridge.handleInteract(this.player, this.entityId, pos.x, pos.y, pos.z);
+       this.bridge.handleInteract(this.player, this.entityId, pos.x, pos.y, pos.z);
     }
 
     @Override

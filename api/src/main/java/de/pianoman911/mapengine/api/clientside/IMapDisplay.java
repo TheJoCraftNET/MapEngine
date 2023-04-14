@@ -13,6 +13,10 @@ public interface IMapDisplay {
 
     int height();
 
+    int pixelWidth();
+
+    int pixelHeight();
+
     BoundingBox box();
 
     BlockFace direction();

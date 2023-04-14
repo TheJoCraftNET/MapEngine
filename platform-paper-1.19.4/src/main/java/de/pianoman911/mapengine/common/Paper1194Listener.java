@@ -5,6 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.entity.Player;
@@ -26,20 +29,21 @@ public final class Paper1194Listener extends MessageToMessageDecoder<Packet<?>> 
 
     @Override
     public boolean acceptInboundMessage(Object msg) {
-        return msg instanceof ServerboundInteractPacket;
+        return msg instanceof ServerboundInteractPacket || msg instanceof ServerboundUseItemPacket || msg instanceof ServerboundUseItemOnPacket || msg instanceof ServerboundSwingPacket;
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, Packet<?> msg, List<Object> out) {
-        ServerboundInteractPacket packet = (ServerboundInteractPacket) msg;
-        this.entityId = packet.getEntityId();
-        packet.dispatch(this);
+        if (msg instanceof ServerboundInteractPacket interactPacket) {
+            this.entityId = interactPacket.getEntityId();
+            interactPacket.dispatch(this);
+        }
         out.add(msg);
     }
 
     @Override
     public void onInteraction(@NotNull InteractionHand hand) {
-        this.bridge.handleInteract(this.player, this.entityId);
+        // onInteraction(InteractionHand, Vec3) is called instead
     }
 
     @Override

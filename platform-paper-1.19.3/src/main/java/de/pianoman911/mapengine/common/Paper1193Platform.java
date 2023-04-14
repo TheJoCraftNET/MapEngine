@@ -36,6 +36,7 @@ import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
 
     private static final Entity FAKED_ENTITY = new ThrownEgg(MinecraftServer.getServer().overworld(), 0, 0, 0);
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
+    private static final EntityDataAccessor<Integer> SLIME_SIZE = EntityDataSerializers.INT.createAccessor(16);
 
     private final IListenerBridge bridge;
 
@@ -68,7 +70,7 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public void sendPacket(Player player, PacketContainer<Packet<ClientGamePacketListener>> packet) {
-         ((CraftPlayer) player).getHandle().connection.connection.channel.write(packet.getPacket());
+        ((CraftPlayer) player).getHandle().connection.connection.channel.write(packet.getPacket());
     }
 
     @Override
@@ -138,5 +140,24 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
     @Override
     public PacketContainer<Packet<ClientGamePacketListener>> createRemoveEntitiesPacket(IntList entityIds) {
         return PacketContainer.wrap(this, new ClientboundRemoveEntitiesPacket(entityIds));
+    }
+
+    @Override
+    public PacketContainer<?> createInteractionEntitySpawnPacket(int interactionId, Vector pos, BlockFace direction) {
+        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(interactionId, UUID.randomUUID(),
+                pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.SLIME, 0, Vec3.ZERO, 0));
+    }
+
+    @Override
+    public PacketContainer<?> createInteractionEntityBlockSizePacket(int interactionId) {
+        SynchedEntityData entityData = new SynchedEntityData(FAKED_ENTITY);
+
+        entityData.define(SLIME_SIZE, 1); // default
+        entityData.set(SLIME_SIZE, 2); // 2x0.5202 = 1.0404 (1x1 block) Not perfect, but close enough. Use >= 1.19.4 for better accuracy.
+
+        entityData.define(DATA_SHARED_FLAGS_ID, (byte) 0x00); // default
+        entityData.set(DATA_SHARED_FLAGS_ID, (byte) 0x20); // invisible
+
+        return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(interactionId, Objects.requireNonNull(entityData.packDirty())));
     }
 }
