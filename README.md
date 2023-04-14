@@ -72,7 +72,7 @@ The Stream source is 1920x1080@20 streamed with OBS.
     <dependency>
         <groupId>de.pianoman911</groupId>
         <artifactId>mapengine-api</artifactId>
-        <version>1.4.5</version>
+        <version>1.4.6</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -92,7 +92,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'de.pianoman911:mapengine-api:1.4.5'
+    compileOnly 'de.pianoman911:mapengine-api:1.4.6'
 }
 ```
 
@@ -109,7 +109,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("de.pianoman911:mapengine-api:1.4.5")
+    compileOnly("de.pianoman911:mapengine-api:1.4.6")
 }
 ```
 
