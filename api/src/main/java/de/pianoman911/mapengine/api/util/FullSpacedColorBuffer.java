@@ -107,11 +107,8 @@ public class FullSpacedColorBuffer {
                 }
                 if (smooth) {
                     int color = data[scrIndex];
-                    int alpha = (color >> 24) & 0xFF;
-                    if (alpha == 0) {
-                        continue;
-                    }
 
+                    int alpha = (color >> 24) & 0xFF;
                     int red = (color >> 16) & 0xFF;
                     int green = (color >> 8) & 0xFF;
                     int blue = color & 0xFF;
@@ -119,36 +116,34 @@ public class FullSpacedColorBuffer {
                     int count = 1;
                     if (scrX + 1 < width) {
                         color = data[scrIndex + 1];
-                        alpha = (color >> 24) & 0xFF;
-                        if (alpha != 0) {
-                            red += (color >> 16) & 0xFF;
-                            green += (color >> 8) & 0xFF;
-                            blue += color & 0xFF;
-                            count++;
-                        }
+
+                        alpha += (color >> 24) & 0xFF;
+                        red += (color >> 16) & 0xFF;
+                        green += (color >> 8) & 0xFF;
+                        blue += color & 0xFF;
+                        count++;
+
                     }
                     if (scrY + 1 < height) {
                         color = data[scrIndex + width];
-                        alpha = (color >> 24) & 0xFF;
-                        if (alpha != 0) {
-                            red += (color >> 16) & 0xFF;
-                            green += (color >> 8) & 0xFF;
-                            blue += color & 0xFF;
-                            count++;
-                        }
+
+                        alpha += (color >> 24) & 0xFF;
+                        red += (color >> 16) & 0xFF;
+                        green += (color >> 8) & 0xFF;
+                        blue += color & 0xFF;
+                        count++;
                     }
                     if (scrX + 1 < width && scrY + 1 < height) {
                         color = data[scrIndex + width + 1];
-                        alpha = (color >> 24) & 0xFF;
-                        if (alpha != 0) {
-                            red += (color >> 16) & 0xFF;
-                            green += (color >> 8) & 0xFF;
-                            blue += color & 0xFF;
-                            count++;
-                        }
+
+                        alpha += (color >> 24) & 0xFF;
+                        red += (color >> 16) & 0xFF;
+                        green += (color >> 8) & 0xFF;
+                        blue += color & 0xFF;
+                        count++;
                     }
 
-                    newData[x + y * newWidth] = (alpha << 24) | ((red / count) << 16) | ((green / count) << 8) | (blue / count);
+                    newData[x + y * newWidth] = ((alpha / count) << 24) | ((red / count) << 16) | ((green / count) << 8) | (blue / count);
                 } else {
                     newData[x + y * newWidth] = data[scrIndex];
                 }
@@ -157,7 +152,6 @@ public class FullSpacedColorBuffer {
 
         return new FullSpacedColorBuffer(newData, newWidth, newHeight);
     }
-
 
     public FullSpacedColorBuffer rotate(Rotation rotation) {
         int newWidth = rotation == Rotation.CLOCKWISE || rotation == Rotation.COUNTER_CLOCKWISE ? height : width;
@@ -189,8 +183,14 @@ public class FullSpacedColorBuffer {
         return new FullSpacedColorBuffer(newData, newWidth, newHeight);
     }
 
+    public FullSpacedColorBuffer applySuperSampling(int factor) {
+        FullSpacedColorBuffer buffer = new FullSpacedColorBuffer(width + 2 * factor, height + 2 * factor);
+        buffer.buffer(this, factor, factor);
+        return buffer.scale(factor, true).scale(1.0 / factor, true);
+    }
+
     public FullSpacedColorBuffer scale(int newWidth, int newHeight, boolean smooth) {
-        return scale((double) width / newWidth, (double) height / newHeight, smooth);
+        return scale((double) newWidth / width, (double) newHeight / height, smooth);
     }
 
     public BufferedImage snapshot() {
