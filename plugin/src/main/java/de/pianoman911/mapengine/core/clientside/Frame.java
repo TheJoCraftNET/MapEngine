@@ -49,6 +49,14 @@ public class Frame extends FilledMap {
                 interactionPos = new Vector(pos.getX() + 0.5, pos.getY(), pos.getZ() - 0.5);
                 interactionPos.setZ(interactionPos.getZ() + INTERACTION_OFFSET);
             }
+            case UP -> {
+                interactionPos = new Vector(pos.getX() + 0.5, pos.getY() - 1, pos.getZ() + 0.5);
+                interactionPos.setY(interactionPos.getY() + INTERACTION_OFFSET);
+            }
+            case DOWN -> {
+                interactionPos = new Vector(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
+                interactionPos.setY(interactionPos.getY() - INTERACTION_OFFSET);
+            }
             default -> throw new IllegalStateException("Unexpected value: " + direction);
         }
         return plugin.platform().createInteractionEntitySpawnPacket(interactionId, interactionPos, direction);

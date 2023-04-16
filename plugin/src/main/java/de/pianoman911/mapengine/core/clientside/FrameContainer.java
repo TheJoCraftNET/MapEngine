@@ -88,8 +88,8 @@ public class FrameContainer implements IMapDisplay {
                     int x = i % width;
                     int z = i / width;
 
-                    x = direction == BlockFace.UP ? max.getBlockX() - x - 1 : min.getBlockX() + x;
-                    frames[i] = new Frame(plugin, direction, new BlockVector(x, max.getBlockY(), max.getBlockZ() - z - 1));
+                    z = direction == BlockFace.DOWN ? max.getBlockZ() - z - 1 : min.getBlockZ() + z;
+                    frames[i] = new Frame(plugin, direction, new BlockVector(min.getBlockX() + x, max.getBlockY(), z));
                 }
             }
             default -> throw new IllegalArgumentException("Unknown direction: " + direction);

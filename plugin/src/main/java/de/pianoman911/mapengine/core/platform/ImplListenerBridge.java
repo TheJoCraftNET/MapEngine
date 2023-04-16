@@ -73,6 +73,14 @@ public final class ImplListenerBridge implements IListenerBridge {
                 x = (int) ((map.width() - (posX + map.width() / 2.0)) * 128);
                 y = (int) ((map.height() - posY) * 128);
             }
+            case UP -> {
+                x = (int) ((posX + map.width() / 2.0) * 128);
+                y = (int) ((posZ + map.height() / 2.0) * 128);
+            }
+            case DOWN -> {
+                x = (int) ((posX + map.width() / 2.0) * 128);
+                y = (int) ((map.height() - (posZ + map.height() / 2.0)) * 128);
+            }
 
             default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());
         }
@@ -92,6 +100,8 @@ public final class ImplListenerBridge implements IListenerBridge {
             case WEST -> posX <= -0.5 + Frame.INTERACTION_OFFSET;
             case SOUTH -> posZ >= 0.5 - Frame.INTERACTION_OFFSET;
             case NORTH -> posZ <= -0.5 + Frame.INTERACTION_OFFSET;
+            case UP -> posY >= 1 - Frame.INTERACTION_OFFSET;
+            case DOWN -> posY <= 0 + Frame.INTERACTION_OFFSET;
             default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());
         }) {
             executeAtExactPosition(player, map, MapClickType.RIGHT_CLICK);
