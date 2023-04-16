@@ -1,0 +1,5 @@
+config-version: 1
+updater:
+  enabled: true
+  notify-admins: true
+  interval-hours: 24

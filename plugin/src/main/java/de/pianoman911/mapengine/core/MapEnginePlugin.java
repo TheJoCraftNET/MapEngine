@@ -8,6 +8,7 @@ import de.pianoman911.mapengine.core.map.HoldableManager;
 import de.pianoman911.mapengine.core.map.MapManager;
 import de.pianoman911.mapengine.core.platform.ImplListenerBridge;
 import de.pianoman911.mapengine.core.platform.PlatformUtil;
+import de.pianoman911.mapengine.core.updater.MapEngineUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
@@ -28,6 +29,8 @@ public class MapEnginePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
+
         this.platform = PlatformUtil.getPlatform(this, this.getClassLoader(), new ImplListenerBridge(this));
         this.colorPalette = new ColorPalette(this);
 
@@ -36,6 +39,11 @@ public class MapEnginePlugin extends JavaPlugin {
 
         this.api = new ImplMapEngineApi(this);
         Bukkit.getServicesManager().register(MapEngineApi.class, this.api, this, ServicePriority.Normal);
+
+        if (this.getConfig().getBoolean("updater.enabled", true)) {
+            MapEngineUpdater updater = new MapEngineUpdater(this);
+            Bukkit.getPluginManager().registerEvents(updater, this);
+        }
     }
 
     public IPlatform<?> platform() {
