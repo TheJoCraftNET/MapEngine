@@ -49,6 +49,7 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
     private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_WIDTH_ID = EntityDataSerializers.FLOAT.createAccessor(8);
     private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_HEIGHT_ID = EntityDataSerializers.FLOAT.createAccessor(9);
+    private static final EntityDataAccessor<Boolean> DATA_INTERACTION_BOX_RESPONSIVE_ID = EntityDataSerializers.BOOLEAN.createAccessor(10);
 
     private final IListenerBridge bridge;
 
@@ -158,6 +159,9 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
 
         entityData.define(DATA_INTERACTION_BOX_HEIGHT_ID, 0f); // default
         entityData.set(DATA_INTERACTION_BOX_HEIGHT_ID, 1f);
+
+        entityData.define(DATA_INTERACTION_BOX_RESPONSIVE_ID, false); // default
+        entityData.set(DATA_INTERACTION_BOX_RESPONSIVE_ID, true);
 
         entityData.define(DATA_SHARED_FLAGS_ID, (byte) 0x00); // default
         entityData.set(DATA_SHARED_FLAGS_ID, (byte) 0x20); // invisible
