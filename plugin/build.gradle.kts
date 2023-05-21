@@ -16,7 +16,8 @@ dependencies {
 
     api(project(":platform-common"))
     api("org.bstats:bstats-bukkit:3.0.2")
-    api("com.google.code.gson:gson:2.10.1")
+
+    compileOnlyApi("com.google.code.gson:gson:2.10.1")
 }
 
 val gitHash = git("rev-parse --short HEAD")
