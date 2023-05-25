@@ -43,31 +43,52 @@ public class FullSpacedColorBuffer {
     }
 
     public void pixel(int x, int y, int newColor) {
-        int newAlpha = (newColor >> 24) & 0xFF;
-        if (newAlpha == 255) {
+        float newAlpha = ((newColor >> 24) & 0xFF) / 255f;
+        if (newAlpha == 1f) {
             // completely opaque pixel, overwrite
             this.data[x + y * width()] = newColor;
             return;
         }
 
-        if (newAlpha == 0) {
+        if (newAlpha == 0f) {
             // if pixel is completely transparent, do nothing
             return;
         }
 
-        // 0 < newAlpha < 255 -> alpha blending
+        // neither full pixel nor completely empty pixel, needs blending
+        float newRed = ((newColor >> 16) & 0xFF) / 255f;
+        float newGreen = ((newColor >> 8) & 0xFF) / 255f;
+        float newBlue = (newColor & 0xFF) / 255f;
 
         int colorIndex = x + y * width();
         int oldColor = this.data[colorIndex];
-        int oldAlpha = (oldColor >> 24) & 0xFF;
+        float oldAlpha = ((oldColor >> 24) & 0xFF) / 255f;
+        float oldRed = ((oldColor >> 16) & 0xFF) / 255f;
+        float oldGreen = ((oldColor >> 8) & 0xFF) / 255f;
+        float oldBlue = (oldColor & 0xFF) / 255f;
 
         // actual alpha blending
-        int alpha = 255 - ((255 - oldAlpha) * (255 - newAlpha)) / 255;
-        int red = (((oldColor >> 16) & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255) + (((newColor >> 16) & 0xFF) * newAlpha * alpha) / (255 * 255);
-        int green = (((oldColor >> 8) & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255) + (((newColor >> 8) & 0xFF) * newAlpha * alpha) / (255 * 255);
-        int blue = ((oldColor & 0xFF) * oldAlpha * (255 - newAlpha)) / (255 * 255) + ((newColor & 0xFF) * newAlpha * alpha) / (255 * 255);
+        float alpha = newAlpha + oldAlpha * (1f - newAlpha);
+        float red = fromSrgb((toSrgb(newRed) * newAlpha + toSrgb(oldRed) * oldAlpha * (1f - newAlpha)) / alpha);
+        float green = fromSrgb((toSrgb(newGreen) * newAlpha + toSrgb(oldGreen) * oldAlpha * (1f - newAlpha)) / alpha);
+        float blue = fromSrgb((toSrgb(newBlue) * newAlpha + toSrgb(oldBlue) * oldAlpha * (1f - newAlpha)) / alpha);
 
-        this.data[colorIndex] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+        this.data[colorIndex] = ((int) (alpha * 255) << 24) | ((int) (red * 255) << 16)
+                | ((int) (green * 255) << 8) | (int) (blue * 255);
+    }
+
+    private float toSrgb(float val) {
+        if (val <= 0.03928f) {
+            return val / 12.92f;
+        }
+        return (float) Math.pow((val + 0.055f) / 1.055f, 2.4f);
+    }
+
+    private float fromSrgb(float srgb) {
+        if (srgb <= 0.00304f) {
+            return 12.92f * srgb;
+        }
+        return 1.055f * (float) Math.pow(srgb, 1f / 2.4f) - 0.055f;
     }
 
     public void pixels(int[] pixels, int x, int y, int width, int height) {
