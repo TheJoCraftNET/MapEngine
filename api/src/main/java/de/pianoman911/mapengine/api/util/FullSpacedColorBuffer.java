@@ -199,6 +199,14 @@ public class FullSpacedColorBuffer {
         return image;
     }
 
+    public FullSpacedColorBuffer subBuffer(int x, int y, int width, int height) {
+        int[] newData = new int[width * height];
+        for (int h = 0; h < height; h++) {
+            System.arraycopy(data, (x + (y + h) * this.width), newData, h * width, width);
+        }
+        return new FullSpacedColorBuffer(newData, width, height);
+    }
+
     public FullSpacedColorBuffer copy() {
         return new FullSpacedColorBuffer(data.clone(), width, height);
     }
