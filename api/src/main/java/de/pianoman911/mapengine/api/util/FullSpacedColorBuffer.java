@@ -43,14 +43,14 @@ public class FullSpacedColorBuffer {
     }
 
     public void pixel(int x, int y, int newColor) {
-        float newAlpha = ((newColor >> 24) & 0xFF) / 255f;
-        if (newAlpha == 1f) {
+        int newAlpha = ((newColor >> 24) & 0xFF);
+        if (newAlpha == 255) {
             // completely opaque pixel, overwrite
             this.data[x + y * width()] = newColor;
             return;
         }
 
-        if (newAlpha == 0f) {
+        if (newAlpha == 0) {
             // if pixel is completely transparent, do nothing
             return;
         }
@@ -67,28 +67,40 @@ public class FullSpacedColorBuffer {
         float oldGreen = ((oldColor >> 8) & 0xFF) / 255f;
         float oldBlue = (oldColor & 0xFF) / 255f;
 
-        // actual alpha blending
-        float alpha = newAlpha + oldAlpha * (1f - newAlpha);
-        float red = fromSrgb((toSrgb(newRed) * newAlpha + toSrgb(oldRed) * oldAlpha * (1f - newAlpha)) / alpha);
-        float green = fromSrgb((toSrgb(newGreen) * newAlpha + toSrgb(oldGreen) * oldAlpha * (1f - newAlpha)) / alpha);
-        float blue = fromSrgb((toSrgb(newBlue) * newAlpha + toSrgb(oldBlue) * oldAlpha * (1f - newAlpha)) / alpha);
+        // mix alpha channels
+        float newAlphaF = newAlpha / 255f;
+        float alpha = newAlphaF + (oldAlpha * (1f - newAlphaF));
 
-        this.data[colorIndex] = ((int) (alpha * 255) << 24) | ((int) (red * 255) << 16)
-                | ((int) (green * 255) << 8) | (int) (blue * 255);
+        // mix colors
+        int red = srgb2linearByte((linearFloat2srgb(newRed) * newAlphaF + linearFloat2srgb(oldRed) * oldAlpha * (1f - newAlphaF)) / alpha);
+        int green = srgb2linearByte((linearFloat2srgb(newGreen) * newAlphaF + linearFloat2srgb(oldGreen) * oldAlpha * (1f - newAlphaF)) / alpha);
+        int blue = srgb2linearByte((linearFloat2srgb(newBlue) * newAlphaF + linearFloat2srgb(oldBlue) * oldAlpha * (1f - newAlphaF)) / alpha);
+
+        this.data[colorIndex] = ((int) (alpha * 255f) << 24) | (red << 16) | (green << 8) | blue;
     }
 
-    private float toSrgb(float val) {
-        if (val <= 0.03928f) {
-            return val / 12.92f;
+    // see https://www.w3.org/Graphics/Color/sRGB.html section "Colorimetric definitions and digital encodings"
+    //
+    // this is adjusted to be faster, which means that it
+    // is technically incorrect. in reality, no one cares
+
+    private static float linearFloat2srgb(float val) {
+        // this linear function is based on the original graph and
+        // fixes really bright colors as a "side effect"
+        if (val >= 0.938f) {
+            return val * 2.2f - 1.2f;
         }
-        return (float) Math.pow((val + 0.055f) / 1.055f, 2.4f);
+
+        float adjustedVal = val - 0.015f;
+        return adjustedVal * adjustedVal;
     }
 
-    private float fromSrgb(float srgb) {
-        if (srgb <= 0.00304f) {
-            return 12.92f * srgb;
+    private static int srgb2linearByte(float srgb) {
+        // see above method for reason
+        if (srgb >= 0.8636f) {
+            return (int) ((srgb + 1.2f) / (2.2f / 255f));
         }
-        return 1.055f * (float) Math.pow(srgb, 1f / 2.4f) - 0.055f;
+        return (int) ((Math.sqrt(srgb) + 0.015f) * 255f);
     }
 
     public void pixels(int[] pixels, int x, int y, int width, int height) {
