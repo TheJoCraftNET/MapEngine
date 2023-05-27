@@ -7,13 +7,12 @@ import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import org.bukkit.map.MapCursorCollection;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class FilledMap {
 
     // start counting down at -32768 for compatibility with other map plugins
-    protected static final AtomicInteger CURRENT_ID = new AtomicInteger(-Short.MAX_VALUE);
-    protected final Int2IntMap mapIds = new Int2IntArrayMap();
+    private static volatile int CURRENT_ID = -Short.MAX_VALUE;
+    private final Int2IntMap mapIds = new Int2IntArrayMap();
+
     protected final MapEnginePlugin plugin;
 
     public FilledMap(MapEnginePlugin plugin) {
@@ -24,11 +23,10 @@ public class FilledMap {
         return plugin.platform().createMapDataPacket(data, fullData, mapId(z), cursors);
     }
 
+    // this method is synchronized and the field is only accessed inside this method,
+    // so this is actually thread-safe
+    @SuppressWarnings("NonAtomicOperationOnVolatileField")
     protected synchronized int mapId(int z) {
-        return mapIds.computeIfAbsent(z, k -> {
-            synchronized (CURRENT_ID) {
-                return CURRENT_ID.getAndDecrement();
-            }
-        });
+        return mapIds.computeIfAbsent(z, k -> CURRENT_ID--);
     }
 }
