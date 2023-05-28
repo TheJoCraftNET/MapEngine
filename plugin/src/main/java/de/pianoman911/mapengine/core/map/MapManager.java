@@ -1,6 +1,8 @@
 package de.pianoman911.mapengine.core.map;
 
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
+import de.pianoman911.mapengine.api.util.MapTraceResult;
+import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
@@ -47,7 +49,16 @@ public class MapManager {
         return displays;
     }
 
+    @Deprecated
     public IMapDisplay displayInView(Player player, int maxDistance) {
+        MapTraceResult result = traceDisplayInView(player, maxDistance);
+        if (result == null) {
+            return null;
+        }
+        return result.display();
+    }
+
+    public MapTraceResult traceDisplayInView(Player player, int maxDistance) {
         RayTraceResult result = player.rayTraceBlocks(maxDistance, FluidCollisionMode.NEVER);
         if (result == null) {
             return null;
@@ -66,8 +77,12 @@ public class MapManager {
             return null;
         }
 
-        result.getHitPosition();
-        return display;
+        Vec2i clickPos = MapUtil.calculateClickPosition(player, display);
+        if (clickPos == null) {
+            return null;
+        }
+
+        return new MapTraceResult(clickPos, display);
     }
 
     public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction) {

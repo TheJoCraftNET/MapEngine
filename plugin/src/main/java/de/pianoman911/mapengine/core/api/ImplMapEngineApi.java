@@ -13,6 +13,7 @@ import de.pianoman911.mapengine.api.pipeline.IPipelineOutput;
 import de.pianoman911.mapengine.api.pipeline.IPipelineProvider;
 import de.pianoman911.mapengine.api.pipeline.IPipelineStream;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
+import de.pianoman911.mapengine.api.util.MapTraceResult;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.drawing.DrawingSpace;
@@ -147,8 +148,14 @@ public class ImplMapEngineApi implements MapEngineApi {
         return Set.copyOf(plugin.holdableManager().displays());
     }
 
+    @Deprecated
     @Override
     public @Nullable IMapDisplay displayInView(Player player, int maxDistance) {
         return plugin.mapManager().displayInView(player, maxDistance);
+    }
+
+    @Override
+    public @Nullable MapTraceResult traceDisplayInView(Player player, int maxDistance) {
+        return plugin.mapManager().traceDisplayInView(player, maxDistance);
     }
 }

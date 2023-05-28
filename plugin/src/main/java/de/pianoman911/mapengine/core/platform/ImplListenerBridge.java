@@ -4,16 +4,13 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.pianoman911.mapengine.api.event.MapClickEvent;
 import de.pianoman911.mapengine.api.util.MapClickType;
+import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.Frame;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
-import de.pianoman911.mapengine.core.util.RayTraceUtil;
-import it.unimi.dsi.fastutil.Pair;
-import org.bukkit.GameMode;
-import org.bukkit.block.BlockFace;
+import de.pianoman911.mapengine.core.util.MapUtil;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.concurrent.TimeUnit;
 
@@ -42,49 +39,11 @@ public final class ImplListenerBridge implements IListenerBridge {
     }
 
     private void executeAtExactPosition(Player player, FrameContainer map, MapClickType type) {
-        Pair<Vector, BlockFace> clipped = RayTraceUtil.clipBox(player, map.interactionBox(),
-                player.getGameMode() == GameMode.CREATIVE ? 6f : 3f);
-        if (clipped == null || clipped.second() != map.direction()) {
-            return;
+        Vec2i clickPos = MapUtil.calculateClickPosition(player, map);
+
+        if (clickPos != null) {
+            new MapClickEvent(map, type, player, clickPos).callEvent();
         }
-
-        Vector clickedPos = clipped.left().subtract(map.interactionBox().getCenter().setY(map.box().getMinY()));
-        handleData(player, map, clickedPos.getX(), clickedPos.getY(), clickedPos.getZ(), type);
-    }
-
-    private void handleData(Player player, FrameContainer map, double posX, double posY, double posZ, MapClickType type) {
-        int x;
-        int y;
-
-        switch (map.direction()) {
-            case EAST -> {
-                x = (int) ((map.width() - (posZ + map.width() / 2.0)) * 128);
-                y = (int) ((map.height() - posY) * 128);
-            }
-            case WEST -> {
-                x = (int) ((posZ + map.width() / 2.0) * 128);
-                y = (int) ((map.height() - posY) * 128);
-            }
-            case SOUTH -> {
-                x = (int) ((posX + map.width() / 2.0) * 128);
-                y = (int) ((map.height() - posY) * 128);
-            }
-            case NORTH -> {
-                x = (int) ((map.width() - (posX + map.width() / 2.0)) * 128);
-                y = (int) ((map.height() - posY) * 128);
-            }
-            case UP -> {
-                x = (int) ((posX + map.width() / 2.0) * 128);
-                y = (int) ((posZ + map.height() / 2.0) * 128);
-            }
-            case DOWN -> {
-                x = (int) ((posX + map.width() / 2.0) * 128);
-                y = (int) ((map.height() - (posZ + map.height() / 2.0)) * 128);
-            }
-
-            default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());
-        }
-        new MapClickEvent(map, type, player, x, y).callEvent();
     }
 
     @Override
