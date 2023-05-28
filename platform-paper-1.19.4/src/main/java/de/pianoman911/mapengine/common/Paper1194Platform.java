@@ -4,14 +4,17 @@ import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.common.platform.PacketContainer;
+import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -167,5 +170,24 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
         entityData.set(DATA_SHARED_FLAGS_ID, (byte) 0x20); // invisible
 
         return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(interactionId, Objects.requireNonNull(entityData.packDirty())));
+    }
+
+    @Override
+    public PacketContainer<?> createTeleportPacket(int entityId, Vector pos, float yaw, float pitch, boolean onGround) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer(5 + Double.BYTES * 3 + 2 + 1));
+        ClientboundTeleportEntityPacket packet;
+        try {
+            buf.writeVarInt(entityId);
+            buf.writeDouble(pos.getX());
+            buf.writeDouble(pos.getY());
+            buf.writeDouble(pos.getZ());
+            buf.writeByte((int) (yaw * 256f / 360f));
+            buf.writeByte((int) (pitch * 256f / 360f));
+            buf.writeBoolean(onGround);
+            packet = new ClientboundTeleportEntityPacket(buf);
+        } finally {
+            buf.release();
+        }
+        return PacketContainer.wrap(this, packet);
     }
 }

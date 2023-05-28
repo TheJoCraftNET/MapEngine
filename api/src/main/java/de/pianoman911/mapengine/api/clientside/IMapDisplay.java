@@ -30,4 +30,10 @@ public interface IMapDisplay {
     void update(Player player, IMapUpdateData[] data, boolean fullUpdate, int z, MapCursorCollection cursors);
 
     IPipeline pipeline();
+
+    void rotation(Player player, float yaw, float pitch);
+
+    void visualDirection(Player player, BlockFace visualDirection);
+
+    void visualDirection(Player player, BlockFace visualDirection, int z);
 }

@@ -4,14 +4,17 @@ import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.common.platform.PacketContainer;
+import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -59,8 +62,7 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Paper1193Listener listener = new Paper1193Listener(event.getPlayer(), this.bridge);
-        ((CraftPlayer) event.getPlayer()).getHandle().connection.connection.channel
-                .pipeline().addAfter("decoder", "mapengine", listener);
+        ((CraftPlayer) event.getPlayer()).getHandle().connection.connection.channel.pipeline().addAfter("decoder", "mapengine", listener);
     }
 
     @Override
@@ -92,16 +94,13 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
                     continue;
                 }
 
-                decorations.add(new MapDecoration(MapDecoration.Type.byIcon(cursor.getRawType()),
-                        cursor.getX(), cursor.getY(), cursor.getDirection(),
-                        PaperAdventure.asVanilla(cursor.caption())));
+                decorations.add(new MapDecoration(MapDecoration.Type.byIcon(cursor.getRawType()), cursor.getX(), cursor.getY(), cursor.getDirection(), PaperAdventure.asVanilla(cursor.caption())));
             }
         } else {
             decorations = null;
         }
 
-        return PacketContainer.wrap(this, new ClientboundMapItemDataPacket(mapId,
-                (byte) 0, decorations != null, decorations, updateData));
+        return PacketContainer.wrap(this, new ClientboundMapItemDataPacket(mapId, (byte) 0, decorations != null, decorations, updateData));
     }
 
     @Override
@@ -115,8 +114,7 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
             default -> 0;
         };
 
-        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(entityId, UUID.randomUUID(),
-                pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.GLOW_ITEM_FRAME, facingIndex, Vec3.ZERO, 0));
+        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(entityId, UUID.randomUUID(), pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.GLOW_ITEM_FRAME, facingIndex, Vec3.ZERO, 0));
     }
 
     @Override
@@ -144,8 +142,7 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public PacketContainer<?> createInteractionEntitySpawnPacket(int interactionId, Vector pos, BlockFace direction) {
-        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(interactionId, UUID.randomUUID(),
-                pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.SLIME, 0, Vec3.ZERO, 0));
+        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(interactionId, UUID.randomUUID(), pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.SLIME, 0, Vec3.ZERO, 0));
     }
 
     @Override
@@ -159,5 +156,24 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
         entityData.set(DATA_SHARED_FLAGS_ID, (byte) 0x20); // invisible
 
         return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(interactionId, Objects.requireNonNull(entityData.packDirty())));
+    }
+
+    @Override
+    public PacketContainer<?> createTeleportPacket(int entityId, Vector pos, float yaw, float pitch, boolean onGround) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer(5 + Double.BYTES * 3 + 2 + 1));
+        ClientboundTeleportEntityPacket packet;
+        try {
+            buf.writeVarInt(entityId);
+            buf.writeDouble(pos.getX());
+            buf.writeDouble(pos.getY());
+            buf.writeDouble(pos.getZ());
+            buf.writeByte((int) (yaw * 256f / 360f));
+            buf.writeByte((int) (pitch * 256f / 360f));
+            buf.writeBoolean(onGround);
+            packet = new ClientboundTeleportEntityPacket(buf);
+        } finally {
+            buf.release();
+        }
+        return PacketContainer.wrap(this, packet);
     }
 }

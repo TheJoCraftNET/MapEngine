@@ -85,13 +85,13 @@ public class MapManager {
         return new MapTraceResult(clickPos, display);
     }
 
-    public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction) {
+    public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection) {
         FrameContainer display = new FrameContainer(a, b, direction, plugin, new Pipeline(plugin));
         displays.add(display);
         return display;
     }
 
-    public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, Pipeline pipeline) {
+    public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection, Pipeline pipeline) {
         FrameContainer display = new FrameContainer(a, b, direction, plugin, pipeline);
         displays.add(display);
         return display;

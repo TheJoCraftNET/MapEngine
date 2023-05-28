@@ -26,8 +26,8 @@ public class Frame extends FilledMap {
         this.pos = pos;
     }
 
-    protected PacketContainer<?> spawnPacket() {
-        return plugin.platform().createMapEntitySpawnPacket(entityId, pos, direction);
+    protected PacketContainer<?> spawnPacket(BlockFace visualDirection) {
+        return plugin.platform().createMapEntitySpawnPacket(entityId, pos, visualDirection);
     }
 
     protected PacketContainer<?> interactionEntity() {
@@ -76,5 +76,9 @@ public class Frame extends FilledMap {
 
     public BlockVector pos() {
         return pos;
+    }
+
+    protected PacketContainer<?> rotationPacket(float yaw, float pitch) {
+        return plugin.platform().createTeleportPacket(entityId, pos, yaw, pitch, false);
     }
 }

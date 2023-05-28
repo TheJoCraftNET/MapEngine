@@ -21,13 +21,20 @@ public class FrameContainer implements IMapDisplay {
     private final MapEnginePlugin plugin;
     private final Pipeline pipeline;
     private final BlockFace direction;
+    private final BlockFace visualDirection;
     private final BoundingBox box;
     private final BoundingBox interactionBox;
 
+    @Deprecated
     public FrameContainer(BlockVector a, BlockVector b, BlockFace direction, MapEnginePlugin plugin, Pipeline pipeline) {
+        this(a, b, direction, direction, plugin, pipeline);
+    }
+
+    public FrameContainer(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection, MapEnginePlugin plugin, Pipeline pipeline) {
         this.plugin = plugin;
         this.pipeline = pipeline;
         this.direction = direction;
+        this.visualDirection = visualDirection;
         BlockVector min = new BlockVector(Math.min(a.getBlockX(), b.getBlockX()), Math.min(a.getBlockY(), b.getBlockY()), Math.min(a.getBlockZ(), b.getBlockZ()));
         BlockVector max = new BlockVector(Math.max(a.getBlockX(), b.getBlockX()), Math.max(a.getBlockY(), b.getBlockY()), Math.max(a.getBlockZ(), b.getBlockZ()));
 
@@ -139,13 +146,7 @@ public class FrameContainer implements IMapDisplay {
 
     @Override
     public void spawn(Player player) {
-        for (Frame frame : frames) {
-            frame.spawnPacket().send(player);
-            frame.interactionEntity().send(player);
-            frame.interactionEntitySize().send(player);
-            frame.setIdPacket(0, true).send(player);
-        }
-        plugin.platform().flush(player);
+        spawn0(player, visualDirection, 0);
     }
 
     @Override
@@ -182,6 +183,34 @@ public class FrameContainer implements IMapDisplay {
     @Override
     public IPipeline pipeline() {
         return pipeline;
+    }
+
+    @Override
+    public void rotation(Player player, float yaw, float pitch) {
+        for (Frame frame : frames) {
+            frame.rotationPacket(yaw, pitch).send(player);
+        }
+        plugin.platform().flush(player);
+    }
+
+    @Override
+    public void visualDirection(Player player, BlockFace visualDirection) {
+        spawn0(player, visualDirection, 0);
+    }
+
+    @Override
+    public void visualDirection(Player player, BlockFace visualDirection, int z) {
+        spawn0(player, visualDirection, z);
+    }
+
+    private void spawn0(Player player, BlockFace visualDirection, int z) {
+        for (Frame frame : frames) {
+            frame.spawnPacket(visualDirection).send(player);
+            frame.interactionEntity().send(player);
+            frame.interactionEntitySize().send(player);
+            frame.setIdPacket(z, true).send(player);
+        }
+        plugin.platform().flush(player);
     }
 
     public boolean hasEntity(int entityId) {

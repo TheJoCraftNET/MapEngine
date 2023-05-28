@@ -118,12 +118,22 @@ public class ImplMapEngineApi implements MapEngineApi {
         return new IDisplayProvider() {
             @Override
             public IMapDisplay createRawPipelineDisplay(BlockVector a, BlockVector b, BlockFace direction, IPipeline pipeline) {
-                return plugin.mapManager().createDisplay(a, b, direction, (Pipeline) pipeline);
+                return plugin.mapManager().createDisplay(a, b, direction, direction, (Pipeline) pipeline);
+            }
+
+            @Override
+            public IMapDisplay createRawPipelineDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection, IPipeline pipeline) {
+                return plugin.mapManager().createDisplay(a, b, direction, visualDirection, (Pipeline) pipeline);
             }
 
             @Override
             public IMapDisplay createBasic(BlockVector a, BlockVector b, BlockFace direction) {
-                return plugin.mapManager().createDisplay(a, b, direction);
+                return plugin.mapManager().createDisplay(a, b, direction, direction);
+            }
+
+            @Override
+            public IMapDisplay createBasic(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection) {
+                return plugin.mapManager().createDisplay(a, b, direction, visualDirection);
             }
 
             @Override
