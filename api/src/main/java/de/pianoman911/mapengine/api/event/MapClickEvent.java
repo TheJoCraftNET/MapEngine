@@ -5,6 +5,9 @@ import de.pianoman911.mapengine.api.util.MapClickType;
 import de.pianoman911.mapengine.api.util.Vec2i;
 import org.bukkit.entity.Player;
 
+/**
+ * Represents a click on a map.
+ */
 public class MapClickEvent extends MapEvent {
 
     private final MapClickType clickType;

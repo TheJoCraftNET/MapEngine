@@ -1,5 +1,8 @@
 package de.pianoman911.mapengine.api.util;
 
+/**
+ * Color buffer used for wrapping minecraft color space data.
+ */
 public class ColorBuffer {
 
     private final byte[] data;
