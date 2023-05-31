@@ -27,7 +27,12 @@ public interface IMapDisplay {
 
     void mapId(Player player, int z);
 
-    void update(Player player, IMapUpdateData[] data, boolean fullUpdate, int z, MapCursorCollection cursors);
+    @Deprecated
+    default void update(Player player, IMapUpdateData[] data, boolean fullUpdate, int z, MapCursorCollection cursors){
+        update(player, data, z, cursors);
+    }
+
+    void update(Player player, IMapUpdateData[] data, int z, MapCursorCollection cursors);
 
     IPipeline pipeline();
 

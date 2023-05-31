@@ -7,14 +7,53 @@ import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.colors.dithering.FloydSteinbergDithering;
+import de.pianoman911.mapengine.core.util.FrameFileCache;
 import org.bukkit.entity.Player;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FlushingOutput implements IPipelineOutput {
 
+    private static final Set<FlushingOutput> INSTANCES = new HashSet<>();
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+
     private final MapEnginePlugin plugin;
+    private final Map<UUID, FrameFileCache> cache = new HashMap<>();
 
     public FlushingOutput(MapEnginePlugin plugin) {
         this.plugin = plugin;
+
+        synchronized (INSTANCES) {
+            INSTANCES.add(this);
+        }
+    }
+
+    public static void ejectPlayer(Player player) {
+        Set<FlushingOutput> instances;
+        synchronized (INSTANCES) {
+            instances = Set.copyOf(INSTANCES);
+        }
+
+        for (FlushingOutput instance : instances) {
+            System.out.println("ejecting " + player.getName()+" from output");
+
+            FrameFileCache playerCache;
+            synchronized (instance.cache) {
+                playerCache = instance.cache.remove(player.getUniqueId());
+            }
+
+            if (playerCache != null) {
+                System.out.println("deleting player cache for " + player.getName());
+                playerCache.closeAndDelete();
+            }
+        }
     }
 
     public static ColorBuffer[] splitColorBuffer(ColorBuffer colorBuffer, int width, int height) {
@@ -32,7 +71,6 @@ public class FlushingOutput implements IPipelineOutput {
             }
             result[i] = buffer;
         }
-
         return result;
     }
 
@@ -42,27 +80,41 @@ public class FlushingOutput implements IPipelineOutput {
         int size = ctx.display().width() * ctx.display().height();
 
         ColorBuffer[] buffers = splitColorBuffer(buf, ctx.display().width(), ctx.display().height());
-        MapUpdateData[] data = new MapUpdateData[size];
-        MapUpdateData[] previousData = new MapUpdateData[size];
 
-        if (!ctx.full()) { // If the update is not full, we need to regenerate the previous data for the tile update mode. In the future, this should be a buffered pipeline itself.
-            FullSpacedColorBuffer previous = ctx.previousBuffer();
-            if (previous != null) {
-                ColorBuffer[] previousBuffers = splitColorBuffer(convert(previous, ctx), ctx.display().width(), ctx.display().height());
-                for (int i = 0; i < previousBuffers.length; i++) {
-                    previousData[i] = MapUpdateData.createMapUpdateData(previousBuffers[i].data(), null, 0);
-                }
-            } else {
-                plugin.getLogger().warning("Previous buffer is null! Please set the previous buffer before calling the pipeline, if you want to use the tile update mode!");
+        if (!ctx.buffering()) {
+            MapUpdateData[] data = new MapUpdateData[size];
+            for (int i = 0; i < buffers.length; i++) {
+                data[i] = MapUpdateData.createMapUpdateData(buffers[i].data(), null, 0);
             }
-        }
 
-        for (int i = 0; i < buffers.length; i++) {
-            data[i] = MapUpdateData.createMapUpdateData(buffers[i].data(), previousData[i], 0);
+            for (Player receiver : ctx.receivers()) {
+                ctx.display().update(receiver, data, ctx.z(), ctx.cursors());
+            }
+            return;
         }
 
         for (Player receiver : ctx.receivers()) {
-            ctx.display().update(receiver, data, ctx.full(), ctx.z(), ctx.cursors());
+            EXECUTOR.submit(() -> {
+                if (!receiver.isOnline()) {
+                    return;
+                }
+
+                FrameFileCache cache;
+                synchronized (this.cache) {
+                    cache = this.cache.computeIfAbsent(receiver.getUniqueId(),
+                            $ -> new FrameFileCache(new File(plugin.getDataFolder() + "/caches", UUID.randomUUID() + ".cache"), size));
+                }
+
+                MapUpdateData[] data = new MapUpdateData[size];
+                for (int i = 0; i < buffers.length; i++) {
+                    ColorBuffer currentBuffer = buffers[i];
+
+                    data[i] = MapUpdateData.createMapUpdateData(currentBuffer.data(), cache.read(i), 0);
+                    cache.write(currentBuffer.data(), i);
+                }
+
+                ctx.display().update(receiver, data, ctx.z(), ctx.cursors());
+            });
         }
     }
 
@@ -73,6 +125,3 @@ public class FlushingOutput implements IPipelineOutput {
         };
     }
 }
-
-
-

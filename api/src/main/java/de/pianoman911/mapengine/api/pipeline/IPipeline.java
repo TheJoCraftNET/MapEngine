@@ -8,13 +8,9 @@ public interface IPipeline {
 
     void output(IPipelineOutput output);
 
-    default void addNode(IPipelineStream stream) {
-        streams().add(stream);
-    }
+    void addNode(IPipelineStream stream);
 
-    default void removeNode(IPipelineStream stream) {
-        streams().remove(stream);
-    }
+    void removeNode(IPipelineStream stream);
 
     List<IPipelineStream> streams();
 

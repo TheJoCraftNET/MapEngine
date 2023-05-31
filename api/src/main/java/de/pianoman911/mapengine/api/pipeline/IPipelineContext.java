@@ -25,9 +25,15 @@ public interface IPipelineContext {
 
     IMapDisplay display();
 
+    @Deprecated
     boolean full();
 
+    @Deprecated
     void full(boolean full);
+
+    boolean buffering();
+
+    void buffering(boolean buffering);
 
     int z();
 
@@ -39,7 +45,9 @@ public interface IPipelineContext {
 
     void converter(Converter converter);
 
+    @Deprecated
     FullSpacedColorBuffer previousBuffer();
 
+    @Deprecated
     void previousBuffer(FullSpacedColorBuffer previousBuffer);
 }

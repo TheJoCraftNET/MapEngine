@@ -22,12 +22,11 @@ public final class MapUpdateData implements IMapUpdateData {
         this.endY = (short) endY;
     }
 
-    public static MapUpdateData createMapUpdateData(byte[] fullBuffer, @Nullable MapUpdateData lastUpdateData, int minChanges) {
+    public static MapUpdateData createMapUpdateData(byte[] fullBuffer, byte @Nullable [] lastUpdateData, int minChanges) {
         if (lastUpdateData == null) {
             return createFull(fullBuffer);
         }
 
-        byte[] lastFullBuffer = lastUpdateData.fullBuffer;
         short beginX = 128, beginY = 128;
         short endX = 0, endY = 0;
         int changes = 0;
@@ -36,7 +35,7 @@ public final class MapUpdateData implements IMapUpdateData {
             short x = (short) (i % 128);
             short y = (short) (i / 128);
 
-            if (fullBuffer[i] != lastFullBuffer[i]) {
+            if (fullBuffer[i] != lastUpdateData[i]) {
                 changes++;
                 if (x < beginX) {
                     beginX = x;

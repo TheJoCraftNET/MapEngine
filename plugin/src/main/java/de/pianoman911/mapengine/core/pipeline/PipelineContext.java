@@ -17,11 +17,9 @@ public class PipelineContext implements IPipelineContext {
     private final Set<Player> receivers = new HashSet<>();
     private final FrameContainer container;
     private final MapCursorCollection cursors = new MapCursorCollection();
-    private boolean full = true;
+    private boolean buffering = false;
     private int z = 0;
     private Converter converter = Converter.DIRECT;
-
-    private FullSpacedColorBuffer previousBuffer = null;
 
     public PipelineContext(FrameContainer container) {
         this.container = container;
@@ -67,12 +65,22 @@ public class PipelineContext implements IPipelineContext {
 
     @Override
     public boolean full() {
-        return full;
+        return buffering;
     }
 
     @Override
     public void full(boolean full) {
-        this.full = full;
+        this.buffering = full;
+    }
+
+    @Override
+    public boolean buffering() {
+        return buffering;
+    }
+
+    @Override
+    public void buffering(boolean buffering) {
+        this.buffering = buffering;
     }
 
     @Override
@@ -97,12 +105,12 @@ public class PipelineContext implements IPipelineContext {
 
     @Override
     public FullSpacedColorBuffer previousBuffer() {
-        return previousBuffer;
+        return null;
     }
 
     @Override
     public void previousBuffer(FullSpacedColorBuffer previousBuffer) {
-        this.previousBuffer = previousBuffer;
+        // Do nothing as this is deprecated
     }
 
     @Override

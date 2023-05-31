@@ -9,7 +9,7 @@ import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import it.unimi.dsi.fastutil.Pair;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Pipeline implements IPipeline {
@@ -18,18 +18,28 @@ public class Pipeline implements IPipeline {
     private IPipelineOutput output;
 
     public Pipeline(IPipelineOutput output, IPipelineStream... streams) {
-        this.streams = Arrays.stream(streams).toList();
+        this.streams = new ArrayList<>(List.of(streams));
         this.output = output;
     }
 
     public Pipeline(MapEnginePlugin plugin, IPipelineStream... streams) {
-        this.streams = Arrays.stream(streams).toList();
+        this.streams = new ArrayList<>(List.of(streams));
         this.output = new FlushingOutput(plugin);
     }
 
     @Override
     public List<IPipelineStream> streams() {
-        return streams;
+        return List.copyOf(streams);
+    }
+
+    @Override
+    public void addNode(IPipelineStream stream) {
+        streams.add(stream);
+    }
+
+    @Override
+    public void removeNode(IPipelineStream stream) {
+        streams.remove(stream);
     }
 
     @Override

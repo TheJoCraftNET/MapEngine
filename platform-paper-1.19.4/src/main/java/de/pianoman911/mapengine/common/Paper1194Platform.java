@@ -85,7 +85,7 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @SuppressWarnings("deprecation") // magic values
     @Override
-    public PacketContainer<Packet<ClientGamePacketListener>> createMapDataPacket(MapUpdateData data, boolean fullData, int mapId, MapCursorCollection cursors) {
+    public PacketContainer<Packet<ClientGamePacketListener>> createMapDataPacket(MapUpdateData data, int mapId, MapCursorCollection cursors) {
         MapPatch updateData = new MapPatch(data.offsetX(), data.offsetY(), data.width(), data.height(), data.buffer());
 
         List<MapDecoration> decorations;

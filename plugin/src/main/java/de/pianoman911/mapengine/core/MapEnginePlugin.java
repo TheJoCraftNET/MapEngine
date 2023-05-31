@@ -4,6 +4,7 @@ import de.pianoman911.mapengine.api.MapEngineApi;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.core.api.ImplMapEngineApi;
 import de.pianoman911.mapengine.core.colors.ColorPalette;
+import de.pianoman911.mapengine.core.listener.MapEngineListener;
 import de.pianoman911.mapengine.core.map.HoldableManager;
 import de.pianoman911.mapengine.core.map.MapManager;
 import de.pianoman911.mapengine.core.platform.ImplListenerBridge;
@@ -39,6 +40,8 @@ public class MapEnginePlugin extends JavaPlugin {
 
         this.api = new ImplMapEngineApi(this);
         Bukkit.getServicesManager().register(MapEngineApi.class, this.api, this, ServicePriority.Normal);
+
+        Bukkit.getPluginManager().registerEvents(new MapEngineListener(), this);
 
         if (this.getConfig().getBoolean("updater.enabled", true)) {
             MapEngineUpdater updater = new MapEngineUpdater(this);
