@@ -19,8 +19,8 @@ public class FilledMap {
         this.plugin = plugin;
     }
 
-    protected PacketContainer<?> updatePacket(MapUpdateData data, boolean fullData, int z, MapCursorCollection cursors) {
-        return plugin.platform().createMapDataPacket(data, fullData, mapId(z), cursors);
+    protected PacketContainer<?> updatePacket(MapUpdateData data, int z, MapCursorCollection cursors) {
+        return plugin.platform().createMapDataPacket(data, mapId(z), cursors);
     }
 
     // this method is synchronized and the field is only accessed inside this method,

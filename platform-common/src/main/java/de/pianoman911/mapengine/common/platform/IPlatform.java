@@ -16,7 +16,7 @@ public interface IPlatform<T> {
 
     void flush(Player player);
 
-    PacketContainer<T> createMapDataPacket(MapUpdateData data, boolean fullData, int mapId, MapCursorCollection cursors);
+    PacketContainer<T> createMapDataPacket(MapUpdateData data, int mapId, MapCursorCollection cursors);
 
     PacketContainer<T> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing);
 

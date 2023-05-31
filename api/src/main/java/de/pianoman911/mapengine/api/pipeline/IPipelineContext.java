@@ -60,12 +60,18 @@ public interface IPipelineContext {
      * @return true if the buffer will update everything,
      * false if it is a partial update
      */
+    @Deprecated
     boolean full();
 
     /**
      * @see #full()
      */
+    @Deprecated
     void full(boolean full);
+
+    boolean buffering();
+
+    void buffering(boolean buffering);
 
     /**
      * @return the current z-layer index
@@ -105,10 +111,12 @@ public interface IPipelineContext {
      * The previous buffer is used for getting the changed section.<br>
      * If this is not set, everything will update.
      */
+    @Deprecated
     @Nullable FullSpacedColorBuffer previousBuffer();
 
     /**
      * @see #previousBuffer()
      */
+    @Deprecated
     void previousBuffer(@Nullable FullSpacedColorBuffer previousBuffer);
 }

@@ -170,12 +170,12 @@ public class FrameContainer implements IMapDisplay {
     }
 
     @Override
-    public void update(Player player, IMapUpdateData[] data, boolean fullData, int z, MapCursorCollection cursors) {
+    public void update(Player player, IMapUpdateData[] data, int z, MapCursorCollection cursors) {
         for (int i = 0; i < frames.length; i++) {
             if (data[i].empty()) {
                 continue;
             }
-            frames[i].updatePacket((MapUpdateData) data[i], fullData, z, cursors).send(player);
+            frames[i].updatePacket((MapUpdateData) data[i], z, cursors).send(player);
         }
         plugin.platform().flush(player);
     }
