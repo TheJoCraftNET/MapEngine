@@ -59,18 +59,29 @@ public interface IPipelineContext {
     /**
      * @return true if the buffer will update everything,
      * false if it is a partial update
+     * @deprecated use {@link #buffering()} instead
      */
     @Deprecated
     boolean full();
 
     /**
      * @see #full()
+     * @deprecated use {@link #buffering()} instead
      */
     @Deprecated
     void full(boolean full);
 
     boolean buffering();
 
+    /**
+     * This enabled per player buffering.<br>
+     * If this is enabled, the updates will be buffered with a FileCache for each player.<br>
+     * Then only the changes will be sent to the player, not the full image.
+     * This saves a lot of bandwidth, but adds a bit of extra computation time.<br><br>
+     * Recommended for large displays or displays that are updated very often.
+     *
+     * @param buffering true if per player buffering should be enabled
+     */
     void buffering(boolean buffering);
 
     /**
