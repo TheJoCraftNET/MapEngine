@@ -4,7 +4,7 @@
 
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/TheJoCraftNET/MapEngine?style=flat-square)](#)
 [![AGPLv3 License](https://img.shields.io/badge/License-AGPL%20v3-yellow.svg?style=flat-square)](https://opensource.org/license/agpl-v3/)
-[![Status Alpha](https://img.shields.io/badge/Status-Alpha-red?style=flat-square)](#)
+[![Status Beta](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](#)
 
 ## Description
 
@@ -44,6 +44,9 @@ The Stream source is 1920x1080@20 streamed with OBS.
 
 </details>
 
+### Javadoc
+A hosted version of the javadoc can be found [here](https://mapengine.finndohrmann.de/javadoc/).
+
 ### Support
 
 | Server Version | Supported |
@@ -72,7 +75,7 @@ The Stream source is 1920x1080@20 streamed with OBS.
     <dependency>
         <groupId>de.pianoman911</groupId>
         <artifactId>mapengine-api</artifactId>
-        <version>1.4.9</version>
+        <version>1.5.0</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -92,7 +95,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'de.pianoman911:mapengine-api:1.4.9'
+    compileOnly 'de.pianoman911:mapengine-api:1.5.0'
 }
 ```
 
@@ -109,7 +112,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("de.pianoman911:mapengine-api:1.4.9")
+    compileOnly("de.pianoman911:mapengine-api:1.5.0")
 }
 ```
 
