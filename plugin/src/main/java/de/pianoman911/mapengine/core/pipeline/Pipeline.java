@@ -7,12 +7,11 @@ import de.pianoman911.mapengine.api.pipeline.IPipelineOutput;
 import de.pianoman911.mapengine.api.pipeline.IPipelineStream;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
-import it.unimi.dsi.fastutil.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pipeline implements IPipeline {
+public final class Pipeline implements IPipeline {
 
     private final List<IPipelineStream> streams;
     private IPipelineOutput output;
@@ -28,23 +27,8 @@ public class Pipeline implements IPipeline {
     }
 
     @Override
-    public List<IPipelineStream> streams() {
-        return List.copyOf(streams);
-    }
-
-    @Override
-    public void addNode(IPipelineStream stream) {
-        streams.add(stream);
-    }
-
-    @Override
-    public void removeNode(IPipelineStream stream) {
-        streams.remove(stream);
-    }
-
-    @Override
     public IPipelineOutput output() {
-        return output;
+        return this.output;
     }
 
     @Override
@@ -53,13 +37,28 @@ public class Pipeline implements IPipeline {
     }
 
     @Override
+    public void addStream(IPipelineStream stream) {
+        this.streams.add(stream);
+    }
+
+    @Override
+    public boolean removeStream(IPipelineStream stream) {
+        return this.streams.remove(stream);
+    }
+
+    @Override
+    public List<IPipelineStream> streams() {
+        return List.copyOf(this.streams);
+    }
+
+    @Override
     public void flush(IPipelineInput input) {
-        Pair<FullSpacedColorBuffer, IPipelineContext> i = input.combined();
-        FullSpacedColorBuffer buffer = i.first();
-        IPipelineContext context = i.second();
-        for (IPipelineStream stream : streams) {
+        FullSpacedColorBuffer buffer = input.buffer();
+        IPipelineContext context = input.ctx();
+
+        for (IPipelineStream stream : this.streams) {
             buffer = stream.compute(buffer, context);
         }
-        output.output(buffer, context);
+        this.output.output(buffer, context);
     }
 }

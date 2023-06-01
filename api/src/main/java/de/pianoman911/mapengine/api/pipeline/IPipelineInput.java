@@ -5,18 +5,18 @@ import it.unimi.dsi.fastutil.Pair;
 
 public interface IPipelineInput extends IPipelineNode {
 
+    /**
+     * @deprecated no longer used, use this object as a holder instead
+     */
+    @Deprecated
     Pair<FullSpacedColorBuffer, IPipelineContext> combined();
 
     /**
-     * Internal buffer of the drawing space
-     *
-     * @return the buffer of the drawing space
+     * @return the internal buffer of the drawing space
      */
     FullSpacedColorBuffer buffer();
 
     /**
-     * Returns the pipeline context of this drawing space
-     *
      * @return the pipeline context of this drawing space
      */
     IPipelineContext ctx();

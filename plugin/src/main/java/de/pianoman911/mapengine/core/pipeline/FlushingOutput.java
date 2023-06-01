@@ -6,6 +6,7 @@ import de.pianoman911.mapengine.api.util.ColorBuffer;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
+import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.colors.dithering.FloydSteinbergDithering;
 import de.pianoman911.mapengine.core.util.FrameFileCache;
 import org.bukkit.entity.Player;
@@ -42,15 +43,12 @@ public class FlushingOutput implements IPipelineOutput {
         }
 
         for (FlushingOutput instance : instances) {
-            System.out.println("ejecting " + player.getName()+" from output");
-
             FrameFileCache playerCache;
             synchronized (instance.cache) {
                 playerCache = instance.cache.remove(player.getUniqueId());
             }
 
             if (playerCache != null) {
-                System.out.println("deleting player cache for " + player.getName());
                 playerCache.closeAndDelete();
             }
         }
@@ -61,7 +59,7 @@ public class FlushingOutput implements IPipelineOutput {
         byte[] rawData = colorBuffer.data();
 
         for (int i = 0; i < result.length; i++) {
-            ColorBuffer buffer = new ColorBuffer(16384, 128, 128);
+            ColorBuffer buffer = new ColorBuffer(128, 128);
             int x = i % width;
             int y = i / width;
             for (int y1 = 0; y1 < 128; y1++) {
@@ -77,7 +75,9 @@ public class FlushingOutput implements IPipelineOutput {
     @Override
     public void output(FullSpacedColorBuffer buffer, IPipelineContext ctx) {
         ColorBuffer buf = convert(buffer, ctx);
+        FrameContainer display = (FrameContainer) ctx.display();
         int size = ctx.display().width() * ctx.display().height();
+
 
         ColorBuffer[] buffers = splitColorBuffer(buf, ctx.display().width(), ctx.display().height());
 
@@ -88,7 +88,7 @@ public class FlushingOutput implements IPipelineOutput {
             }
 
             for (Player receiver : ctx.receivers()) {
-                ctx.display().update(receiver, data, ctx.z(), ctx.cursors());
+                display.update(receiver, data, ctx.z(), ctx.cursors());
             }
             return;
         }
@@ -113,7 +113,7 @@ public class FlushingOutput implements IPipelineOutput {
                     cache.write(currentBuffer.data(), i);
                 }
 
-                ctx.display().update(receiver, data, ctx.z(), ctx.cursors());
+                display.update(receiver, data, ctx.z(), ctx.cursors());
             });
         }
     }

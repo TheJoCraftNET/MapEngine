@@ -19,7 +19,7 @@ public interface MapEngineApi {
 
     /**
      * @return the color palette used for converting
-     * RGB colors to map colors and back.
+     * RGB colors to map colors and back
      */
     IMapColors colors();
 
@@ -38,14 +38,12 @@ public interface MapEngineApi {
     /**
      * @return all currently active {@link IMapDisplay}'s
      */
-    @Unmodifiable
-    Set<IMapDisplay> mapDisplays();
+    @Unmodifiable Set<IMapDisplay> mapDisplays();
 
     /**
      * @return all currently active {@link IHoldableDisplay}'s
      */
-    @Unmodifiable
-    Set<IHoldableDisplay> holdableDisplays();
+    @Unmodifiable Set<IHoldableDisplay> holdableDisplays();
 
     /**
      * Used to get a {@link IMapDisplay} in the view of the specified player.
@@ -56,8 +54,7 @@ public interface MapEngineApi {
      * @deprecated use {@link #traceDisplayInView(Player, int)}
      */
     @Deprecated
-    @Nullable
-    IMapDisplay displayInView(Player player, int maxDistance);
+    @Nullable IMapDisplay displayInView(Player player, int maxDistance);
 
     /**
      * Used to get a map display and the ray hit point in the view of a player.
@@ -66,6 +63,5 @@ public interface MapEngineApi {
      * @param maxDistance the maximum ray distance to check for a display
      * @return the trace result or null if nothing was found
      */
-    @Nullable
-    MapTraceResult traceDisplayInView(Player player, int maxDistance);
+    @Nullable MapTraceResult traceDisplayInView(Player player, int maxDistance);
 }

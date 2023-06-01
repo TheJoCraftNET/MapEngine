@@ -3,22 +3,26 @@ package de.pianoman911.mapengine.api.clientside;
 import de.pianoman911.mapengine.api.pipeline.IPipeline;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * A holdable display is a single map with the dimensions of 128x128.<br>
+ * This can be used for giving players a holdable map item.
+ */
 public interface IHoldableDisplay {
 
     /**
-     * A ItemStack with the right map id for the given z level.
-     * So you can use this to give the player a display in his inventory.
+     * Creates an {@link ItemStack} with the correct map id set for the given z level.<br>
+     * This should be used for giving e.g. {@link org.bukkit.entity.Player} this item into
+     * their inventory for viewing.
      *
-     * @param z The z level
-     * @return The {@link ItemStack}
+     * @param z the z level
+     * @return the configured map {@link ItemStack}
      */
     ItemStack itemStack(int z);
 
     /**
      * The default {@link IPipeline} for this display.<br>
-     * You can also use multiple own pipelines for different purposes with the same display.
      *
-     * @return The default pipeline for this display.
+     * @return the default pipeline for this display
      */
     IPipeline pipeline();
 }

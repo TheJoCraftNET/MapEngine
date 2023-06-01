@@ -6,7 +6,7 @@ import de.pianoman911.mapengine.api.util.Vec2i;
 import org.bukkit.entity.Player;
 
 /**
- * Represents a click on a map.
+ * Represents a click on a map done by a player.
  */
 public class MapClickEvent extends MapEvent {
 
@@ -27,22 +27,37 @@ public class MapClickEvent extends MapEvent {
         this.clickPos = clickPos;
     }
 
+    /**
+     * @return the interaction type used by the player
+     */
     public MapClickType clickType() {
         return clickType;
     }
 
+    /**
+     * @return the player doing the click
+     */
     public Player player() {
         return player;
     }
 
+    /**
+     * @return the clicked x-position in pixels
+     */
     public int x() {
         return clickPos.x();
     }
 
+    /**
+     * @return the clicked y-position in pixels
+     */
     public int y() {
         return clickPos.y();
     }
 
+    /**
+     * @return the clicked position as an {@link Vec2i}
+     */
     public Vec2i asVec2i() {
         return clickPos;
     }

@@ -11,10 +11,10 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * This interface is used to pass data between {@link IPipelineNode}s,
+ * This interface is used to pass data between {@link IPipelineNode}'s,
  * it is created for every flush and is passed to every node.
  * <p>
- * <strong>WARNING: This context is not thread-safe and should only be used on a single thread</strong>
+ * <strong>WARNING: This context is not thread-safe and should only be used on a single thread.</strong>
  */
 public interface IPipelineContext {
 
@@ -75,38 +75,44 @@ public interface IPipelineContext {
 
     /**
      * This enabled per player buffering.<br>
-     * If this is enabled, the updates will be buffered with a FileCache for each player.<br>
-     * Then only the changes will be sent to the player, not the full image.
-     * This saves a lot of bandwidth, but adds a bit of extra computation time.<br><br>
-     * Recommended for large displays or displays that are updated very often.
+     * If this is enabled, updates in this context will be
+     * buffered with an on-disk temporary fiel cache for each player.
+     * <p>
+     * If buffering is turned on, only changes flushed through the
+     * pipeline will actually be sent to the player. This improves
+     * performance for map display flushing on poor internet connections,
+     * but increases IO- and CPU-time.
+     * <p>
+     * This is recommended for large displays which update often,
+     * with very small difference in content.
      *
      * @param buffering true if per player buffering should be enabled
      */
     void buffering(boolean buffering);
 
     /**
-     * @return the current z-layer index
+     * @return the z-layer index updated with this pipeline
      * @see IMapDisplay#mapId(Player, int) for more info
      */
     int z();
 
     /**
-     * @param z the new z-layer index
+     * @param z the new z-layer index updated with this pipeline
      * @see IMapDisplay#mapId(Player, int) for more info
      */
     void z(int z);
 
     /**
      * {@link org.bukkit.map.MapCursor}'s are used for
-     * displaying e.g. arrows and similar decorations on maps.
+     * displaying e.g. arrows and other vanilla decorations on maps.
      *
      * @return a modifiable {@link MapCursorCollection}
      */
     MapCursorCollection cursors();
 
     /**
-     * A {@link Converter} is used for modifying the buffer written in this context.<br>
-     * These can be used e.g. for applying dithering to the buffer.
+     * A {@link Converter} is used for converting the RGB buffer to minecraft map colors.<br>
+     * These can be used e.g. for applying dithering to the buffer ({@link Converter#FLOYD_STEINBERG}).
      *
      * @return the current {@link Converter} for this context
      */

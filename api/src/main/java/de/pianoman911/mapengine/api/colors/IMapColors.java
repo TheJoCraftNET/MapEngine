@@ -85,17 +85,17 @@ public interface IMapColors {
     byte[] convertImage(BufferedImage image);
 
     /**
-     * @return the RGB color associated with the specified minecraft map color.
+     * @return the RGB color associated with the specified minecraft map color
      */
     Color toColor(byte color);
 
     /**
-     * @return the RGB color associated with the specified minecraft map color.
+     * @return the RGB color associated with the specified minecraft map color
      */
     int toRGB(byte color);
 
     /**
-     * @return the RGB colors associated with the specified minecraft map colors.
+     * @return the RGB colors associated with the specified minecraft map colors
      */
     int[] toRGBs(byte[] colors);
 }

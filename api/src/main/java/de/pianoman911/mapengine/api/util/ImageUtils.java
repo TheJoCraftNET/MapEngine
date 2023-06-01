@@ -3,10 +3,17 @@ package de.pianoman911.mapengine.api.util;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-public class ImageUtils {
+/**
+ * Utilities for working with {@link BufferedImage}'s.
+ */
+public final class ImageUtils {
+
+    private ImageUtils() {
+    }
 
     /**
      * Creates a new image with the given width and height
+     * using the content of the given image.
      *
      * @param image  the image to resize
      * @param width  the new width
@@ -15,15 +22,16 @@ public class ImageUtils {
      */
     public static BufferedImage resize(BufferedImage image, int width, int height) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = result.createGraphics();
-        graphics.drawImage(image, 0, 0, width, height, null);
-        graphics.dispose();
-
+        {
+            Graphics2D graphics = result.createGraphics();
+            graphics.drawImage(image, 0, 0, width, height, null);
+            graphics.dispose();
+        }
         return result;
     }
 
     /**
-     * A helper method to get the rgb array from a buffered image
+     * A helper method to get the rgb array from a buffered image.
      *
      * @param image the image to get the rgb array from
      * @return the rgb array of the image

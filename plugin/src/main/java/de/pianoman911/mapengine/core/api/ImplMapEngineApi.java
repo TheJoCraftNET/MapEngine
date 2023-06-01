@@ -32,25 +32,13 @@ import java.util.Set;
 public class ImplMapEngineApi implements MapEngineApi {
 
     private final MapEnginePlugin plugin;
+    private final IPipelineProvider pipelineProvider;
+    private final IDisplayProvider displayProvider;
 
     public ImplMapEngineApi(MapEnginePlugin plugin) {
         this.plugin = plugin;
-    }
 
-    @Override
-    public IMapColors colors() {
-        return plugin.colorPalette();
-    }
-
-    @Override
-    public IPipelineProvider pipeline() {
-        return new IPipelineProvider() {
-
-            @Override
-            public IPipeline createPipeline(IPipelineStream... streams) {
-                return new Pipeline(plugin, streams);
-            }
-
+        this.pipelineProvider = new IPipelineProvider() {
             @Override
             public IPipeline createPipeline(IPipelineOutput output, IPipelineStream... streams) {
                 return new Pipeline(output, streams);
@@ -59,26 +47,6 @@ public class ImplMapEngineApi implements MapEngineApi {
             @Override
             public IPipelineOutput output() {
                 return new FlushingOutput(plugin);
-            }
-
-            @Override
-            public IDrawingSpace drawingSpace(IMapDisplay display) {
-                return drawingSpace(display.width() * 128, display.height() * 128, display);
-            }
-
-            @Override
-            public IDrawingSpace drawingSpace(int width, int height, IMapDisplay display) {
-                return drawingSpace(ctx(display), width, height);
-            }
-
-            @Override
-            public IDrawingSpace drawingSpace(FullSpacedColorBuffer buffer, IMapDisplay display) {
-                return drawingSpace(ctx(display), buffer);
-            }
-
-            @Override
-            public IDrawingSpace drawingSpace(IPipelineContext ctx, int width, int height) {
-                return new DrawingSpace(new FullSpacedColorBuffer(width, height), (PipelineContext) ctx);
             }
 
             @Override
@@ -111,24 +79,11 @@ public class ImplMapEngineApi implements MapEngineApi {
                 return new PipelineContext((FrameContainer) display);
             }
         };
-    }
 
-    @Override
-    public IDisplayProvider displayProvider() {
-        return new IDisplayProvider() {
-            @Override
-            public IMapDisplay createRawPipelineDisplay(BlockVector a, BlockVector b, BlockFace direction, IPipeline pipeline) {
-                return plugin.mapManager().createDisplay(a, b, direction, direction, (Pipeline) pipeline);
-            }
-
+        this.displayProvider = new IDisplayProvider() {
             @Override
             public IMapDisplay createRawPipelineDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection, IPipeline pipeline) {
                 return plugin.mapManager().createDisplay(a, b, direction, visualDirection, (Pipeline) pipeline);
-            }
-
-            @Override
-            public IMapDisplay createBasic(BlockVector a, BlockVector b, BlockFace direction) {
-                return plugin.mapManager().createDisplay(a, b, direction, direction);
             }
 
             @Override
@@ -146,6 +101,21 @@ public class ImplMapEngineApi implements MapEngineApi {
                 return plugin.holdableManager().createDisplay();
             }
         };
+    }
+
+    @Override
+    public IMapColors colors() {
+        return plugin.colorPalette();
+    }
+
+    @Override
+    public IPipelineProvider pipeline() {
+        return this.pipelineProvider;
+    }
+
+    @Override
+    public IDisplayProvider displayProvider() {
+        return this.displayProvider;
     }
 
     @Override

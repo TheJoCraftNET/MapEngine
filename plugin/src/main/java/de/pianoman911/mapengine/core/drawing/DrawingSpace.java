@@ -49,9 +49,25 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void line(int x1, int y1, int x2, int y2, int color) {
-        for (int y = y1; y < y2; y++) {
-            for (int x = x1; x < x2; x++) {
-                pixel(x, y, color);
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx - dy;
+        while (true) {
+            pixel(x1, y1, color);
+            if (x1 == x2 && y1 == y2) {
+                break;
+            }
+
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
             }
         }
     }
@@ -99,7 +115,6 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int color) {
-        // Draw triangle
         line(x1, y1, x2, y2, color);
         line(x2, y2, x3, y3, color);
         line(x3, y3, x1, y1, color);
