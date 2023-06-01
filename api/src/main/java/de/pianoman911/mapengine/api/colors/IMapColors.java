@@ -8,7 +8,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * This is used to convert 24 bit RGB color space
+ * This is used to convert 24-bit RGB color space
  * to the minecraft map color space.
  */
 public interface IMapColors {
@@ -51,11 +51,11 @@ public interface IMapColors {
 
     /**
      * Converts the given RGB colors to the minecraft map color space.<br>
-     * The amount of threads can be specified to speed up the process.<br>
+     * The number of threads can be specified to speed up the process.<br>
      * <p>
-     * Tests show that the most efficient amount of threads for
+     * Tests show that the most efficient number of threads for
      * converting colors is 3: <a href="https://i.imgur.com/TtVSqyq.png">Graph</a><br>
-     * If the amount of used threads is not important, use {@link #colors(int[])} instead.
+     * If the number of used threads is not important, use {@link #colors(int[])} instead.
      *
      * @return the minecraft map colors
      */

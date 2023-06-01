@@ -32,7 +32,7 @@ public final class FontRegistry {
      * @param text         the text to render
      * @param font         the font to use for the text
      * @param color        the color to use for the text
-     * @param antiAliasing if anti-aliasing should be enabled (less rough edges)
+     * @param antiAliasing if antialiasing should be enabled (less rough edges)
      * @return a rendered image of the specified text
      */
     public static BufferedImage convertText(String text, Font font, Color color, boolean antiAliasing) {

@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import java.awt.image.BufferedImage;
 
 /**
- * ARGB color buffer with 24 bit of rgb colors and 8 bits of alpha channel.
+ * ARGB color buffer with 24 bit of rgb colors and 8 bits of an alpha channel.
  */
 public class FullSpacedColorBuffer {
 

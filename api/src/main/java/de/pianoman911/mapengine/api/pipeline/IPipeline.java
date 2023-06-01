@@ -27,7 +27,7 @@ public interface IPipeline {
     void output(IPipelineOutput output);
 
     /**
-     * Adds the given stream to the streams executed on flush.<br>
+     * Adds the given stream to the streams executed on a flush.<br>
      * They are executed in the order in which they are added.
      *
      * @param stream the stream to add
@@ -43,7 +43,7 @@ public interface IPipeline {
     }
 
     /**
-     * Removes the given stream from the streams executed on flush.<br>
+     * Removes the given stream from the streams executed on a flush.<br>
      * They are executed in the order in which they are added.
      *
      * @param stream the stream to remove
@@ -59,9 +59,9 @@ public interface IPipeline {
     }
 
     /**
-     * The returned streams are executed in the order in which they are added on flush.
+     * The returned streams are executed in the order in which they are added on a flush.
      *
-     * @return the streams executed on flush
+     * @return the streams executed on a flush
      */
     @Unmodifiable List<IPipelineStream> streams();
 

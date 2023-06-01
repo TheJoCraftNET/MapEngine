@@ -79,7 +79,7 @@ public interface IMapDisplay {
      * Sets the z-layer map id group for the player.
      * <p>
      * Z-Layering is a feature that allows you to send different map content for the same map display.<br>
-     * When changing the z-index for a specific player, the only thing which changes are the map ids.
+     * When changing the z-index for a specific player, the only thing which changes is the map ids.
      * This results in no additional data being required to be sent to the player and allows for
      * animations to animate smoothly, even with poor internet connection.
      *

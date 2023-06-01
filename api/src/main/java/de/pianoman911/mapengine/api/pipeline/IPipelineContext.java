@@ -76,7 +76,7 @@ public interface IPipelineContext {
     /**
      * This enabled per player buffering.<br>
      * If this is enabled, updates in this context will be
-     * buffered with an on-disk temporary fiel cache for each player.
+     * buffered with an on-disk temporary file cache for each player.
      * <p>
      * If buffering is turned on, only changes flushed through the
      * pipeline will actually be sent to the player. This improves
