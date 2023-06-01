@@ -9,7 +9,7 @@
 ## Description
 
 MapEngine is a map library plugin for paper servers. It provides a simple API to create maps with custom content.
-Using lightweight and asynchronous techniques MapEngine has a very low impact on server performance.
+Using lightweight and asynchronous techniques, MapEngine has a very low impact on server performance.
 
 ## Features
 
@@ -18,6 +18,7 @@ Using lightweight and asynchronous techniques MapEngine has a very low impact on
 - Completely packet based
 - Optional dithering (Floyd-Steinberg)
 - Groups as z-layer interpretation for saving immense network traffic
+- Per player buffering, only the changed pixels are sent to the player
 
 <details>
 <summary><strong>Color Conversion Cache Performance Graph</strong></summary>
