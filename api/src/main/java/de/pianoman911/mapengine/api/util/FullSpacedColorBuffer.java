@@ -1,47 +1,94 @@
 package de.pianoman911.mapengine.api.util;
 
+import com.google.common.base.Preconditions;
+
 import java.awt.image.BufferedImage;
 
+/**
+ * ARGB color buffer with 24 bit of rgb colors and 8 bits of alpha channel.
+ */
 public class FullSpacedColorBuffer {
 
     private final int[] data;
     private final int width;
     private final int height;
 
+    /**
+     * Wraps the given argb data into a color buffer.
+     *
+     * @param data   initial data
+     * @param width  the width of the buffer, must match the data
+     * @param height the height of the buffer, must match the data
+     */
     public FullSpacedColorBuffer(int[] data, int width, int height) {
+        Preconditions.checkState(data.length / width == height,
+                "Width %s and height %s invalid for rgb array with length %s",
+                width, height, data.length);
+
         this.data = data;
         this.width = width;
         this.height = height;
     }
 
+    /**
+     * Creates a new color buffer with the given size.
+     *
+     * @param width  the width of the buffer
+     * @param height the height of the buffer
+     * @deprecated should not be used for creation, use {@link #FullSpacedColorBuffer(int, int)} instead
+     */
+    @Deprecated
     public FullSpacedColorBuffer(int size, int width, int height) {
-        this.data = new int[size];
-        this.width = width;
-        this.height = height;
+        this(width, height);
     }
 
+    /**
+     * Creates a new color buffer from with the given width and height.
+     *
+     * @param width  the width of the buffer
+     * @param height the height of the buffer
+     */
     public FullSpacedColorBuffer(int width, int height) {
-        this.data = new int[width * height];
-        this.width = width;
-        this.height = height;
+        this(new int[width * height], width, height);
     }
 
-    public int[] buffer() {
-        return data;
+    private static int index(int x, int y, int width) {
+        return x + y * width;
     }
 
-    public int size() {
-        return data.length;
+    private static float linearFloat2srgb(float val) {
+        // this linear function is based on the original graph and
+        // fixes really bright colors as a "side effect"
+        if (val >= 0.938f) {
+            return val * 2.2f - 1.2f;
+        }
+
+        float adjustedVal = val - 0.015f;
+        return adjustedVal * adjustedVal;
     }
 
-    public int width() {
-        return width;
+    private static int srgb2linearByte(float srgb) {
+        // see above method for reason
+        if (srgb >= 0.8636f) {
+            return (int) ((srgb + 1.2f) / (2.2f / 255f));
+        }
+        return (int) ((Math.sqrt(srgb) + 0.015f) * 255f);
     }
 
-    public int height() {
-        return height;
-    }
+    // see https://www.w3.org/Graphics/Color/sRGB.html section "Colorimetric definitions and digital encodings"
+    //
+    // this is adjusted to be faster, which means that it
+    // is technically incorrect. in reality, no one cares
 
+    /**
+     * Sets the pixel at the given position in the buffer to the given color.
+     * It respects the alpha channel of the color and blends the color with the
+     * existing color in the buffer.
+     *
+     * @param x        the x position of the pixel
+     * @param y        the y position of the pixel
+     * @param newColor the new color of the pixel
+     */
     public void pixel(int x, int y, int newColor) {
         int newAlpha = ((newColor >> 24) & 0xFF);
         if (newAlpha == 255) {
@@ -79,96 +126,103 @@ public class FullSpacedColorBuffer {
         this.data[colorIndex] = ((int) (alpha * 255f) << 24) | (red << 16) | (green << 8) | blue;
     }
 
-    // see https://www.w3.org/Graphics/Color/sRGB.html section "Colorimetric definitions and digital encodings"
-    //
-    // this is adjusted to be faster, which means that it
-    // is technically incorrect. in reality, no one cares
-
-    private static float linearFloat2srgb(float val) {
-        // this linear function is based on the original graph and
-        // fixes really bright colors as a "side effect"
-        if (val >= 0.938f) {
-            return val * 2.2f - 1.2f;
-        }
-
-        float adjustedVal = val - 0.015f;
-        return adjustedVal * adjustedVal;
-    }
-
-    private static int srgb2linearByte(float srgb) {
-        // see above method for reason
-        if (srgb >= 0.8636f) {
-            return (int) ((srgb + 1.2f) / (2.2f / 255f));
-        }
-        return (int) ((Math.sqrt(srgb) + 0.015f) * 255f);
-    }
-
+    /**
+     * Sets rectangular area of the buffer to the given color.
+     * It respects the alpha channel of the color and blends the color with the
+     * existing color in the buffer.
+     *
+     * @param pixels the pixels to set
+     * @param x      the x position of the area
+     * @param y      the y position of the area
+     * @param width  the width of the area
+     * @param height the height of the area
+     */
     public void pixels(int[] pixels, int x, int y, int width, int height) {
         for (int h = 0; h < height; h++) {
             for (int w = 0; w < width; w++) {
                 if (x + w >= 0 && x + w < width() && y + h >= 0 && y + h < height()) {
-                    pixel(x + w, y + h, pixels[w + h * width]);
+                    this.pixel(x + w, y + h, pixels[index(w, h, width)]);
                 }
             }
         }
     }
 
+    /**
+     * Sets another buffer on top of this buffer
+     * It respects the alpha channel of the color and blends the color with the
+     * existing color in the buffer.
+     *
+     * @param buffer the buffer to set
+     * @param x      the x position of the buffer
+     * @param y      the y position of the buffer
+     */
     public void buffer(FullSpacedColorBuffer buffer, int x, int y) {
-        pixels(buffer.buffer(), x, y, buffer.width(), buffer.height());
+        this.pixels(buffer.buffer(), x, y, buffer.width(), buffer.height());
     }
 
+    /**
+     * Creates a scaled copy of this buffer
+     *
+     * @param scale  the factor to scale by
+     * @param smooth whether to use a smooth scaling algorithm
+     * @return the scaled copy
+     */
     public FullSpacedColorBuffer scale(double scale, boolean smooth) {
-        return scale(scale, scale, smooth);
+        return this.scale(scale, scale, smooth);
     }
 
+    /**
+     * Creates a scaled copy of this buffer with the given x- and y-scale.
+     *
+     * @param scaleX the factor to scale the x-axis by
+     * @param scaleY the factor to scale the y-axis by
+     * @param smooth whether to use a smooth scaling algorithm
+     * @return the scaled copy
+     */
     @SuppressWarnings("Duplicates")
     public FullSpacedColorBuffer scale(double scaleX, double scaleY, boolean smooth) {
-        int newWidth = (int) (width * scaleX);
-        int newHeight = (int) (height * scaleY);
+        int newWidth = (int) (this.width * scaleX);
+        int newHeight = (int) (this.height * scaleY);
         int[] newData = new int[newWidth * newHeight];
 
-        double xRatio = (double) width / newWidth;
-        double yRatio = (double) height / newHeight;
+        double ratioX = (double) this.width / newWidth;
+        double ratioY = (double) this.height / newHeight;
 
         for (int y = 0; y < newHeight; y++) {
             for (int x = 0; x < newWidth; x++) {
-                int scrX = (int) (x * xRatio);
-                int scrY = (int) (y * yRatio);
-                int scrIndex = scrX + scrY * width;
-                if (scrX >= width || scrY >= height) {
+                int scrX = (int) (x * ratioX);
+                int scrY = (int) (y * ratioY);
+                int scrIndex = scrX + scrY * this.width;
+                if (scrX >= this.width || scrY >= this.height) {
                     continue;
                 }
-                if (smooth) {
-                    int color = data[scrIndex];
 
+                int color = this.data[scrIndex];
+                if (smooth) {
                     int alpha = (color >> 24) & 0xFF;
                     int red = (color >> 16) & 0xFF;
                     int green = (color >> 8) & 0xFF;
                     int blue = color & 0xFF;
 
                     int count = 1;
-                    if (scrX + 1 < width) {
-                        color = data[scrIndex + 1];
-
-                        alpha += (color >> 24) & 0xFF;
-                        red += (color >> 16) & 0xFF;
-                        green += (color >> 8) & 0xFF;
-                        blue += color & 0xFF;
-                        count++;
-
-                    }
-                    if (scrY + 1 < height) {
-                        color = data[scrIndex + width];
-
+                    if (scrX + 1 < this.width) {
+                        color = this.data[scrIndex + 1];
                         alpha += (color >> 24) & 0xFF;
                         red += (color >> 16) & 0xFF;
                         green += (color >> 8) & 0xFF;
                         blue += color & 0xFF;
                         count++;
                     }
-                    if (scrX + 1 < width && scrY + 1 < height) {
-                        color = data[scrIndex + width + 1];
-
+                    if (scrY + 1 < this.height) {
+                        color = this.data[scrIndex + this.width];
+                        alpha += (color >> 24) & 0xFF;
+                        red += (color >> 16) & 0xFF;
+                        green += (color >> 8) & 0xFF;
+                        blue += color & 0xFF;
+                        count++;
+                    }
+                    if (scrX + 1 < this.width && scrY + 1 < this.height) {
+                        color = this.data[scrIndex + this.width + 1];
                         alpha += (color >> 24) & 0xFF;
                         red += (color >> 16) & 0xFF;
                         green += (color >> 8) & 0xFF;
@@ -176,25 +230,38 @@ public class FullSpacedColorBuffer {
                         count++;
                     }
 
-                    newData[x + y * newWidth] = ((alpha / count) << 24) | ((red / count) << 16) | ((green / count) << 8) | (blue / count);
-                } else {
-                    newData[x + y * newWidth] = data[scrIndex];
+                    color = ((alpha / count) << 24)
+                            | ((red / count) << 16)
+                            | ((green / count) << 8)
+                            | (blue / count);
                 }
+
+                newData[index(x, y, newWidth)] = color;
             }
         }
 
         return new FullSpacedColorBuffer(newData, newWidth, newHeight);
     }
 
+    /**
+     * Creates a rotated copy of this buffer.
+     *
+     * @param rotation the rotation to rotate by
+     * @return the rotated copy
+     */
     public FullSpacedColorBuffer rotate(Rotation rotation) {
-        int newWidth = rotation == Rotation.CLOCKWISE || rotation == Rotation.COUNTER_CLOCKWISE ? height : width;
-        int newHeight = rotation == Rotation.CLOCKWISE || rotation == Rotation.COUNTER_CLOCKWISE ? width : height;
+        int newWidth = rotation == Rotation.CLOCKWISE
+                || rotation == Rotation.COUNTER_CLOCKWISE
+                ? this.height : this.width;
+        int newHeight = rotation == Rotation.CLOCKWISE
+                || rotation == Rotation.COUNTER_CLOCKWISE
+                ? this.width : this.height;
         int[] newData = new int[newWidth * newHeight];
 
         for (int y = 0; y < newHeight; y++) {
             for (int x = 0; x < newWidth; x++) {
-                int newX = x;
-                int newY = y;
+                int newX;
+                int newY;
                 switch (rotation) {
                     case CLOCKWISE -> {
                         newX = y; // x is used as a y-coordinate here because of the rotation
@@ -208,39 +275,109 @@ public class FullSpacedColorBuffer {
                         newX = newWidth - x - 1;
                         newY = newHeight - y - 1;
                     }
+                    default -> {
+                        newX = x;
+                        newY = y;
+                    }
                 }
-                newData[x + y * newWidth] = data[newX + newY * width];
+                newData[x + y * newWidth] = this.data[this.index(newX, newY)];
             }
         }
 
         return new FullSpacedColorBuffer(newData, newWidth, newHeight);
     }
 
+    /**
+     * Create a super-sampled copy of this buffer.
+     *
+     * @param factor the factor to super-sample by, must be above 0
+     * @return the super-sampled copy
+     */
     public FullSpacedColorBuffer applySuperSampling(int factor) {
-        FullSpacedColorBuffer buffer = new FullSpacedColorBuffer(width + 2 * factor, height + 2 * factor);
+        Preconditions.checkState(factor > 0, "Invalid super-sampling factor: %s", factor);
+
+        FullSpacedColorBuffer buffer = new FullSpacedColorBuffer(this.width + 2 * factor,
+                this.height + 2 * factor);
         buffer.buffer(this, factor, factor);
-        return buffer.scale(factor, true).scale(1.0 / factor, true);
+        return buffer.scale(factor, true).scale(1d / factor, true);
     }
 
+    /**
+     * Creates a scaled copy of this buffer with the specified new dimensions.
+     *
+     * @param newWidth  the new width
+     * @param newHeight the new height
+     * @param smooth    whether to use a smooth scaling algorithm
+     * @return the scaled copy
+     */
     public FullSpacedColorBuffer scale(int newWidth, int newHeight, boolean smooth) {
-        return scale((double) newWidth / width, (double) newHeight / height, smooth);
+        return scale((double) newWidth / this.width, (double) newHeight / this.height, smooth);
     }
 
+    /**
+     * @return a snapshot of this buffer as a {@link BufferedImage}
+     */
     public BufferedImage snapshot() {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        image.setRGB(0, 0, width, height, data, 0, width);
+        BufferedImage image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+        image.setRGB(0, 0, this.width, this.height, this.data, 0, this.width);
         return image;
     }
 
+    /**
+     * Creates a new sub-buffer of this buffer at the
+     * given position with the given dimensions.
+     *
+     * @param x      the x-coordinate of where to start
+     * @param y      the y-coordinate of where to start
+     * @param width  the width of the sub-buffer
+     * @param height the height of the sub-buffer
+     * @return the new sub-buffer
+     */
     public FullSpacedColorBuffer subBuffer(int x, int y, int width, int height) {
         int[] newData = new int[width * height];
         for (int h = 0; h < height; h++) {
-            System.arraycopy(data, (x + (y + h) * this.width), newData, h * width, width);
+            // can't copy everything directly, as this isn't a 2d-array
+            System.arraycopy(this.data, this.index(x, y + h), newData, h * width, width);
         }
         return new FullSpacedColorBuffer(newData, width, height);
     }
 
+    /**
+     * @return a copy of this buffer
+     */
     public FullSpacedColorBuffer copy() {
-        return new FullSpacedColorBuffer(data.clone(), width, height);
+        return new FullSpacedColorBuffer(this.data.clone(), this.width, this.height);
+    }
+
+    private int index(int x, int y) {
+        return index(x, y, this.width);
+    }
+
+    /**
+     * @return the raw argb data wrapped by this buffer, mutable
+     */
+    public int[] buffer() {
+        return this.data;
+    }
+
+    /**
+     * @return the internal length of the data
+     */
+    public int size() {
+        return this.data.length;
+    }
+
+    /**
+     * @return the width in pixels
+     */
+    public int width() {
+        return this.width;
+    }
+
+    /**
+     * @return the height in pixels
+     */
+    public int height() {
+        return this.height;
     }
 }

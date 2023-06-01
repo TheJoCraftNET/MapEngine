@@ -5,15 +5,19 @@ import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 
 import java.awt.Font;
 
+/**
+ * Drawing utility for drawing single pixels or other
+ * shapes and forms.
+ */
 public interface IDrawingSpace extends IPipelineInput {
 
     /**
-     * Clears the drawing space
+     * Clears the drawing space.
      */
     void clear();
 
     /**
-     * Clears the drawing space in the given area
+     * Clears the drawing space in the given area.
      *
      * @param x      the x coordinate of the area
      * @param y      the y coordinate of the area
@@ -27,14 +31,14 @@ public interface IDrawingSpace extends IPipelineInput {
      *
      * @param x     the x coordinate of the pixel
      * @param y     the y coordinate of the pixel
-     * @param color the rgb color of the pixel
+     * @param color the argb color of the pixel
      */
     void pixel(int x, int y, int color);
 
     /**
-     * Draws pixels in the drawing space
+     * Draws multiple pixels in the drawing space.
      *
-     * @param pixels the pixels to draw
+     * @param pixels the pixels to draw in argb format
      * @param x      the x coordinate of the pixels
      * @param y      the y coordinate of the pixels
      * @param width  the width of the pixels
@@ -43,7 +47,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void pixels(int[] pixels, int x, int y, int width, int height);
 
     /**
-     * Draws a buffer in the drawing space
+     * Draws a buffer in the drawing space.
      *
      * @param buffer the buffer to draw
      * @param x      the x coordinate of the buffer
@@ -52,7 +56,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void buffer(FullSpacedColorBuffer buffer, int x, int y);
 
     /**
-     * Draws a line in the drawing space
+     * Draws a line in the drawing space.
      *
      * @param x1    the x coordinate of the first point
      * @param y1    the y coordinate of the first point
@@ -63,7 +67,8 @@ public interface IDrawingSpace extends IPipelineInput {
     void line(int x1, int y1, int x2, int y2, int color);
 
     /**
-     * Draws a rectangle in the drawing space
+     * Draws a rectangle in the drawing space with a border
+     * using the specified thickness.
      *
      * @param x         the x coordinate of the rectangle
      * @param y         the y coordinate of the rectangle
@@ -75,7 +80,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void rect(int x, int y, int width, int height, int thickness, int color);
 
     /**
-     * Draws a filled rectangle in the drawing space
+     * Draws a filled rectangle in the drawing space.
      *
      * @param x      the x coordinate of the rectangle
      * @param y      the y coordinate of the rectangle
@@ -86,7 +91,8 @@ public interface IDrawingSpace extends IPipelineInput {
     void rect(int x, int y, int width, int height, int color);
 
     /**
-     * Draws a circle in the drawing space
+     * Draws a circle in the drawing space with a border
+     * using the specified thickness.
      *
      * @param x         the x coordinate of the circle
      * @param y         the y coordinate of the circle
@@ -94,11 +100,10 @@ public interface IDrawingSpace extends IPipelineInput {
      * @param thickness the thickness of the circle
      * @param color     the rgb color of the circle
      */
-
     void circle(int x, int y, int radius, int thickness, int color);
 
     /**
-     * Draws a filled circle in the drawing space
+     * Draws a filled circle in the drawing space.
      *
      * @param x      the x coordinate of the circle
      * @param y      the y coordinate of the circle
@@ -108,7 +113,8 @@ public interface IDrawingSpace extends IPipelineInput {
     void circle(int x, int y, int radius, int color);
 
     /**
-     * Draws a triangle in the drawing space
+     * Draws a triangle in the drawing space with the border
+     * using the specified thickness.
      *
      * @param x1        the x coordinate of the first point
      * @param y1        the y coordinate of the first point
@@ -122,7 +128,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness, int color);
 
     /**
-     * Draws a filled triangle in the drawing space
+     * Draws a filled triangle in the drawing space.
      *
      * @param x1    the x coordinate of the first point
      * @param y1    the y coordinate of the first point
@@ -135,18 +141,18 @@ public interface IDrawingSpace extends IPipelineInput {
     void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int color);
 
     /**
-     * Draws a polygon in the drawing space
+     * Draws a polygon in the drawing space with the border
+     * using the specified thickness.
      *
      * @param x         the x coordinates of the polygon
      * @param y         the y coordinates of the polygon
      * @param thickness the thickness of the polygon
      * @param color     the rgb color of the polygon
      */
-
     void polygon(int[] x, int[] y, int thickness, int color);
 
     /**
-     * Draws a filled polygon in the drawing space
+     * Draws a filled polygon in the drawing space.
      *
      * @param x     the x coordinates of the polygon
      * @param y     the y coordinates of the polygon
@@ -155,7 +161,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void polygon(int[] x, int[] y, int color);
 
     /**
-     * Draws a text in the drawing space
+     * Draws a text in the drawing space.
      *
      * @param text  the text to draw
      * @param font  the font of the text

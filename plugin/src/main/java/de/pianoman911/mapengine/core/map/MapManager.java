@@ -14,30 +14,32 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class MapManager {
 
-    private final MapEnginePlugin plugin;
     private final Set<FrameContainer> displays = new HashSet<>();
+    private final MapEnginePlugin plugin;
 
     public MapManager(MapEnginePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public FrameContainer display(int entityId) {
-        for (FrameContainer display : displays) {
-            if (display.isInteraction(entityId) || display.hasEntity(entityId)) {
+    public @Nullable FrameContainer display(int entityId) {
+        for (FrameContainer display : this.displays()) {
+            if (display.isInteraction(entityId)
+                    || display.hasEntity(entityId)) {
                 return display;
             }
         }
         return null;
     }
 
-    public FrameContainer display(BlockVector blockVector) {
-        for (FrameContainer display : displays) {
+    public @Nullable FrameContainer display(BlockVector blockVector) {
+        for (FrameContainer display : this.displays()) {
             if (display.hasBlock(blockVector)) {
                 return display;
             }
@@ -46,11 +48,13 @@ public class MapManager {
     }
 
     public Set<FrameContainer> displays() {
-        return displays;
+        synchronized (this.displays) {
+            return this.displays;
+        }
     }
 
     @Deprecated
-    public IMapDisplay displayInView(Player player, int maxDistance) {
+    public @Nullable IMapDisplay displayInView(Player player, int maxDistance) {
         MapTraceResult result = traceDisplayInView(player, maxDistance);
         if (result == null) {
             return null;
@@ -58,7 +62,7 @@ public class MapManager {
         return result.display();
     }
 
-    public MapTraceResult traceDisplayInView(Player player, int maxDistance) {
+    public @Nullable MapTraceResult traceDisplayInView(Player player, int maxDistance) {
         RayTraceResult result = player.rayTraceBlocks(maxDistance, FluidCollisionMode.NEVER);
         if (result == null) {
             return null;
@@ -86,14 +90,18 @@ public class MapManager {
     }
 
     public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection) {
-        FrameContainer display = new FrameContainer(a, b, direction, plugin, new Pipeline(plugin));
-        displays.add(display);
+        FrameContainer display = new FrameContainer(a, b, direction, visualDirection, plugin, new Pipeline(plugin));
+        synchronized (this.displays) {
+            this.displays.add(display);
+        }
         return display;
     }
 
     public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection, Pipeline pipeline) {
-        FrameContainer display = new FrameContainer(a, b, direction, plugin, pipeline);
-        displays.add(display);
+        FrameContainer display = new FrameContainer(a, b, direction, visualDirection, plugin, pipeline);
+        synchronized (this.displays) {
+            this.displays.add(display);
+        }
         return display;
     }
 }

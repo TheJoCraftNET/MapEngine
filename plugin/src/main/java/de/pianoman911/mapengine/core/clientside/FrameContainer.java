@@ -1,7 +1,6 @@
 package de.pianoman911.mapengine.core.clientside;
 
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
-import de.pianoman911.mapengine.api.data.IMapUpdateData;
 import de.pianoman911.mapengine.api.pipeline.IPipeline;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
@@ -35,6 +34,7 @@ public class FrameContainer implements IMapDisplay {
         this.pipeline = pipeline;
         this.direction = direction;
         this.visualDirection = visualDirection;
+
         BlockVector min = new BlockVector(Math.min(a.getBlockX(), b.getBlockX()), Math.min(a.getBlockY(), b.getBlockY()), Math.min(a.getBlockZ(), b.getBlockZ()));
         BlockVector max = new BlockVector(Math.max(a.getBlockX(), b.getBlockX()), Math.max(a.getBlockY(), b.getBlockY()), Math.max(a.getBlockZ(), b.getBlockZ()));
 
@@ -145,8 +145,13 @@ public class FrameContainer implements IMapDisplay {
     }
 
     @Override
-    public void spawn(Player player) {
-        spawn0(player, visualDirection, 0);
+    public BlockFace visualDirection() {
+        return visualDirection;
+    }
+
+    @Override
+    public void spawn(Player player, int z) {
+        spawn0(player, visualDirection, z);
     }
 
     @Override
@@ -169,8 +174,9 @@ public class FrameContainer implements IMapDisplay {
         plugin.platform().flush(player);
     }
 
+    @SuppressWarnings("removal")
     @Override
-    public void update(Player player, IMapUpdateData[] data, int z, MapCursorCollection cursors) {
+    public void update(Player player, de.pianoman911.mapengine.api.data.IMapUpdateData[] data, int z, MapCursorCollection cursors) {
         for (int i = 0; i < frames.length; i++) {
             if (data[i].empty()) {
                 continue;

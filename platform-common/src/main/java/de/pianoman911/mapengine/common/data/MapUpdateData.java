@@ -1,11 +1,11 @@
 package de.pianoman911.mapengine.common.data;
 
-import de.pianoman911.mapengine.api.data.IMapUpdateData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-public final class MapUpdateData implements IMapUpdateData {
+@SuppressWarnings("removal")
+public final class MapUpdateData implements de.pianoman911.mapengine.api.data.IMapUpdateData {
 
     private static final byte[] EMPTY_ARR = new byte[0];
 
