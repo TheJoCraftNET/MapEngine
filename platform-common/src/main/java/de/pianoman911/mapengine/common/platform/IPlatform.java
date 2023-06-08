@@ -29,4 +29,6 @@ public interface IPlatform<T> {
     PacketContainer<?> createInteractionEntityBlockSizePacket(int interactionId);
 
     PacketContainer<?> createTeleportPacket(int entityId,Vector pos, float yaw, float pitch, boolean onGround);
+
+    PacketContainer<?> createItemRotationPacket(int entityId, int rotation);
 }

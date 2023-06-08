@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.BoundingBox;
+import org.jetbrains.annotations.Range;
 
 public class FrameContainer implements IMapDisplay {
 
@@ -195,6 +196,14 @@ public class FrameContainer implements IMapDisplay {
     public void rotation(Player player, float yaw, float pitch) {
         for (Frame frame : frames) {
             frame.rotationPacket(yaw, pitch).send(player);
+        }
+        plugin.platform().flush(player);
+    }
+
+    @Override
+    public void itemRotation(Player player, @Range(from = 0, to = 7) int rotation) {
+        for (Frame frame : frames) {
+            frame.itemRotationPacket(rotation).send(player);
         }
         plugin.platform().flush(player);
     }

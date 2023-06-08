@@ -81,4 +81,8 @@ public class Frame extends FilledMap {
     protected PacketContainer<?> rotationPacket(float yaw, float pitch) {
         return plugin.platform().createTeleportPacket(entityId, pos, yaw, pitch, false);
     }
+
+    public PacketContainer<?> itemRotationPacket(int rotation) {
+        return plugin.platform().createItemRotationPacket(entityId, rotation);
+    }
 }

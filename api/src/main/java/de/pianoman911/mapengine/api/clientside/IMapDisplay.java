@@ -6,6 +6,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.util.BoundingBox;
+import org.jetbrains.annotations.Range;
 
 /**
  * A map display which creates packet-level item frame
@@ -117,6 +118,16 @@ public interface IMapDisplay {
      * @param player the player to set the rotation for
      */
     void rotation(Player player, float yaw, float pitch);
+
+    /**
+     * Sets the item rotation of the item frame.
+     * It's like right-clicking the item frame.<br><br>
+     * Warning: This breaks the visual click detection of the item frame.
+     *
+     * @param player   the player to set the rotation for
+     * @param rotation the rotation (0-7)
+     */
+    void itemRotation(Player player, @Range(from = 0, to = 7) int rotation);
 
     /**
      * Sets the visual direction of the item frame, by respawning them<br><br>

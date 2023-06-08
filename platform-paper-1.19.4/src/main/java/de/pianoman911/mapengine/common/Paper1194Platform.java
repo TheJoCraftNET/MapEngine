@@ -9,12 +9,7 @@ import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -189,5 +184,15 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
             buf.release();
         }
         return PacketContainer.wrap(this, packet);
+    }
+
+    @Override
+    public PacketContainer<?> createItemRotationPacket(int entityId, int rotation) {
+        SynchedEntityData entityData = new SynchedEntityData(FAKED_ENTITY);
+
+        entityData.define(ItemFrame.DATA_ROTATION, 0); // default
+        entityData.set(ItemFrame.DATA_ROTATION, rotation); // item rotation (0-7)
+
+        return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(entityId, Objects.requireNonNull(entityData.packDirty())));
     }
 }
