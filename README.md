@@ -54,6 +54,7 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 |----------------|-----------|
 | Paper 1.19.4   | ✔️        |
 | Paper 1.19.3   | ✔️        |
+| Paper 1.20     | ✔️        |
 
 ## Usage
 

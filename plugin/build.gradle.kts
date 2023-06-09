@@ -13,6 +13,7 @@ plugins {
 dependencies {
     runtimeOnly(project(":platform-paper-1.19.3"))
     runtimeOnly(project(":platform-paper-1.19.4"))
+    runtimeOnly(project(":platform-paper-1.20"))
 
     api(project(":platform-common"))
     api("org.bstats:bstats-bukkit:3.0.2")
