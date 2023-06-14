@@ -12,7 +12,6 @@ public final class Paper120Provider implements IPlatformProvider {
     @Override
     public Optional<IPlatform<?>> tryProvide(Plugin plugin, IListenerBridge bridge) {
         if (IPlatformProvider.existsClass("org.bukkit.craftbukkit.v1_20_R1.CraftServer")) {
-            System.out.println("Paper120Provider.tryProvide: Paper120StaticProvider.provide");
             return Optional.of(Paper120StaticProvider.provide(plugin, bridge));
         }
         return Optional.empty();
