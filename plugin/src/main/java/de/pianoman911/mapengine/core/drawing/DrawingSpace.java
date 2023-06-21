@@ -7,13 +7,12 @@ import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.pipeline.PipelineContext;
 import it.unimi.dsi.fastutil.Pair;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.util.Arrays;
 
 public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context) implements IDrawingSpace {
 
-    public static final int ALPHA = 0xFF000000;
+    public static final int ALPHA = 0x00000000;
 
     @Override
     public IPipelineContext ctx() {
