@@ -68,10 +68,9 @@ public class LayeredDrawingSpace implements ILayeredDrawingSpace {
 
     @Override
     public IDrawingSpace layerOrNew(int index) {
-        if (index >= layers.size()) {
-            return newLayer();
-        } else {
-            return layer(index);
+        while (layers.size() <= index) {
+            newLayer();
         }
+        return layer(index);
     }
 }
