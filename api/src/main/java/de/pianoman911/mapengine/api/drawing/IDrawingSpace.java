@@ -1,9 +1,12 @@
 package de.pianoman911.mapengine.api.drawing;
 
 import de.pianoman911.mapengine.api.pipeline.IPipelineInput;
+import de.pianoman911.mapengine.api.util.Alignment;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
+import net.kyori.adventure.text.Component;
 
-import java.awt.Font;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * Drawing utility for drawing single pixels or other
@@ -170,4 +173,42 @@ public interface IDrawingSpace extends IPipelineInput {
      * @param color the rgb color of the text
      */
     void text(String text, Font font, int x, int y, int color);
+
+    /**
+     * Draw a component to the drawing space.<br>
+     * The component will be left-aligned (x-axis) and centered (y-axis).
+     * <p>
+     * <strong>WARNING:</strong> This will only write text components with
+     * their color. Decorations will be completely ignored.
+     *
+     * @param component the component to draw
+     * @param font      the font of what is drawn
+     * @param x         the x coordinate of the component
+     * @param y         the y coordinate of the component
+     */
+    void component(Component component, Font font, int x, int y);
+
+    /**
+     * Draw a component to the drawing space.
+     * <p>
+     * <strong>WARNING:</strong> This will only write text components with
+     * their color, decorations will be completely ignored.
+     *
+     * @param component  the component to draw
+     * @param font       the font of what is drawn
+     * @param x          the x coordinate of the component
+     * @param y          the y coordinate of the component
+     * @param alignmentX the horizontal alignment of the component
+     * @param alignmentY the vertical alignment of the component
+     */
+    void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY);
+
+    /**
+     * Draws an image in the drawing space.
+     *
+     * @param image the image to draw
+     * @param x     the x coordinate of the image
+     * @param y     the y coordinate of the image
+     */
+    void image(BufferedImage image, int x, int y);
 }

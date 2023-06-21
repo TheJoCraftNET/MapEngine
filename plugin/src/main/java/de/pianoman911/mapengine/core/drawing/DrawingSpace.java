@@ -2,12 +2,20 @@ package de.pianoman911.mapengine.core.drawing;
 
 import de.pianoman911.mapengine.api.drawing.IDrawingSpace;
 import de.pianoman911.mapengine.api.pipeline.IPipelineContext;
+import de.pianoman911.mapengine.api.util.Alignment;
 import de.pianoman911.mapengine.api.util.FontRegistry;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
+import de.pianoman911.mapengine.api.util.ImageUtils;
 import de.pianoman911.mapengine.core.pipeline.PipelineContext;
+import de.pianoman911.mapengine.core.util.ComponentUtil;
 import it.unimi.dsi.fastutil.Pair;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.TextColor;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context) implements IDrawingSpace {
@@ -137,6 +145,54 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     @Override
     public void text(String text, Font font, int x, int y, int color) {
         buffer(FontRegistry.convertText2Bytes(text, font, new Color(color)), x, y);
+    }
+
+    @Override
+    public void component(Component component, Font font, int x, int y) {
+        this.component(component, font, x, y, Alignment.START, Alignment.CENTER);
+    }
+
+    @Override
+    public void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY) {
+        int width = 0;
+        int height = 0;
+
+        for (Component child : ComponentUtil.inlineComponent(component)) {
+            String content;
+            if (child instanceof TextComponent) {
+                content = ((TextComponent) child).content();
+            } else if (child instanceof TranslatableComponent) {
+                content = ((TranslatableComponent) child).key();
+            } else {
+                content = child.getClass().getSimpleName();
+            }
+
+            TextColor componentColor = child.color();
+            Color color = componentColor == null ? Color.WHITE :
+                    new Color(componentColor.value());
+
+            FullSpacedColorBuffer childBuf = null;
+            for (String part : content.split("\n")) {
+                if (childBuf != null) {
+                    height += font.getSize();
+                    width = 0;
+                }
+                childBuf = FontRegistry.convertText2Bytes(part,
+                        font, color, true);
+
+                this.buffer.buffer(childBuf,
+                        x + width + alignmentX.getOffset(childBuf.width()),
+                        y + height + alignmentY.getOffset(childBuf.height()));
+            }
+            if (childBuf != null) {
+                width += childBuf.width();
+            }
+        }
+    }
+
+    @Override
+    public void image(BufferedImage image, int x, int y) {
+        this.buffer.pixels(ImageUtils.rgb(image), x, y, image.getWidth(), image.getHeight());
     }
 
     @Override
