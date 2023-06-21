@@ -46,13 +46,14 @@ The Stream source is 1920x1080@20 streamed with OBS.
 </details>
 
 ### Javadoc
+
 A hosted version of the javadoc can be found [here](https://mapengine.finndohrmann.de/javadoc/).
 
 ### Support
 
 | Server Version | Supported |
 |----------------|-----------|
-| Paper 1.20     | ✔️        |
+| Paper 1.20(.1) | ✔️        |
 | Paper 1.19.4   | ✔️        |
 | Paper 1.19.3   | ✔️        |
 
@@ -77,7 +78,7 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
     <dependency>
         <groupId>de.pianoman911</groupId>
         <artifactId>mapengine-api</artifactId>
-        <version>1.5.1</version>
+        <version>1.5.2</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -97,7 +98,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'de.pianoman911:mapengine-api:1.5.1'
+    compileOnly 'de.pianoman911:mapengine-api:1.5.2'
 }
 ```
 
@@ -114,7 +115,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("de.pianoman911:mapengine-api:1.5.1")
+    compileOnly("de.pianoman911:mapengine-api:1.5.2")
 }
 ```
 
@@ -132,7 +133,7 @@ public class Bar {
         // create a map display instance
         IMapDisplay display = MAP_ENGINE.displayProvider().createBasic(cornerA, cornerB, facing);
         display.spawn(viewer); // spawn the map display for the player
-        
+
         // create a color buffer for 2x2 item frames (128x128 pixels per map)
         FullSpacedColorBuffer buffer = new FullSpacedColorBuffer(256, 256);
 
@@ -163,7 +164,9 @@ public class Bar {
     }
 }
 ```
-More detailed examples can be found in the [TheJoCraftNET/MapEngineExamples](https://github.com/TheJoCraftNET/MapEngineExamples) repository.
+
+More detailed examples can be found in
+the [TheJoCraftNET/MapEngineExamples](https://github.com/TheJoCraftNET/MapEngineExamples) repository.
 
 ## Building
 
