@@ -96,7 +96,6 @@ public class FrameFileCache {
             try {
                 this.cache.close();
                 this.file.delete();
-                System.out.println("closed and deleted  " + file);
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
