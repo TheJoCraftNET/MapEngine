@@ -80,11 +80,18 @@ public class FlushingOutput implements IPipelineOutput {
 
 
         ColorBuffer[] buffers = splitColorBuffer(buf, ctx.display().width(), ctx.display().height());
+        byte[][] previousBuffers = new byte[size][];
+        if (ctx.previousBuffer() != null) {
+            ColorBuffer[] previous = splitColorBuffer(convert(ctx.previousBuffer(), ctx), ctx.display().width(), ctx.display().height());
+            for (int i = 0; i < previous.length; i++) {
+                previousBuffers[i] = MapUpdateData.createMapUpdateData(previous[i].data(), null, 0).buffer();
+            }
+        }
 
         if (!ctx.buffering()) {
             MapUpdateData[] data = new MapUpdateData[size];
             for (int i = 0; i < buffers.length; i++) {
-                data[i] = MapUpdateData.createMapUpdateData(buffers[i].data(), null, 0);
+                data[i] = MapUpdateData.createMapUpdateData(buffers[i].data(), previousBuffers[i], 0);
             }
 
             for (Player receiver : ctx.receivers()) {
@@ -121,7 +128,8 @@ public class FlushingOutput implements IPipelineOutput {
     private ColorBuffer convert(FullSpacedColorBuffer buffer, IPipelineContext ctx) {
         return switch (ctx.converter()) {
             case DIRECT -> plugin.colorPalette().convertDirect(buffer);
-            case FLOYD_STEINBERG -> FloydSteinbergDithering.dither(buffer, plugin.colorPalette(), ctx.display().height());
+            case FLOYD_STEINBERG ->
+                    FloydSteinbergDithering.dither(buffer, plugin.colorPalette(), ctx.display().height());
         };
     }
 }

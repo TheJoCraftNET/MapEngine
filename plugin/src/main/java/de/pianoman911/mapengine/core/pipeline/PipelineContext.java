@@ -20,6 +20,7 @@ public class PipelineContext implements IPipelineContext {
     private boolean buffering = false;
     private int z = 0;
     private Converter converter = Converter.DIRECT;
+    private FullSpacedColorBuffer previousBuffer;
 
     public PipelineContext(FrameContainer container) {
         this.container = container;
@@ -105,12 +106,12 @@ public class PipelineContext implements IPipelineContext {
 
     @Override
     public FullSpacedColorBuffer previousBuffer() {
-        return null;
+        return previousBuffer;
     }
 
     @Override
     public void previousBuffer(FullSpacedColorBuffer previousBuffer) {
-        // Do nothing as this is deprecated
+        this.previousBuffer = previousBuffer;
     }
 
     @Override

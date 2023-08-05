@@ -61,14 +61,14 @@ public interface IPipelineContext {
      * false if it is a partial update
      * @deprecated use {@link #buffering()} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     boolean full();
 
     /**
      * @see #full()
      * @deprecated use {@link #buffering()} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     void full(boolean full);
 
     boolean buffering();
@@ -85,6 +85,11 @@ public interface IPipelineContext {
      * <p>
      * This is recommended for large displays which update often,
      * with very small difference in content.
+     * <p>
+     * If you want manual control over the buffering, you can use
+     * {@link #previousBuffer()} to set the previous buffer. This
+     * will only update the changed section, but it takes no account
+     * if the player has already seen the previous buffer.
      *
      * @param buffering true if per player buffering should be enabled
      */
@@ -125,15 +130,16 @@ public interface IPipelineContext {
     void converter(Converter converter);
 
     /**
-     * The previous buffer is used for getting the changed section.<br>
-     * If this is not set, everything will update.
+     * The previous buffer is used for getting the changed section.
+     * If this is not set, everything will update.<br>
+     * Also, it takes no account if the player has already seen the previous buffer.<br><br>
+     * Buffering must be disabled for this to work.<br>
+     * {@link #buffering(boolean)} for more info.
      */
-    @Deprecated
     @Nullable FullSpacedColorBuffer previousBuffer();
 
     /**
      * @see #previousBuffer()
      */
-    @Deprecated
     void previousBuffer(@Nullable FullSpacedColorBuffer previousBuffer);
 }
