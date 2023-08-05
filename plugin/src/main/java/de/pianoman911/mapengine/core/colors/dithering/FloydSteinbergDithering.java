@@ -6,9 +6,11 @@ import de.pianoman911.mapengine.core.colors.ColorPalette;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 public class FloydSteinbergDithering {
+
+    private static final ExecutorService EXECUTOR = new ForkJoinPool();
 
     // Floyd-Steinberg error diffusion matrix
     private static final float FS_ERROR = 7f / 16f;
@@ -28,7 +30,6 @@ public class FloydSteinbergDithering {
      */
     @SuppressWarnings("Duplicates") // It's duplicated, but it's faster than using a method
     public static ColorBuffer dither(FullSpacedColorBuffer buffer, ColorPalette palette, int threads) {
-        ExecutorService executor = Executors.newFixedThreadPool(threads);
         CompletableFuture<?>[] futures = new CompletableFuture[threads];
 
         int[] src = buffer.buffer();
@@ -100,11 +101,10 @@ public class FloydSteinbergDithering {
                         }
                     }
                 }
-            }, executor);
+            }, EXECUTOR);
         }
 
         CompletableFuture.allOf(futures).join();
-        executor.shutdown();
 
         // Recalculation only at the touch points of the threads to avoid color bleeding without using locks or synchronization (which would be slower)
         for (int i = 1; i < threads; i++) {
