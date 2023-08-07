@@ -81,7 +81,7 @@ public class MapManager {
             return null;
         }
 
-        Vec2i clickPos = MapUtil.calculateClickPosition(player, display);
+        Vec2i clickPos = MapUtil.calculateClickPosition(player, display, maxDistance);
         if (clickPos == null) {
             return null;
         }

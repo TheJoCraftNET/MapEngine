@@ -3,7 +3,6 @@ package de.pianoman911.mapengine.core.util;
 import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import it.unimi.dsi.fastutil.Pair;
-import org.bukkit.GameMode;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
@@ -35,9 +34,8 @@ public class MapUtil {
         return vector;
     }
 
-    public static Vec2i calculateClickPosition(Player player, FrameContainer map) {
-        Pair<Vector, BlockFace> clipped = RayTraceUtil.clipBox(player, map.interactionBox(),
-                player.getGameMode() == GameMode.CREATIVE ? 6f : 3f);
+    public static Vec2i calculateClickPosition(Player player, FrameContainer map, double maxDistance) {
+        Pair<Vector, BlockFace> clipped = RayTraceUtil.clipBox(player, map.interactionBox(), maxDistance);
         if (clipped == null || clipped.second() != map.direction()) {
             return null;
         }

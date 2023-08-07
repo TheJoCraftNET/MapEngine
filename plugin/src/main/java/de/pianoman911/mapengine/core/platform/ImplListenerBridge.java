@@ -10,6 +10,7 @@ import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.Frame;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.util.MapUtil;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.TimeUnit;
@@ -39,7 +40,8 @@ public final class ImplListenerBridge implements IListenerBridge {
     }
 
     private void executeAtExactPosition(Player player, FrameContainer map, MapClickType type) {
-        Vec2i clickPos = MapUtil.calculateClickPosition(player, map);
+        Vec2i clickPos = MapUtil.calculateClickPosition(player, map,
+                player.getGameMode() == GameMode.CREATIVE ? 6F : 3F);
 
         if (clickPos != null) {
             new MapClickEvent(map, type, player, clickPos).callEvent();
