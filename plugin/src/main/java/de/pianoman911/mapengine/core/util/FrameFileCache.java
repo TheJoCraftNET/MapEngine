@@ -54,17 +54,17 @@ public class FrameFileCache {
 
             byte[] buffer = this.memoryCache[index].get();
             if (buffer != null) {
-                // gc hasn't collected the buffer yet, can be reused reuse
+                // gc hasn't collected the buffer yet, can be reused
                 return buffer;
             }
 
             byte[] data = new byte[FRAME_SIZE];
             try {
-                FileChannel channel = this.cache.getChannel();
+                FileChannel channel = this.cache.getChannel(); // File Channel is considered to be reused, so no need to close it
                 channel.map(FileChannel.MapMode.READ_ONLY,
                         (long) FRAME_SIZE * index, FRAME_SIZE).get(data);
             } catch (IOException exception) {
-                throw new RuntimeException(exception);
+                throw new RuntimeException("Failed to read cache file: " + this.file.getName(), exception);
             }
 
             this.memoryCache[index] = new WeakReference<>(data);
@@ -87,7 +87,6 @@ public class FrameFileCache {
         }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void closeAndDelete() {
         synchronized (this) {
             Preconditions.checkState(!this.closed, "Cache is already closed");
@@ -95,7 +94,9 @@ public class FrameFileCache {
 
             try {
                 this.cache.close();
-                this.file.delete();
+                if (!this.file.delete()) {
+                    throw new RuntimeException("Failed to delete cache file: " + this.file.getName());
+                }
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
