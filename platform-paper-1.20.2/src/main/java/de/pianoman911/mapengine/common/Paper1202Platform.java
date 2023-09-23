@@ -31,7 +31,7 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData.MapPatch;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListener>>, Listener {
+public class Paper1202Platform implements IPlatform<Packet<ClientGamePacketListener>>, Listener {
 
     private static final Entity FAKED_ENTITY = new ThrownEgg(MinecraftServer.getServer().overworld(), 0, 0, 0);
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
@@ -57,14 +57,14 @@ public class Paper1194Platform implements IPlatform<Packet<ClientGamePacketListe
 
     private final IListenerBridge bridge;
 
-    public Paper1194Platform(Plugin plugin, IListenerBridge bridge) {
+    public Paper1202Platform(Plugin plugin, IListenerBridge bridge) {
         this.bridge = bridge;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Paper1194Listener listener = new Paper1194Listener(event.getPlayer(), this.bridge);
+        Paper1202Listener listener = new Paper1202Listener(event.getPlayer(), this.bridge);
         ((CraftPlayer) event.getPlayer()).getHandle().connection.connection.channel
                 .pipeline().addAfter("decoder", "mapengine", listener);
     }

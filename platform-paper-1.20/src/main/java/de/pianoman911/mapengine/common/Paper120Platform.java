@@ -7,9 +7,15 @@ import de.pianoman911.mapengine.common.platform.PacketContainer;
 import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.SharedConstants;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -65,7 +71,8 @@ public class Paper120Platform implements IPlatform<Packet<ClientGamePacketListen
 
     @Override
     public String getDisplayedName() {
-        return MinecraftServer.getServer().getServerModName() + " 1.19.4";
+        return MinecraftServer.getServer().getServerModName()
+                + " " + SharedConstants.getCurrentVersion().getName();
     }
 
     @Override
