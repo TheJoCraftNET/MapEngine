@@ -128,29 +128,22 @@ dependencies {
 public class Bar {
 
     // getting the api instance
-    private static final MapEngineApi MAP_ENGINE = Bukkit.getServicesManager().getRegistration(MapEngineApi.class).getProvider();
+    private static final MapEngineApi MAP_ENGINE = Bukkit.getServicesManager().load(MapEngineApi.class);
 
     public void foo(BufferedImage image, BlockVector cornerA, BlockVector cornerB, BlockFace facing, Player viewer) {
         // create a map display instance
         IMapDisplay display = MAP_ENGINE.displayProvider().createBasic(cornerA, cornerB, facing);
         display.spawn(viewer); // spawn the map display for the player
 
-        // create a color buffer for 2x2 item frames (128x128 pixels per map)
-        FullSpacedColorBuffer buffer = new FullSpacedColorBuffer(256, 256);
-
-        // resize the image
-        image = ImageUtils.resize(image, 256, 256);
-        // get all rgb values of the image
-        int[] rgb = ImageUtils.rgb(image);
-
-        // set the rgb values of the buffer, it respects the alpha channel
-        // starting at x: 0 and y: 0
-        // end at width: 256 and height: 256
-        buffer.pixels(rgb, 0, 0, 256, 256);
-
         // create an input pipeline element
         // this object can also be used to draw simple shapes and text
-        IDrawingSpace input = MAP_ENGINE.pipeline().drawingSpace(buffer, display);
+        IDrawingSpace input = MAP_ENGINE.pipeline().createDrawingSpace(display);
+
+        // draw the image to the input pipeline element
+        input.image(image,0,0);
+
+        // draw a triangle
+        input.triangle(0, 0, 10, 10, 20, 0, 0xff0000ff);
 
         // add a player to the pipeline context,
         // making the player receive the map
@@ -159,9 +152,12 @@ public class Bar {
         // enable floyd-steinberg dithering
         input.ctx().converter(Converter.FLOYD_STEINBERG);
 
+        // enable per player buffering
+        input.ctx().buffering(true);
+
         // flush the pipeline
         // the drawing space can be reused
-        display.pipeline().flush(input);
+        input.flush();
     }
 }
 ```
