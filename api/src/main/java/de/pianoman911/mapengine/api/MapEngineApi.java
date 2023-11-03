@@ -76,6 +76,15 @@ public interface MapEngineApi {
     @Deprecated
     @Nullable IMapDisplay displayInView(Player player, int maxDistance);
 
+
+    /**
+     * Used to get a map display and the ray hit point in the view of a player.
+     *
+     * @param player      the player to check for
+     * @return the trace result or null if nothing was found
+     */
+    @Nullable MapTraceResult traceDisplayInView(Player player);
+
     /**
      * Used to get a map display and the ray hit point in the view of a player.
      *

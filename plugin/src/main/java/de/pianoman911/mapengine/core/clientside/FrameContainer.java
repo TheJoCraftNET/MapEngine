@@ -25,6 +25,7 @@ public class FrameContainer implements IMapDisplay {
     private final BlockFace visualDirection;
     private final BoundingBox box;
     private final BoundingBox interactionBox;
+    private double interactDistance = 6;
 
     @Deprecated
     public FrameContainer(BlockVector a, BlockVector b, BlockFace direction, MapEnginePlugin plugin, Pipeline pipeline) {
@@ -149,6 +150,16 @@ public class FrameContainer implements IMapDisplay {
     @Override
     public BlockFace visualDirection() {
         return visualDirection;
+    }
+
+    @Override
+    public double interactDistance() {
+        return interactDistance;
+    }
+
+    @Override
+    public void interactDistance(double interactDistance) {
+        this.interactDistance = interactDistance;
     }
 
     @Override

@@ -4,13 +4,13 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.pianoman911.mapengine.api.event.MapClickEvent;
 import de.pianoman911.mapengine.api.util.MapClickType;
+import de.pianoman911.mapengine.api.util.MapTraceResult;
 import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.Frame;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.util.MapUtil;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.TimeUnit;
@@ -40,8 +40,7 @@ public final class ImplListenerBridge implements IListenerBridge {
     }
 
     private void executeAtExactPosition(Player player, FrameContainer map, MapClickType type) {
-        Vec2i clickPos = MapUtil.calculateClickPosition(player, map,
-                player.getGameMode() == GameMode.CREATIVE ? 6F : 3F);
+        Vec2i clickPos = MapUtil.calculateClickPosition(player, map, map.interactDistance());
 
         if (clickPos != null) {
             new MapClickEvent(map, type, player, clickPos).callEvent();
@@ -76,5 +75,17 @@ public final class ImplListenerBridge implements IListenerBridge {
             return;
         }
         this.executeAtExactPosition(player, map, MapClickType.LEFT_CLICK);
+    }
+
+    @Override
+    public void handleSwing(Player player) {
+        MapTraceResult result = this.plugin.mapManager().traceDisplayInView(player);
+        if (result == null || CLICKED.getIfPresent(player) != null) {
+            return;
+        }
+
+        // insert dummy value, doesn't matter
+        CLICKED.put(player, 0L);
+        new MapClickEvent(result.display(), MapClickType.LEFT_CLICK, player, result.viewPos()).callEvent();
     }
 }

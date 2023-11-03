@@ -141,6 +141,11 @@ public class ImplMapEngineApi implements MapEngineApi {
     }
 
     @Override
+    public @Nullable MapTraceResult traceDisplayInView(Player player) {
+        return this.plugin.mapManager().traceDisplayInView(player);
+    }
+
+    @Override
     public @Nullable MapTraceResult traceDisplayInView(Player player, int maxDistance) {
         return this.plugin.mapManager().traceDisplayInView(player, maxDistance);
     }

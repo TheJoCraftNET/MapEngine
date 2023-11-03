@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.entity.Player;
@@ -26,14 +27,18 @@ public final class Paper120Listener extends MessageToMessageDecoder<Packet<?>> i
 
     @Override
     public boolean acceptInboundMessage(Object msg) {
-        return msg instanceof ServerboundInteractPacket;
+        return msg instanceof ServerboundInteractPacket || msg instanceof ServerboundSwingPacket;
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, Packet<?> msg, List<Object> out) {
-        ServerboundInteractPacket packet = (ServerboundInteractPacket) msg;
-        this.entityId = packet.getEntityId();
-        packet.dispatch(this);
+        if (msg instanceof ServerboundInteractPacket interact) {
+            this.entityId = interact.getEntityId();
+            interact.dispatch(this);
+        } else if (msg instanceof ServerboundSwingPacket) {
+            this.bridge.handleSwing(this.player);
+        }
+
         out.add(msg);
     }
 

@@ -42,6 +42,21 @@ public interface IMapDisplay extends IDisplay {
     BlockFace visualDirection();
 
     /**
+     * @return the distance at which the player can interact with the map display
+     */
+    double interactDistance();
+
+    /**
+     * Sets the distance at which the player can interact with the map display.<br>
+     * The default distance is at 6 blocks.
+     * <p>
+     * <strong>WARNING: Distances above 6 (creative) or 3 (other gamemodes) are only detected
+     * by an attacking (left-click) interaction.</strong>
+     * @param interactDistance the distance at which the player can interact with the map display
+     */
+    void interactDistance(double interactDistance);
+
+    /**
      * Spawns the map display for the given player at z-index 0.
      *
      * @param player the player who should receive the map display

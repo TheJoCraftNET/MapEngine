@@ -8,8 +8,9 @@ import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.pipeline.MapDisplayOutput;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
 import de.pianoman911.mapengine.core.util.MapUtil;
+import de.pianoman911.mapengine.core.util.RayTraceUtil;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.FluidCollisionMode;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
@@ -64,30 +65,30 @@ public class MapManager {
     }
 
     public @Nullable MapTraceResult traceDisplayInView(Player player, int maxDistance) {
-        RayTraceResult result = player.rayTraceBlocks(maxDistance, FluidCollisionMode.NEVER);
-        if (result == null) {
-            return null;
-        }
+        synchronized (this.displays) {
+            for (FrameContainer display : this.displays) {
+                double distance = Math.max(maxDistance, display.interactDistance());
+                if (distance <= 0) {
+                    continue;
+                }
 
-        Block block = result.getHitBlock();
-        BlockFace face = result.getHitBlockFace();
-        if (block == null || face == null) {
-            return null;
-        }
+                Pair<Vector, BlockFace> clip = RayTraceUtil.clipBox(player, display.interactionBox(), distance);
+                if (clip != null && clip.second() == display.direction()) {
+                    RayTraceResult ray = player.rayTraceBlocks(clip.left().subtract(player.getEyeLocation().toVector()).length(), FluidCollisionMode.NEVER);
+                    if (ray != null) {
+                        continue; // block in the sight
+                    }
 
-        Vector blockVector = block.getLocation().toVector().toBlockVector();
-        blockVector = MapUtil.itemFrameOffset(blockVector, face);
-        FrameContainer display = display(blockVector.toBlockVector());
-        if (display == null) {
-            return null;
+                    Vec2i clickPos = MapUtil.calculateClickPosition(player, display, distance);
+                    return new MapTraceResult(clickPos, display);
+                }
+            }
         }
+        return null;
+    }
 
-        Vec2i clickPos = MapUtil.calculateClickPosition(player, display, maxDistance);
-        if (clickPos == null) {
-            return null;
-        }
-
-        return new MapTraceResult(clickPos, display);
+    public @Nullable MapTraceResult traceDisplayInView(Player player) {
+        return traceDisplayInView(player, 0);
     }
 
     public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection) {
