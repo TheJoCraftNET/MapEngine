@@ -12,7 +12,7 @@ public enum Alignment {
      */
     START {
         @Override
-        public int getOffset(int width) {
+        public int getOffset(int len) {
             return 0;
         }
     },
@@ -25,8 +25,8 @@ public enum Alignment {
      */
     CENTER {
         @Override
-        public int getOffset(int width) {
-            return width / -2;
+        public int getOffset(int len) {
+            return len / -2;
         }
     },
 
@@ -38,11 +38,11 @@ public enum Alignment {
      */
     END {
         @Override
-        public int getOffset(int width) {
-            return -width;
+        public int getOffset(int len) {
+            return -len;
         }
     };
 
     @ApiStatus.Internal
-    public abstract int getOffset(int width);
+    public abstract int getOffset(int len);
 }

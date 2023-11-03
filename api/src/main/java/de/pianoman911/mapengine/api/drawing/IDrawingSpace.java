@@ -5,7 +5,7 @@ import de.pianoman911.mapengine.api.util.Alignment;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import net.kyori.adventure.text.Component;
 
-import java.awt.*;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 
 /**
@@ -176,7 +176,8 @@ public interface IDrawingSpace extends IPipelineInput {
 
     /**
      * Draw a component to the drawing space.<br>
-     * The component will be left-aligned (x-axis) and centered (y-axis).
+     * The component will be left-aligned (x-axis) and centered (y-axis),<br>
+     * Antialiasing will be enabled and the line height will be 1.2
      * <p>
      * <strong>WARNING:</strong> This will only write text components with
      * their color. Decorations will be completely ignored.
@@ -189,7 +190,8 @@ public interface IDrawingSpace extends IPipelineInput {
     void component(Component component, Font font, int x, int y);
 
     /**
-     * Draw a component to the drawing space.
+     * Draw a component to the drawing space.<br>
+     * Antialiasing will be enabled and the line height will be 1.2
      * <p>
      * <strong>WARNING:</strong> This will only write text components with
      * their color, decorations will be completely ignored.
@@ -202,6 +204,38 @@ public interface IDrawingSpace extends IPipelineInput {
      * @param alignmentY the vertical alignment of the component
      */
     void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY);
+
+    /**
+     * Draw a component to the drawing space.<br>
+     * The line height will be 1.2
+     * <p>
+     * <strong>WARNING:</strong> This will only write text components with
+     * their color, decorations will be completely ignored.
+     * @param component the component to draw
+     * @param font the font of what is drawn
+     * @param x the x coordinate of the component
+     * @param y the y coordinate of the component
+     * @param alignmentX the horizontal alignment of the component
+     * @param alignmentY the vertical alignment of the component
+     * @param antiAliasing if antialiasing should be enabled (less rough edges)
+     */
+    void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY, boolean antiAliasing);
+
+    /**
+     * Draw a component to the drawing space.
+     * <p>
+     * <strong>WARNING:</strong> This will only write text components with
+     * their color, decorations will be completely ignored.
+     * @param component the component to draw
+     * @param font the font of what is drawn
+     * @param x the x coordinate of the component
+     * @param y the y coordinate of the component
+     * @param alignmentX the horizontal alignment of the component
+     * @param alignmentY the vertical alignment of the component
+     * @param antiAliasing if antialiasing should be enabled (less rough edges)
+     * @param lineHeight the line height in percent (1.0 = 100%), 1.2 is recommended
+     */
+    void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY, boolean antiAliasing, float lineHeight);
 
     /**
      * Draws an image in the drawing space.

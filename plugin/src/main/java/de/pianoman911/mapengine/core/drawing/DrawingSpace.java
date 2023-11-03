@@ -14,9 +14,12 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextColor;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context) implements IDrawingSpace {
 
@@ -154,9 +157,19 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY) {
-        int width = 0;
-        int height = 0;
+        this.component(component, font, x, y, alignmentX, alignmentY, true);
+    }
 
+    @Override
+    public void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY, boolean antiAliasing) {
+        this.component(component, font, x, y, alignmentX, alignmentY, antiAliasing, 1.2f);
+    }
+
+    @Override
+    public void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY, boolean antiAliasing, float lineHeight) {
+        int width = 0;
+
+        List<FullSpacedColorBuffer> buffers = new ArrayList<>();
         for (Component child : ComponentUtil.inlineComponent(component)) {
             String content;
             if (child instanceof TextComponent) {
@@ -172,21 +185,28 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
                     new Color(componentColor.value());
 
             FullSpacedColorBuffer childBuf = null;
-            for (String part : content.split("\n")) {
+
+            String[] parts = content.split("\n");
+            for (String part : parts) {
                 if (childBuf != null) {
-                    height += font.getSize();
-                    width = 0;
+                    width = Math.max(width, childBuf.width());
                 }
                 childBuf = FontRegistry.convertText2Bytes(part,
-                        font, color, true);
+                        font, color, antiAliasing);
 
-                this.buffer.buffer(childBuf,
-                        x + width + alignmentX.getOffset(childBuf.width()),
-                        y + height + alignmentY.getOffset(childBuf.height()));
+                buffers.add(childBuf);
             }
             if (childBuf != null) {
-                width += childBuf.width();
+                width = Math.max(width, childBuf.width());
             }
+        }
+
+        int offsetX = alignmentX.getOffset(width);
+        int offsetY = alignmentY.getOffset((int) (font.getSize() * lineHeight * buffers.size()));
+        for (FullSpacedColorBuffer renderedLine : buffers) {
+            int lineOffsetX = (width - renderedLine.width()) / 2;
+            buffer.buffer(renderedLine, x + offsetX + lineOffsetX, y + offsetY);
+            y += (int) (font.getSize() * lineHeight);
         }
     }
 

@@ -53,31 +53,7 @@ public final class FontRegistry {
             graphics.dispose();
         }
 
-        int startX = image.getWidth();
-        int startY = image.getHeight();
-        int endX = 0;
-        int endY = 0;
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                if (((image.getRGB(x, y) >> 24) & 0xFF) != 0) {
-                    startX = Math.min(startX, x);
-                    startY = Math.min(startY, y);
-                    endX = Math.max(endX, x);
-                    endY = Math.max(endY, y);
-                }
-            }
-        }
-        endX++;
-        endY++;
-
-        BufferedImage cutImage = new BufferedImage(endX - startX, endY - startY, BufferedImage.TYPE_INT_ARGB);
-        {
-            Graphics2D gc = cutImage.createGraphics();
-            gc.drawImage(image, 0, 0, endX - startX, endY - startY, startX, startY, endX, endY, null);
-            gc.dispose();
-        }
-
-        return cutImage;
+        return ImageUtils.cutImage(image);
     }
 
     /**
