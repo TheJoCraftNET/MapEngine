@@ -1,10 +1,9 @@
 package de.pianoman911.mapengine.core.pipeline;
 
-import de.pianoman911.mapengine.api.clientside.IMapDisplay;
+import de.pianoman911.mapengine.api.clientside.IDisplay;
 import de.pianoman911.mapengine.api.pipeline.IPipelineContext;
 import de.pianoman911.mapengine.api.util.Converter;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
-import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
 
@@ -14,16 +13,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PipelineContext implements IPipelineContext {
+
     private final Set<Player> receivers = new HashSet<>();
-    private final FrameContainer container;
+    private final IDisplay display;
     private final MapCursorCollection cursors = new MapCursorCollection();
     private boolean buffering = false;
     private int z = 0;
     private Converter converter = Converter.DIRECT;
     private FullSpacedColorBuffer previousBuffer;
 
-    public PipelineContext(FrameContainer container) {
-        this.container = container;
+    public PipelineContext(IDisplay display) {
+        this.display = display;
     }
 
     @Override
@@ -60,8 +60,8 @@ public class PipelineContext implements IPipelineContext {
     }
 
     @Override
-    public IMapDisplay display() {
-        return container;
+    public IDisplay getDisplay() {
+        return this.display;
     }
 
     @Override

@@ -5,6 +5,7 @@ import de.pianoman911.mapengine.api.util.MapTraceResult;
 import de.pianoman911.mapengine.api.util.Vec2i;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
+import de.pianoman911.mapengine.core.pipeline.MapDisplayOutput;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
 import de.pianoman911.mapengine.core.util.MapUtil;
 import org.bukkit.FluidCollisionMode;
@@ -90,7 +91,8 @@ public class MapManager {
     }
 
     public IMapDisplay createDisplay(BlockVector a, BlockVector b, BlockFace direction, BlockFace visualDirection) {
-        FrameContainer display = new FrameContainer(a, b, direction, visualDirection, plugin, new Pipeline(plugin));
+        FrameContainer display = new FrameContainer(a, b, direction, visualDirection, this.plugin,
+                new Pipeline(new MapDisplayOutput(this.plugin)));
         synchronized (this.displays) {
             this.displays.add(display);
         }

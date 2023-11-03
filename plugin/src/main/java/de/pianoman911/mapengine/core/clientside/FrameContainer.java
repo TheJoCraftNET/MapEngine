@@ -5,6 +5,7 @@ import de.pianoman911.mapengine.api.pipeline.IPipeline;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
+import de.pianoman911.mapengine.core.util.MapUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.bukkit.block.BlockFace;
@@ -127,12 +128,12 @@ public class FrameContainer implements IMapDisplay {
 
     @Override
     public int pixelWidth() {
-        return width * 128;
+        return width * MapUtil.MAP_WIDTH;
     }
 
     @Override
     public int pixelHeight() {
-        return height * 128;
+        return height * MapUtil.MAP_HEIGHT;
     }
 
     @Override

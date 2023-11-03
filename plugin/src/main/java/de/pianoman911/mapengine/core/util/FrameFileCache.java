@@ -13,8 +13,6 @@ import java.util.Arrays;
 
 public class FrameFileCache {
 
-    private static final int FRAME_SIZE = 16384;
-
     private final File file;
     private final RandomAccessFile cache;
 
@@ -58,11 +56,11 @@ public class FrameFileCache {
                 return buffer;
             }
 
-            byte[] data = new byte[FRAME_SIZE];
+            byte[] data = new byte[MapUtil.MAP_PIXEL_COUNT];
             try {
                 FileChannel channel = this.cache.getChannel(); // File Channel is considered to be reused, so no need to close it
                 channel.map(FileChannel.MapMode.READ_ONLY,
-                        (long) FRAME_SIZE * index, FRAME_SIZE).get(data);
+                        (long) MapUtil.MAP_PIXEL_COUNT * index, MapUtil.MAP_PIXEL_COUNT).get(data);
             } catch (IOException exception) {
                 throw new RuntimeException("Failed to read cache file: " + this.file.getName(), exception);
             }
@@ -80,7 +78,7 @@ public class FrameFileCache {
             this.memoryCache[index] = new WeakReference<>(data);
             try {
                 FileChannel channel = this.cache.getChannel();
-                channel.write(ByteBuffer.wrap(data), (long) FRAME_SIZE * index);
+                channel.write(ByteBuffer.wrap(data), (long) MapUtil.MAP_PIXEL_COUNT * index);
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }

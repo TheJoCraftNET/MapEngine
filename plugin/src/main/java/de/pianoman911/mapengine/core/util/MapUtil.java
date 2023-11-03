@@ -8,7 +8,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
-public class MapUtil {
+public final class MapUtil {
+
+    public static final int MAP_WIDTH = 128;
+    public static final int MAP_HEIGHT = 128;
+    public static final int MAP_PIXEL_COUNT = MAP_WIDTH * MAP_HEIGHT;
+
+    private MapUtil() {
+    }
 
     public static Vector itemFrameOffset(Vector vector, BlockFace direction) {
         vector = vector.clone();
@@ -50,28 +57,28 @@ public class MapUtil {
 
         switch (map.direction()) {
             case EAST -> {
-                x = (int) ((map.width() - (posZ + map.width() / 2.0)) * 128);
-                y = (int) ((map.height() - posY) * 128);
+                x = (int) ((map.width() - (posZ + map.width() / 2.0)) * MAP_WIDTH);
+                y = (int) ((map.height() - posY) * MAP_HEIGHT);
             }
             case WEST -> {
-                x = (int) ((posZ + map.width() / 2.0) * 128);
-                y = (int) ((map.height() - posY) * 128);
+                x = (int) ((posZ + map.width() / 2.0) * MAP_WIDTH);
+                y = (int) ((map.height() - posY) * MAP_HEIGHT);
             }
             case SOUTH -> {
-                x = (int) ((posX + map.width() / 2.0) * 128);
-                y = (int) ((map.height() - posY) * 128);
+                x = (int) ((posX + map.width() / 2.0) * MAP_WIDTH);
+                y = (int) ((map.height() - posY) * MAP_HEIGHT);
             }
             case NORTH -> {
-                x = (int) ((map.width() - (posX + map.width() / 2.0)) * 128);
-                y = (int) ((map.height() - posY) * 128);
+                x = (int) ((map.width() - (posX + map.width() / 2.0)) * MAP_WIDTH);
+                y = (int) ((map.height() - posY) * MAP_HEIGHT);
             }
             case UP -> {
-                x = (int) ((posX + map.width() / 2.0) * 128);
-                y = (int) ((posZ + map.height() / 2.0) * 128);
+                x = (int) ((posX + map.width() / 2.0) * MAP_WIDTH);
+                y = (int) ((posZ + map.height() / 2.0) * MAP_HEIGHT);
             }
             case DOWN -> {
-                x = (int) ((posX + map.width() / 2.0) * 128);
-                y = (int) ((map.height() - (posZ + map.height() / 2.0)) * 128);
+                x = (int) ((posX + map.width() / 2.0) * MAP_WIDTH);
+                y = (int) ((map.height() - (posZ + map.height() / 2.0)) * MAP_HEIGHT);
             }
 
             default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());

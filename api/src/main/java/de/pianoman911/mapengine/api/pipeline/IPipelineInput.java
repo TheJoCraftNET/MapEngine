@@ -25,6 +25,6 @@ public interface IPipelineInput extends IPipelineNode {
      * Flushes the drawing space to the display using the display's pipeline
      */
     default void flush() {
-        ctx().display().pipeline().flush(this);
+        ctx().getDisplay().pipeline().flush(this);
     }
 }

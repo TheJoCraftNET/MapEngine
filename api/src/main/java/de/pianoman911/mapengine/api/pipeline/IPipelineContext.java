@@ -1,5 +1,6 @@
 package de.pianoman911.mapengine.api.pipeline;
 
+import de.pianoman911.mapengine.api.clientside.IDisplay;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.util.Converter;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
@@ -53,8 +54,17 @@ public interface IPipelineContext {
 
     /**
      * @return the {@link IMapDisplay} associated with this context
+     * @deprecated use {@link #getDisplay()} instead
      */
-    IMapDisplay display();
+    @Deprecated(forRemoval = true)
+    default IMapDisplay display() {
+        return (IMapDisplay) this.getDisplay();
+    }
+
+    /**
+     * @return the {@link IDisplay} associated with this context
+     */
+    IDisplay getDisplay();
 
     /**
      * @return true if the buffer will update everything,

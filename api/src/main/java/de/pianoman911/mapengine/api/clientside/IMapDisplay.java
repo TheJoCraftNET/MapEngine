@@ -1,7 +1,6 @@
 package de.pianoman911.mapengine.api.clientside;
 
 import de.pianoman911.mapengine.api.data.IMapUpdateData;
-import de.pianoman911.mapengine.api.pipeline.IPipeline;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursorCollection;
@@ -14,7 +13,7 @@ import org.jetbrains.annotations.Range;
  *
  * @see IDisplayProvider
  */
-public interface IMapDisplay {
+public interface IMapDisplay extends IDisplay {
 
     /**
      * @return the display width (in blocks)
@@ -25,16 +24,6 @@ public interface IMapDisplay {
      * @return the display height (in blocks)
      */
     int height();
-
-    /**
-     * @return the display total width (in available pixels)
-     */
-    int pixelWidth();
-
-    /**
-     * @return the display total height (in available pixels)
-     */
-    int pixelHeight();
 
     /**
      * @return 2d-box of where the map displays are attached
@@ -102,14 +91,6 @@ public interface IMapDisplay {
      */
     @Deprecated(forRemoval = true)
     void update(Player player, IMapUpdateData[] data, int z, MapCursorCollection cursors);
-
-    /**
-     * The default {@link IPipeline} for this display.<br>
-     * You can also use multiple own pipelines for different purposes with the same display.
-     *
-     * @return the default pipeline for this display
-     */
-    IPipeline pipeline();
 
     /**
      * Sets the entity rotation of the item frame.<br><br>

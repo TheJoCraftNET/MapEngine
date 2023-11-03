@@ -6,7 +6,6 @@ import de.pianoman911.mapengine.api.pipeline.IPipelineInput;
 import de.pianoman911.mapengine.api.pipeline.IPipelineOutput;
 import de.pianoman911.mapengine.api.pipeline.IPipelineStream;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
-import de.pianoman911.mapengine.core.MapEnginePlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +18,6 @@ public final class Pipeline implements IPipeline {
     public Pipeline(IPipelineOutput output, IPipelineStream... streams) {
         this.streams = new ArrayList<>(List.of(streams));
         this.output = output;
-    }
-
-    public Pipeline(MapEnginePlugin plugin, IPipelineStream... streams) {
-        this.streams = new ArrayList<>(List.of(streams));
-        this.output = new FlushingOutput(plugin);
     }
 
     @Override

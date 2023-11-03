@@ -9,6 +9,7 @@ import de.pianoman911.mapengine.api.util.Converter;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.colors.dithering.FloydSteinbergDithering;
+import de.pianoman911.mapengine.core.util.MapUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.map.MapPalette;
 
@@ -87,7 +88,7 @@ public class ColorPalette implements IMapColors {
                 yield new FullSpacedColorBuffer(plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
             }
             case FLOYD_STEINBERG -> {
-                ColorBuffer mc = FloydSteinbergDithering.dither(buffer, plugin.colorPalette(), buffer.height() / 128 + 1);
+                ColorBuffer mc = FloydSteinbergDithering.dither(buffer, plugin.colorPalette(), buffer.height() / MapUtil.MAP_HEIGHT + 1);
                 yield new FullSpacedColorBuffer(plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
             }
         };
