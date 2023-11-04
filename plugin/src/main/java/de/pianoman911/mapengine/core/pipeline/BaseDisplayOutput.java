@@ -42,8 +42,11 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
 
         for (BaseDisplayOutput instance : instances) {
             synchronized (instance.cache) {
-                for (FrameFileCache cache : instance.cache.remove(player.getUniqueId()).values()) {
-                    cache.closeAndDelete();
+                Map<Integer, FrameFileCache> zs = instance.cache.remove(player.getUniqueId());
+                if (zs != null) {
+                    for (FrameFileCache cache : zs.values()) {
+                        cache.closeAndDelete();
+                    }
                 }
             }
         }
