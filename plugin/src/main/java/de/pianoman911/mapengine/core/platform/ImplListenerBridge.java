@@ -11,7 +11,10 @@ import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.clientside.Frame;
 import de.pianoman911.mapengine.core.clientside.FrameContainer;
 import de.pianoman911.mapengine.core.util.MapUtil;
+import it.unimi.dsi.fastutil.Pair;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,11 +43,21 @@ public final class ImplListenerBridge implements IListenerBridge {
     }
 
     private void executeAtExactPosition(Player player, FrameContainer map, MapClickType type) {
-        Vec2i clickPos = MapUtil.calculateClickPosition(player, map, map.interactDistance());
+        Pair<Vector, Vec2i> clickPos = MapUtil.calculateClickPosition(player, map, map.interactDistance());
 
         if (clickPos != null) {
-            new MapClickEvent(map, type, player, clickPos).callEvent();
+            callClickEvent(player, map, type, clickPos.right(), clickPos.left());
         }
+    }
+
+    private void callClickEvent(Player player, FrameContainer map, MapClickType type, Vec2i clickPos, Vector interactionPos) {
+        Location worldPos = interactionPos.toLocation(player.getWorld());
+        callClickEvent(player, map, type, clickPos, worldPos);
+    }
+
+    private void callClickEvent(Player player, FrameContainer map, MapClickType type, Vec2i clickPos, Location worldPos) {
+        double interactDistance = worldPos.distance(player.getEyeLocation());
+        new MapClickEvent(map, type, player, clickPos, worldPos, interactDistance).callEvent();
     }
 
     @Override
@@ -86,6 +99,6 @@ public final class ImplListenerBridge implements IListenerBridge {
 
         // insert dummy value, doesn't matter
         CLICKED.put(player, 0L);
-        new MapClickEvent(result.display(), MapClickType.LEFT_CLICK, player, result.viewPos()).callEvent();
+        callClickEvent(player, (FrameContainer) result.display(), MapClickType.LEFT_CLICK, result.viewPos(), result.worldPos());
     }
 }

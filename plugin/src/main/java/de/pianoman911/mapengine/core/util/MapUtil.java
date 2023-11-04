@@ -7,6 +7,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 public final class MapUtil {
 
@@ -41,13 +42,14 @@ public final class MapUtil {
         return vector;
     }
 
-    public static Vec2i calculateClickPosition(Player player, FrameContainer map, double maxDistance) {
+    @Nullable
+    public static Pair<Vector, Vec2i> calculateClickPosition(Player player, FrameContainer map, double maxDistance) {
         Pair<Vector, BlockFace> clipped = RayTraceUtil.clipBox(player, map.interactionBox(), maxDistance);
         if (clipped == null || clipped.second() != map.direction()) {
             return null;
         }
 
-        Vector clickedPos = clipped.left().subtract(map.interactionBox().getCenter().setY(map.box().getMinY()));
+        Vector clickedPos = clipped.left().clone().subtract(map.interactionBox().getCenter().setY(map.box().getMinY()));
         double posX = clickedPos.getX();
         double posY = clickedPos.getY();
         double posZ = clickedPos.getZ();
@@ -83,6 +85,6 @@ public final class MapUtil {
 
             default -> throw new UnsupportedOperationException("Unsupported direction: " + map.direction());
         }
-        return new Vec2i(x, y);
+        return Pair.of(clipped.left(), new Vec2i(x, y));
     }
 }

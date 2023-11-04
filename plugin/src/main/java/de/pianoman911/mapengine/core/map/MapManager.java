@@ -11,6 +11,7 @@ import de.pianoman911.mapengine.core.util.MapUtil;
 import de.pianoman911.mapengine.core.util.RayTraceUtil;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
@@ -79,8 +80,14 @@ public class MapManager {
                         continue; // block in the sight
                     }
 
-                    Vec2i clickPos = MapUtil.calculateClickPosition(player, display, distance);
-                    return new MapTraceResult(clickPos, display);
+                    Pair<Vector, Vec2i> clickPos = MapUtil.calculateClickPosition(player, display, distance);
+                    if (clickPos == null) {
+                        continue;
+                    }
+                    Location worldLoc = clickPos.left().toLocation(player.getWorld());
+                    double distanceClick = worldLoc.distance(player.getEyeLocation());
+
+                    return new MapTraceResult(clickPos.right(), display, worldLoc, distanceClick);
                 }
             }
         }
