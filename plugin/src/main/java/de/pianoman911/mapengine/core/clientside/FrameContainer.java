@@ -1,11 +1,13 @@
 package de.pianoman911.mapengine.core.clientside;
 
+import com.google.common.base.Preconditions;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.pipeline.IPipeline;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
 import de.pianoman911.mapengine.core.util.MapUtil;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.bukkit.block.BlockFace;
@@ -228,6 +230,27 @@ public class FrameContainer implements IMapDisplay {
     @Override
     public void visualDirection(Player player, BlockFace visualDirection, int z) {
         spawn0(player, visualDirection, z);
+    }
+
+    @Override
+    public void cloneGroupIds(IMapDisplay source) {
+        Preconditions.checkNotNull(source, "Source display cannot be null");
+
+        FrameContainer other = (FrameContainer) source;
+        Preconditions.checkArgument(other.height == this.height, "Height must be equal");
+        Preconditions.checkArgument(other.width == this.width, "Width must be equal");
+
+        for (int i = 0; i < this.frames.length; i++) {
+            Frame frame = this.frames[i];
+            frame.mapIds(other.frames[i].mapIds());
+        }
+    }
+
+    @Override
+    public void cutOffCloneGroupIds() {
+        for (Frame frame : this.frames) {
+            frame.mapIds(new Int2IntArrayMap());
+        }
     }
 
     private void spawn0(Player player, BlockFace visualDirection, int z) {

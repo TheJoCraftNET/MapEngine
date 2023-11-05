@@ -143,4 +143,27 @@ public interface IMapDisplay extends IDisplay {
      * @param z               the z-layer map id group
      */
     void visualDirection(Player player, BlockFace visualDirection, int z);
+
+    /**
+     * Clones the map ids from the given display.<br>
+     * This can be used to "clone" the content of a display to another display.
+     * This process will save traffic by only sending the content once.<br>
+     * The cloning is active until {@link #cutOffCloneGroupIds()} is called.<br><br>
+     *
+     * <strong>This display must have the same dimensions as the target display.
+     * After cloning the ids, it's necessary to call {@link #mapId(Player, int)} for all players
+     * to update the map ids.
+     * </strong>
+     *
+     * @param source the display to clone the group ids from
+     */
+    void cloneGroupIds(IMapDisplay source);
+
+    /**
+     * Cuts off the clone group ids.<br><br>
+     *
+     * <strong>After cutting off the ids, it's necessary to call {@link #mapId(Player, int)} for all players
+     * to update the map ids.</strong>
+     */
+    void cutOffCloneGroupIds();
 }

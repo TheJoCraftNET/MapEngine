@@ -11,9 +11,8 @@ public class FilledMap {
 
     // start counting down at -32768 for compatibility with other map plugins
     private static volatile int CURRENT_ID = -Short.MAX_VALUE;
-    private final Int2IntMap mapIds = new Int2IntArrayMap();
-
     protected final MapEnginePlugin plugin;
+    private Int2IntMap mapIds = new Int2IntArrayMap();
 
     public FilledMap(MapEnginePlugin plugin) {
         this.plugin = plugin;
@@ -28,5 +27,14 @@ public class FilledMap {
     @SuppressWarnings("NonAtomicOperationOnVolatileField")
     protected synchronized int mapId(int z) {
         return mapIds.computeIfAbsent(z, k -> CURRENT_ID--);
+    }
+
+    public Int2IntMap mapIds() {
+        return mapIds;
+    }
+
+    // Used for connecting displays
+    public void mapIds(Int2IntMap mapIds) {
+        this.mapIds = mapIds;
     }
 }
