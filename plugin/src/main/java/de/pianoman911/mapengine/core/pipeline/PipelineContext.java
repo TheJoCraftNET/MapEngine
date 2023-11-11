@@ -9,12 +9,12 @@ import org.bukkit.map.MapCursorCollection;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 public class PipelineContext implements IPipelineContext {
 
-    private final Set<Player> receivers = new HashSet<>();
+    private final Set<Player> receivers = Collections.newSetFromMap(new WeakHashMap<>());
     private final IDisplay display;
     private final MapCursorCollection cursors = new MapCursorCollection();
     private boolean buffering = false;

@@ -5,8 +5,8 @@ import de.pianoman911.mapengine.api.util.ColorBuffer;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
+import de.pianoman911.mapengine.core.cache.FrameCache;
 import de.pianoman911.mapengine.core.clientside.MapItem;
-import de.pianoman911.mapengine.core.util.FrameFileCache;
 import org.bukkit.entity.Player;
 
 public class HoldableDisplayOutput extends BaseDisplayOutput {
@@ -19,6 +19,8 @@ public class HoldableDisplayOutput extends BaseDisplayOutput {
 
     @Override
     public void output(FullSpacedColorBuffer buf, IPipelineContext ctx) {
+        removeOfflinePlayers(ctx);
+
         ColorBuffer buffer = this.convert(buf, ctx, MAP_COUNT);
         MapItem display = (MapItem) ctx.getDisplay();
 
@@ -37,7 +39,7 @@ public class HoldableDisplayOutput extends BaseDisplayOutput {
                 if (!receiver.isOnline()) {
                     return;
                 }
-                FrameFileCache cache = getFrameFileCache(receiver, ctx.z(), buffer.data().length);
+                FrameCache cache = getFrameFileCache(receiver, ctx.z(), buffer.data().length);
                 MapUpdateData data = MapUpdateData.createMapUpdateData(buffer.data(), cache.read(0), 0);
                 cache.write(data.buffer(), 0);
 

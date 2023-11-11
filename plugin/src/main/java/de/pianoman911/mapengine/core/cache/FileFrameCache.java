@@ -1,6 +1,9 @@
-package de.pianoman911.mapengine.core.util;
+package de.pianoman911.mapengine.core.cache;
 
 import com.google.common.base.Preconditions;
+import de.pianoman911.mapengine.core.util.MapUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,7 +14,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
-public class FrameFileCache {
+public class FileFrameCache implements FrameCache {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("MapEngine[FrameFileCache]");
 
     private final File file;
     private final RandomAccessFile cache;
@@ -20,7 +25,7 @@ public class FrameFileCache {
     private volatile boolean closed = false;
 
     @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
-    public FrameFileCache(File file, int size) {
+    public FileFrameCache(File file, int size) {
         this.file = file;
         if (!file.exists()) {
             if (!file.getParentFile().exists()) {
@@ -38,14 +43,15 @@ public class FrameFileCache {
 
         try {
             this.cache = new RandomAccessFile(file, "rw");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (FileNotFoundException exception) {
+            throw new RuntimeException(exception);
         }
 
         this.memoryCache = new WeakReference[size];
         Arrays.fill(this.memoryCache, new WeakReference<byte[]>(null));
     }
 
+    @Override
     public byte[] read(int index) {
         synchronized (this) {
             Preconditions.checkState(!this.closed, "Cache is already closed");
@@ -71,6 +77,7 @@ public class FrameFileCache {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Override
     public void write(byte[] data, int index) {
         synchronized (this) {
             Preconditions.checkState(!this.closed, "Cache is already closed");
@@ -85,6 +92,7 @@ public class FrameFileCache {
         }
     }
 
+    @Override
     public void closeAndDelete() {
         synchronized (this) {
             Preconditions.checkState(!this.closed, "Cache is already closed");
@@ -93,7 +101,11 @@ public class FrameFileCache {
             try {
                 this.cache.close();
                 if (!this.file.delete()) {
-                    throw new RuntimeException("Failed to delete cache file: " + this.file.getName());
+                    if (!this.file.exists()) {
+                        LOGGER.warn("Failed to delete cache file: {} (File does not exist)", this.file.getName());
+                    } else {
+                        LOGGER.warn("Failed to delete cache file: {}", this.file.getName());
+                    }
                 }
             } catch (IOException exception) {
                 throw new RuntimeException(exception);

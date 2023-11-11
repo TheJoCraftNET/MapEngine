@@ -5,16 +5,20 @@ import de.pianoman911.mapengine.api.pipeline.IPipelineOutput;
 import de.pianoman911.mapengine.api.util.ColorBuffer;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
+import de.pianoman911.mapengine.core.cache.FileFrameCache;
+import de.pianoman911.mapengine.core.cache.FrameCache;
+import de.pianoman911.mapengine.core.cache.NullFrameCache;
 import de.pianoman911.mapengine.core.colors.dithering.FloydSteinbergDithering;
-import de.pianoman911.mapengine.core.util.FrameFileCache;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,7 +28,8 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
     private static final Set<BaseDisplayOutput> INSTANCES = new HashSet<>();
 
     protected final MapEnginePlugin plugin;
-    private final Map<UUID, Map<Integer, FrameFileCache>> cache = new HashMap<>();
+    private final Map<UUID, Map<Integer, FrameCache>> cache = new HashMap<>();
+    private final Set<Player> preventBuffering = Collections.newSetFromMap(new WeakHashMap<>());
 
     protected BaseDisplayOutput(MapEnginePlugin plugin) {
         this.plugin = plugin;
@@ -42,9 +47,13 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
 
         for (BaseDisplayOutput instance : instances) {
             synchronized (instance.cache) {
-                Map<Integer, FrameFileCache> zs = instance.cache.remove(player.getUniqueId());
+                synchronized (instance.preventBuffering) {
+                    instance.preventBuffering.add(player);
+                }
+
+                Map<Integer, FrameCache> zs = instance.cache.remove(player.getUniqueId());
                 if (zs != null) {
-                    for (FrameFileCache cache : zs.values()) {
+                    for (FrameCache cache : zs.values()) {
                         cache.closeAndDelete();
                     }
                 }
@@ -52,10 +61,15 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
         }
     }
 
-    protected FrameFileCache getFrameFileCache(Player receiver, int z, int size) {
+    protected FrameCache getFrameFileCache(Player receiver, int z, int size) {
         synchronized (this.cache) {
+            synchronized (this.preventBuffering) {
+                if (this.preventBuffering.contains(receiver)) {
+                    return NullFrameCache.INSTANCE;
+                }
+            }
             return this.cache.computeIfAbsent(receiver.getUniqueId(), uuid -> new HashMap<>())
-                    .computeIfAbsent(z, $ -> new FrameFileCache(new File(this.plugin.getDataFolder() + "/caches", UUID.randomUUID() + ".cache"), size));
+                    .computeIfAbsent(z, $ -> new FileFrameCache(new File(this.plugin.getDataFolder() + "/caches", UUID.randomUUID() + ".cache"), size));
         }
     }
 
@@ -65,5 +79,10 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
             case DIRECT -> this.plugin.colorPalette().convertDirect(buffer);
             case FLOYD_STEINBERG -> FloydSteinbergDithering.dither(buffer, this.plugin.colorPalette(), frameHeight); // frameHeight 128 is one frame height
         };
+    }
+
+    // ensures that only online players are used
+    protected void removeOfflinePlayers(IPipelineContext ctx) {
+        ctx.receivers().removeIf(player -> !player.isOnline());
     }
 }
