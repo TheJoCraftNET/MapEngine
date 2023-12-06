@@ -15,6 +15,7 @@ dependencies {
     runtimeOnly(project(":platform-paper-1.19.4"))
     runtimeOnly(project(":platform-paper-1.20"))
     runtimeOnly(project(":platform-paper-1.20.2"))
+    runtimeOnly(project(":platform-paper-1.20.3"))
 
     api(project(":platform-common"))
     api("org.bstats:bstats-bukkit:3.0.2")

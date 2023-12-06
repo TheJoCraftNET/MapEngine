@@ -7,4 +7,5 @@ include(
         "platform-paper-1.19.4",
         "platform-paper-1.20",
         "platform-paper-1.20.2",
+        "platform-paper-1.20.3",
 )

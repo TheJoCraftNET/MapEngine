@@ -53,6 +53,8 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 
 | Server Version | Supported |
 |----------------|-----------|
+| Paper 1.20.4   | ✔️        |
+| Paper 1.20.3   | ✔️        |
 | Paper 1.20.2   | ✔️        |
 | Paper 1.20(.1) | ✔️        |
 | Paper 1.19.4   | ✔️        |
