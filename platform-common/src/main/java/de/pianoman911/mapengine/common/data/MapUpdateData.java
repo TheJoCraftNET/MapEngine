@@ -4,8 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-@SuppressWarnings("removal")
-public final class MapUpdateData implements de.pianoman911.mapengine.api.data.IMapUpdateData {
+public final class MapUpdateData {
 
     private static final byte[] EMPTY_ARR = new byte[0];
 
@@ -81,37 +80,30 @@ public final class MapUpdateData implements de.pianoman911.mapengine.api.data.IM
         return buffer.length;
     }
 
-    @Override
     public boolean empty() {
         return buffer.length == 0;
     }
 
-    @Override
     public short offsetX() {
         return beginX;
     }
 
-    @Override
     public short offsetY() {
         return beginY;
     }
 
-    @Override
     public int width() {
         return endX - beginX;
     }
 
-    @Override
     public int height() {
         return endY - beginY;
     }
 
-    @Override
     public byte[] fullBuffer() {
         return fullBuffer;
     }
 
-    @Override
     public byte[] buffer() {
         return buffer;
     }
