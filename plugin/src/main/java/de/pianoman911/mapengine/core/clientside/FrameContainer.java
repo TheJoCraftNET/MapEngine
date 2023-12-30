@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.pipeline.IPipeline;
 import de.pianoman911.mapengine.common.data.MapUpdateData;
+import de.pianoman911.mapengine.common.platform.PacketContainer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import de.pianoman911.mapengine.core.pipeline.Pipeline;
 import de.pianoman911.mapengine.core.util.MapUtil;
@@ -189,14 +190,23 @@ public class FrameContainer implements IMapDisplay {
         plugin.platform().flush(player);
     }
 
-    @SuppressWarnings("removal")
-    @Override
-    public void update(Player player, de.pianoman911.mapengine.api.data.IMapUpdateData[] data, int z, MapCursorCollection cursors) {
+
+    public void update(Player player, MapUpdateData[] data, int z, MapCursorCollection cursors, boolean bundling) {
+        PacketContainer<?>[] packets = new PacketContainer<?>[frames.length];
         for (int i = 0; i < frames.length; i++) {
             if (data[i].empty()) {
                 continue;
             }
-            frames[i].updatePacket((MapUpdateData) data[i], z, cursors).send(player);
+
+            PacketContainer<?> container = frames[i].updatePacket(data[i], z, cursors);
+            if (bundling) {
+                packets[i] = container;
+            } else {
+                container.send(player);
+            }
+        }
+        if (bundling) {
+            plugin.platform().sendBundled(player, packets);
         }
         plugin.platform().flush(player);
     }

@@ -41,6 +41,8 @@ import org.bukkit.map.MapCursorCollection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +54,9 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
     private static final Entity FAKED_ENTITY = new ThrownEgg(MinecraftServer.getServer().overworld(), 0, 0, 0);
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
     private static final EntityDataAccessor<Integer> SLIME_SIZE = EntityDataSerializers.INT.createAccessor(16);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger("MapEngine");
     private final IListenerBridge bridge;
+    private boolean bundleWarning = false;
 
     public Paper1193Platform(Plugin plugin, IListenerBridge bridge) {
         this.bridge = bridge;
@@ -187,5 +190,18 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
         entityData.set(ItemFrame.DATA_ROTATION, rotation); // item rotation (0-7)
 
         return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(entityId, Objects.requireNonNull(entityData.packDirty())));
+    }
+
+    @Override
+    public void sendBundled(Player player, PacketContainer<?>... packets) {
+        // Packet bundles are not supported in 1.19.3
+        if (!bundleWarning) {
+            bundleWarning = true;
+            LOGGER.warn("Packet bundles are not supported in 1.19.3. Falling back to sending packets individually.");
+        }
+
+        for (PacketContainer<?> packet : packets) {
+            ((CraftPlayer) player).getHandle().connection.connection.channel.write(packet.getPacket());
+        }
     }
 }

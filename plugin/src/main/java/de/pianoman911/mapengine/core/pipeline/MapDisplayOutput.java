@@ -59,7 +59,7 @@ public class MapDisplayOutput extends BaseDisplayOutput implements IPipelineOutp
             }
 
             for (Player receiver : ctx.receivers()) {
-                display.update(receiver, data, ctx.z(), ctx.cursors());
+                display.update(receiver, data, ctx.z(), ctx.cursors(), ctx.bundling());
             }
             return;
         }
@@ -80,7 +80,7 @@ public class MapDisplayOutput extends BaseDisplayOutput implements IPipelineOutp
                     cache.write(currentBuffer.data(), i);
                 }
 
-                display.update(receiver, data, ctx.z(), ctx.cursors());
+                display.update(receiver, data, ctx.z(), ctx.cursors(), ctx.bundling());
             });
         }
     }

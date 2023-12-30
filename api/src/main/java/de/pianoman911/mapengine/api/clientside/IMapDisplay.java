@@ -1,9 +1,7 @@
 package de.pianoman911.mapengine.api.clientside;
 
-import de.pianoman911.mapengine.api.data.IMapUpdateData;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.map.MapCursorCollection;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Range;
 
@@ -92,20 +90,6 @@ public interface IMapDisplay extends IDisplay {
      * @param z      the z-layer map id group
      */
     void mapId(Player player, int z);
-
-    /**
-     * @deprecated internally used method
-     */
-    @Deprecated(forRemoval = true)
-    default void update(Player player, IMapUpdateData[] data, boolean fullUpdate, int z, MapCursorCollection cursors) {
-        this.update(player, data, z, cursors);
-    }
-
-    /**
-     * @deprecated internally used method
-     */
-    @Deprecated(forRemoval = true)
-    void update(Player player, IMapUpdateData[] data, int z, MapCursorCollection cursors);
 
     /**
      * Sets the entity rotation of the item frame.<br><br>

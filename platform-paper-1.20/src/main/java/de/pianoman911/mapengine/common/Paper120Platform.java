@@ -12,6 +12,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -201,5 +202,16 @@ public class Paper120Platform implements IPlatform<Packet<ClientGamePacketListen
         entityData.set(ItemFrame.DATA_ROTATION, rotation); // item rotation (0-7)
 
         return PacketContainer.wrap(this, new ClientboundSetEntityDataPacket(entityId, Objects.requireNonNull(entityData.packDirty())));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void sendBundled(Player player, PacketContainer<?>... packets) {
+        List<Packet<ClientGamePacketListener>> mcPackets = new ArrayList<>(packets.length);
+        for (PacketContainer<?> packetContainer : packets) {
+            mcPackets.add((Packet<ClientGamePacketListener>) packetContainer.getPacket());
+        }
+        ClientboundBundlePacket packet = new ClientboundBundlePacket(mcPackets);
+        ((CraftPlayer) player).getHandle().connection.send(packet);
     }
 }

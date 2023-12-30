@@ -16,6 +16,8 @@ public interface IPlatform<T> {
 
     void flush(Player player);
 
+    void sendBundled(Player player, PacketContainer<?>... packets);
+
     PacketContainer<T> createMapDataPacket(MapUpdateData data, int mapId, MapCursorCollection cursors);
 
     PacketContainer<T> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing);

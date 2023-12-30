@@ -84,7 +84,7 @@ public interface IPipelineContext {
     boolean buffering();
 
     /**
-     * This enabled per player buffering.<br>
+     * This enables per player buffering.<br>
      * If this is enabled, updates in this context will be
      * buffered with an on-disk temporary file cache for each player.
      * <p>
@@ -104,6 +104,24 @@ public interface IPipelineContext {
      * @param buffering true if per player buffering should be enabled
      */
     void buffering(boolean buffering);
+
+    boolean bundling();
+
+    /**
+     * This enables packet bundling.
+     * <p>
+     * If bundling is turned on, all packets sent to the player
+     * will be bundled into one packet.
+     * This can improve tearing issues on slow internet connections.
+     * <p>
+     * It's not recommended to use this if you update the display
+     * very often.
+     * This can block the connection for a long time and can cause
+     * the player to time out or connection lag spikes.
+     *
+     * @param bundling true if per player bundling should be enabled
+     */
+    void bundling(boolean bundling);
 
     /**
      * @return the z-layer index updated with this pipeline

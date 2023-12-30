@@ -19,6 +19,7 @@ Using lightweight and asynchronous techniques, MapEngine has a very low impact o
 - Optional dithering (Floyd-Steinberg)
 - Groups as z-layer interpretation for saving immense network traffic
 - Per player buffering, only the changed pixels are sent to the player
+- Optional packet bundling prevents tearing
 
 <details>
 <summary><strong>Color Conversion Cache Performance Graph</strong></summary>

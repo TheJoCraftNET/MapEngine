@@ -18,6 +18,7 @@ public class PipelineContext implements IPipelineContext {
     private final IDisplay display;
     private final MapCursorCollection cursors = new MapCursorCollection();
     private boolean buffering = false;
+    private boolean bundling = false;
     private int z = 0;
     private Converter converter = Converter.DIRECT;
     private FullSpacedColorBuffer previousBuffer;
@@ -82,6 +83,16 @@ public class PipelineContext implements IPipelineContext {
     @Override
     public void buffering(boolean buffering) {
         this.buffering = buffering;
+    }
+
+    @Override
+    public boolean bundling() {
+        return bundling;
+    }
+
+    @Override
+    public void bundling(boolean bundling) {
+        this.bundling = bundling;
     }
 
     @Override
