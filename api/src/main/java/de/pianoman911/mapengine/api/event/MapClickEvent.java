@@ -2,9 +2,11 @@ package de.pianoman911.mapengine.api.event;
 
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.util.MapClickType;
+import de.pianoman911.mapengine.api.util.PassthroughMode;
 import de.pianoman911.mapengine.api.util.Vec2i;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a click on a map done by a player.
@@ -17,6 +19,7 @@ public class MapClickEvent extends MapEvent {
     private final Vec2i clickPos;
     private final Location worldPos;
     private final double interactDistance;
+    private PassthroughMode passthroughMode = PassthroughMode.ALL;
 
     public MapClickEvent(IMapDisplay display, MapClickType clickType, Player player, Vec2i clickPos, Location worldPos, double interactDistance) {
         super(display);
@@ -74,6 +77,22 @@ public class MapClickEvent extends MapEvent {
      */
     public double interactDistance() {
         return interactDistance;
+    }
+
+    /**
+     * @return the {@link PassthroughMode} of this event
+     */
+    @NotNull
+    public PassthroughMode passthroughMode() {
+        return passthroughMode;
+    }
+
+    /**
+     * Used for filtering the {@link PassthroughMode} of the packets which triggered this event.
+     * @param passthroughMode the new passthrough mode
+     */
+    public void setPassthroughMode(@NotNull PassthroughMode passthroughMode) {
+        this.passthroughMode = passthroughMode;
     }
 
     @Override
