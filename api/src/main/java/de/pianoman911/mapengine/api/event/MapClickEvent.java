@@ -89,9 +89,21 @@ public class MapClickEvent extends MapEvent {
 
     /**
      * Used for filtering the {@link PassthroughMode} of the packets which triggered this event.
+     *
+     * @param passthroughMode the new passthrough mode
+     * @deprecated use {@link #passthroughMode(PassthroughMode)} instead
+     */
+    @Deprecated(forRemoval = true)
+    public void setPassthroughMode(@NotNull PassthroughMode passthroughMode) {
+        this.passthroughMode = passthroughMode;
+    }
+
+    /**
+     * Used for filtering the {@link PassthroughMode} of the packets which triggered this event.
+     *
      * @param passthroughMode the new passthrough mode
      */
-    public void setPassthroughMode(@NotNull PassthroughMode passthroughMode) {
+    public void passthroughMode(@NotNull PassthroughMode passthroughMode) {
         this.passthroughMode = passthroughMode;
     }
 
