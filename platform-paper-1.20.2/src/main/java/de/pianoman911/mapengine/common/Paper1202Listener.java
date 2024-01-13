@@ -47,7 +47,7 @@ public final class Paper1202Listener extends MessageToMessageDecoder<Packet<?>> 
                 this.player.getTrackedBy().forEach(player -> ((CraftPlayer) player).getHandle().connection.send(animatePacket));
             }
         }
-        if (this.passthroughMode != PassthroughMode.ALL) {
+        if (this.passthroughMode != null && this.passthroughMode != PassthroughMode.ALL) {
             return;
         }
 
