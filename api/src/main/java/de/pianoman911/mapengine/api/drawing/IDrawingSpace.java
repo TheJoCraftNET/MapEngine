@@ -128,6 +128,30 @@ public interface IDrawingSpace extends IPipelineInput {
     void circle(int x, int y, int radius, int color);
 
     /**
+     * Draws a hollow ellipse in the drawing space with the border
+     * using the specified thickness.
+     *
+     * @param x         the x coordinate of the ellipse
+     * @param y         the y coordinate of the ellipse
+     * @param radiusX   the x radius of the ellipse
+     * @param radiusY   the y radius of the ellipse
+     * @param thickness the thickness of the ellipse
+     * @param color     the rgb color of the ellipse
+     */
+    void ellipse(int x, int y, int radiusX, int radiusY, int thickness, int color);
+
+    /**
+     * Draws a filled ellipse in the drawing space.
+     *
+     * @param x         the x coordinate of the ellipse
+     * @param y         the y coordinate of the ellipse
+     * @param radiusX   the x radius of the ellipse
+     * @param radiusY   the y radius of the ellipse
+     * @param color     the rgb color of the ellipse
+     */
+    void ellipse(int x, int y, int radiusX, int radiusY, int color);
+
+    /**
      * Draws a hollow triangle in the drawing space with the border
      * using the specified thickness.
      *

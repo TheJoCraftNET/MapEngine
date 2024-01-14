@@ -152,6 +152,33 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     }
 
     @Override
+    public void ellipse(int x, int y, int radiusX, int radiusY, int color) {
+        int radiusX2 = radiusX * radiusX;
+        int radiusY2 = radiusY * radiusY;
+        for (int posY = -radiusY; posY < radiusY; posY++) {
+            for (int posX = -radiusX; posX < radiusX; posX++) {
+                if (posX * posX * radiusY2 + posY * posY * radiusX2 < radiusX2 *radiusY2) {
+                    pixel(x + posX, y + posY, color);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void ellipse(int x, int y, int radiusX, int radiusY, int thickness, int color) {
+        int radiusX2 = radiusX * radiusX;
+        int radiusY2 = radiusY * radiusY;
+        for (int posY = -radiusY; posY < radiusY; posY++) {
+            for (int posX = -radiusX; posX < radiusX; posX++) {
+                int size = posX * posX * radiusY2 + posY * posY * radiusX2;
+                if (size < radiusX2 * radiusY2 && size > (radiusX - thickness) * (radiusX - thickness) * radiusY2) {
+                    pixel(x + posX, y + posY, color);
+                }
+            }
+        }
+    }
+
+    @Override
     public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int color) {
         for (int posY = 0; posY < buffer.height(); posY++) {
             for (int posX = 0; posX < buffer.width(); posX++) {
