@@ -70,7 +70,19 @@ public interface IDrawingSpace extends IPipelineInput {
     void line(int x1, int y1, int x2, int y2, int color);
 
     /**
-     * Draws a rectangle in the drawing space with a border
+     * Draws a line in the drawing space.
+     *
+     * @param x1        the x coordinate of the first point
+     * @param y1        the y coordinate of the first point
+     * @param x2        the x coordinate of the second point
+     * @param y2        the y coordinate of the second point
+     * @param thickness the thickness of the line
+     * @param color     the rgb color of the line
+     */
+    void line(int x1, int y1, int x2, int y2, int thickness, int color);
+
+    /**
+     * Draws a hollow rectangle in the drawing space with the border
      * using the specified thickness.
      *
      * @param x         the x coordinate of the rectangle
@@ -94,7 +106,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void rect(int x, int y, int width, int height, int color);
 
     /**
-     * Draws a circle in the drawing space with a border
+     * Draws a hollow circle in the drawing space with the border
      * using the specified thickness.
      *
      * @param x         the x coordinate of the circle
@@ -116,7 +128,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void circle(int x, int y, int radius, int color);
 
     /**
-     * Draws a triangle in the drawing space with the border
+     * Draws a hollow triangle in the drawing space with the border
      * using the specified thickness.
      *
      * @param x1        the x coordinate of the first point
@@ -144,7 +156,7 @@ public interface IDrawingSpace extends IPipelineInput {
     void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int color);
 
     /**
-     * Draws a polygon in the drawing space with the border
+     * Draws a hollow polygon in the drawing space with the border
      * using the specified thickness.
      *
      * @param x         the x coordinates of the polygon

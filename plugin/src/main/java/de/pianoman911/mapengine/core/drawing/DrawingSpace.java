@@ -83,9 +83,39 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     }
 
     @Override
+    public void line(int x1, int y1, int x2, int y2, int thickness, int color) {
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx - dy;
+        while (true) {
+            rect(x1, y1, thickness, thickness, color);
+            if (x1 == x2 && y1 == y2) {
+                break;
+            }
+
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
+            }
+        }
+    }
+
+    @Override
     public void rect(int x, int y, int width, int height, int thickness, int color) {
-        for (int t = 0; t < thickness; t++) {
-            rect(x + t, y + t, width, height, color);
+        for (int posY = 0; posY < height; posY++) {
+            for (int posX = 0; posX < width; posX++) {
+                if (posX < thickness || posX >= width - thickness ||
+                        posY < thickness || posY >= height - thickness) {
+                    pixel(x + posX, y + posY, color);
+                }
+            }
         }
     }
 
@@ -100,8 +130,13 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void circle(int x, int y, int radius, int thickness, int color) {
-        for (int t = 0; t < thickness; t++) {
-            circle(x + t, y + t, radius, color);
+        for (int posY = -radius; posY < radius; posY++) {
+            for (int posX = -radius; posX < radius; posX++) {
+                if (posX * posX + posY * posY < radius * radius &&
+                        posX * posX + posY * posY > (radius - thickness) * (radius - thickness)) {
+                    pixel(x + posX, y + posY, color);
+                }
+            }
         }
     }
 
@@ -117,31 +152,80 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     }
 
     @Override
-    public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness, int color) {
-        for (int t = 0; t < thickness; t++) {
-            triangle(x1 + t, y1 + t, x2 + t, y2 + t, x3 + t, y3 + t, color);
+    public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int color) {
+        for (int posY = 0; posY < buffer.height(); posY++) {
+            for (int posX = 0; posX < buffer.width(); posX++) {
+                int as_x = posX - x1;
+                int as_y = posY - y1;
+                boolean side = (x2 - x1) * as_y - (y2 - y1) * as_x > 0;
+                if ((x3 - x1) * as_y - (y3 - y1) * as_x > 0 == side) {
+                    continue;
+                }
+                if ((x3 - x2) * (posY - y2) - (y3 - y2) * (posX - x2) > 0 != side) {
+                    continue;
+                }
+                pixel(posX, posY, color);
+            }
         }
     }
 
     @Override
-    public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int color) {
-        line(x1, y1, x2, y2, color);
-        line(x2, y2, x3, y3, color);
-        line(x3, y3, x1, y1, color);
+    public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness, int color) {
+        line(x1, y1, x2, y2, thickness, color);
+        line(x2, y2, x3, y3, thickness, color);
+        line(x3, y3, x1, y1, thickness, color);
     }
 
     @Override
     public void polygon(int[] x, int[] y, int thickness, int color) {
-        for (int t = 0; t < thickness; t++) {
-            polygon(x, y, color);
+        if (x.length != y.length) {
+            throw new IllegalArgumentException("x and y must have the same length");
+        }
+        if (x.length < 3) {
+            throw new IllegalArgumentException("x and y must have at least 3 points");
+        }
+        if (x.length == 3) { // faster triangle
+            triangle(x[0], y[0], x[1], y[1], x[2], y[2], thickness, color);
+            return;
+        }
+        if (x.length == 4) { // faster rectangle
+            rect(x[0], y[0], x[2] - x[0], y[2] - y[0], thickness, color);
+            return;
+        }
+        for (int i = 0; i < x.length; i++) {
+            line(x[i], y[i], x[(i + 1) % x.length], y[(i + 1) % x.length], thickness, color);
         }
     }
 
     @Override
     public void polygon(int[] x, int[] y, int color) {
-        // Draw polygon
-        for (int i = 0; i < x.length; i++) {
-            line(x[i], y[i], x[(i + 1) % x.length], y[(i + 1) % x.length], color);
+        if (x.length != y.length) {
+            throw new IllegalArgumentException("x and y must have the same length");
+        }
+        if (x.length < 3) {
+            throw new IllegalArgumentException("x and y must have at least 3 points");
+        }
+        if (x.length == 3) { // faster triangle
+            triangle(x[0], y[0], x[1], y[1], x[2], y[2], color);
+            return;
+        }
+        if (x.length == 4) { // faster rectangle
+            rect(x[0], y[0], x[2] - x[0], y[2] - y[0], color);
+            return;
+        }
+        for (int posY = 0; posY < buffer.height(); posY++) {
+            for (int posX = 0; posX < buffer.width(); posX++) {
+                boolean inside = false;
+                for (int i = 0, j = x.length - 1; i < x.length; j = i++) {
+                    if (((y[i] > posY) != (y[j] > posY)) &&
+                            (posX < (x[j] - x[i]) * (posY - y[i]) / (y[j] - y[i]) + x[i])) {
+                        inside = !inside;
+                    }
+                }
+                if (inside) {
+                    pixel(posX, posY, color);
+                }
+            }
         }
     }
 
