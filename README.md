@@ -53,14 +53,15 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 
 ### Support
 
-| Server Version | Supported |
-|----------------|-----------|
-| Paper 1.20.4   | ✔️        |
-| Paper 1.20.3   | ✔️        |
-| Paper 1.20.2   | ✔️        |
-| Paper 1.20(.1) | ✔️        |
-| Paper 1.19.4   | ✔️        |
-| Paper 1.19.3   | ✔️        |
+| Server Version   | Supported | Verified by
+|------------------|----------- |
+| Paper 1.20.4     | ✔️        |
+| Paper 1.20.3     | ✔️       |
+| Paper 1.20.2     | ✔️        |
+| Paper 1.20(.1)   | ✔️        |
+| Paper 1.19.4     | ✔️        |
+| Paper 1.19.3     | ✔️        |
+| Paper Spigot 1.8 | ✔️            | booky10
 
 ## Usage
 
