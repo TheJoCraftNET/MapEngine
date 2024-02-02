@@ -109,14 +109,12 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void rect(int x, int y, int width, int height, int thickness, int color) {
-        for (int posY = 0; posY < height; posY++) {
-            for (int posX = 0; posX < width; posX++) {
-                if (posX < thickness || posX >= width - thickness ||
-                        posY < thickness || posY >= height - thickness) {
-                    pixel(x + posX, y + posY, color);
-                }
-            }
-        }
+        int xMax = x + width;
+        int yMax = y + height;
+        rect(x, y, xMax - x, thickness, color);
+        rect(x, yMax - thickness, xMax - x, thickness, color);
+        rect(x, y + thickness, thickness, height - 2 * thickness, color);
+        rect(xMax - thickness, y + thickness, thickness, height - 2 * thickness, color);
     }
 
     @Override
@@ -129,51 +127,105 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     }
 
     @Override
-    public void circle(int x, int y, int radius, int thickness, int color) {
-        for (int posY = -radius; posY < radius; posY++) {
-            for (int posX = -radius; posX < radius; posX++) {
-                if (posX * posX + posY * posY < radius * radius &&
-                        posX * posX + posY * posY > (radius - thickness) * (radius - thickness)) {
-                    pixel(x + posX, y + posY, color);
-                }
-            }
-        }
+    public void circle(int x, int y, int radius, int color) {
+        this.ellipse(x, y, radius, radius, color);
     }
 
     @Override
-    public void circle(int x, int y, int radius, int color) {
-        for (int posY = -radius; posY < radius; posY++) {
-            for (int posX = -radius; posX < radius; posX++) {
-                if (posX * posX + posY * posY < radius * radius) {
-                    pixel(x + posX, y + posY, color);
-                }
-            }
-        }
+    public void circle(int x, int y, int radius, int thickness, int color) {
+        this.ellipse(x, y, radius, radius, thickness, color);
     }
 
     @Override
     public void ellipse(int x, int y, int radiusX, int radiusY, int color) {
-        int radiusX2 = radiusX * radiusX;
-        int radiusY2 = radiusY * radiusY;
+        if (((color >> 24) & 0xFF) == 255) {
+            fastEllipse(x, y, radiusX, radiusY, color);
+            return;
+        }
+        long radiusX2 = (long) radiusX * radiusX;
+        long radiusY2 = (long) radiusY * radiusY;
+        long radiusX2Y2 = radiusX2 * radiusY2;
         for (int posY = -radiusY; posY < radiusY; posY++) {
+            long posY2RadiusX2 = (long) posY * posY * radiusX2;
             for (int posX = -radiusX; posX < radiusX; posX++) {
-                if (posX * posX * radiusY2 + posY * posY * radiusX2 < radiusX2 *radiusY2) {
+                long posX2 = (long) posX * posX;
+                if (posX2 * radiusY2 + posY2RadiusX2 < radiusX2Y2) {
                     pixel(x + posX, y + posY, color);
                 }
+            }
+        }
+    }
+
+    // Only works for colors with alpha 255, because colors blending could apply more than once to the same pixel
+    private void fastEllipse(int x, int y, int radiusX, int radiusY, int color) {
+        long radiusX2 = (long) radiusX * radiusX;
+        long radiusY2 = (long) radiusY * radiusY;
+        double radiusX2Y2 = radiusX2 * radiusY2;
+
+        for (int posY = 0; posY < radiusY; posY++) {
+            int xLimit = (int) Math.ceil(Math.sqrt((radiusX2Y2 - posY * posY * radiusX2) / radiusY2));
+            for (int posX = 0; posX <= xLimit; posX++) {
+                pixel(x + posX, y + posY, color);
+                pixel(x - posX, y + posY, color);
+                pixel(x + posX, y - posY, color);
+                pixel(x - posX, y - posY, color);
             }
         }
     }
 
     @Override
     public void ellipse(int x, int y, int radiusX, int radiusY, int thickness, int color) {
-        int radiusX2 = radiusX * radiusX;
-        int radiusY2 = radiusY * radiusY;
-        for (int posY = -radiusY; posY < radiusY; posY++) {
-            for (int posX = -radiusX; posX < radiusX; posX++) {
-                int size = posX * posX * radiusY2 + posY * posY * radiusX2;
-                if (size < radiusX2 * radiusY2 && size > (radiusX - thickness) * (radiusX - thickness) * radiusY2) {
+        if (((color >> 24) & 0xFF) == 255) {
+            fastEllipse(x, y, radiusX, radiusY, thickness, color);
+            return;
+        }
+
+        double t = thickness / 2d;
+        double innerRadiusY2 = (radiusY - t) * (radiusY - t);
+        double innerRadiusX2 = (radiusX - t) * (radiusX - t);
+        double outerRadiusY2 = (radiusY + t) * (radiusY + t);
+        double outerRadiusX2 = (radiusX + t) * (radiusX + t);
+
+        double outerRadiusX2Y2 = outerRadiusX2 * outerRadiusY2;
+        double innerRadiusX2Y2 = innerRadiusX2 * innerRadiusY2;
+
+        int radiusXThickness = radiusX + thickness;
+        int negativeRadiusXThickness = -radiusXThickness; // >12% faster than (-radiusX - thickness) in the loop
+        int radiusYThickness = radiusY + thickness;
+        int negativeRadiusYThickness = -radiusYThickness;
+
+        for (int posY = negativeRadiusYThickness; posY < radiusYThickness; posY++) {
+            double posY2 = posY * posY;
+            for (int posX = negativeRadiusXThickness; posX < radiusXThickness; posX++) {
+                double posX2 = posX * posX;
+                if (posX2 * outerRadiusY2 + posY2 * outerRadiusX2 < outerRadiusX2Y2 &&
+                        posX2 * innerRadiusY2 + posY2 * innerRadiusX2 > innerRadiusX2Y2) {
                     pixel(x + posX, y + posY, color);
                 }
+            }
+        }
+    }
+
+    // Only works for colors with alpha 255, because colors blending could apply more than once to the same pixel
+    private void fastEllipse(int x, int y, int radiusX, int radiusY, int thickness, int color) {
+        double t = thickness / 2d;
+        double innerRadiusY2 = (radiusY - t) * (radiusY - t);
+        double innerRadiusX2 = (radiusX - t) * (radiusX - t);
+        double outerRadiusY2 = (radiusY + t) * (radiusY + t);
+        double outerRadiusX2 = (radiusX + t) * (radiusX + t);
+
+        double innerRadiusX2Y2 = innerRadiusX2 * innerRadiusY2;
+        double outerRadiusX2Y2 = outerRadiusX2 * outerRadiusY2;
+
+        int yLimit = (int) Math.ceil(Math.sqrt(outerRadiusX2Y2 / outerRadiusY2));
+        for (int posY = 0; posY <= yLimit; posY++) {
+            int xLowerLimit = (int) Math.ceil(Math.sqrt((innerRadiusX2Y2 - posY * posY * innerRadiusX2) / innerRadiusY2));
+            double xUpperLimit = Math.sqrt((outerRadiusX2Y2 - posY * posY * outerRadiusX2) / outerRadiusY2);
+            for (int posX = xLowerLimit; posX <= xUpperLimit; posX++) {
+                pixel(x + posX, y + posY, color);
+                pixel(x - posX, y + posY, color);
+                pixel(x + posX, y - posY, color);
+                pixel(x - posX, y - posY, color);
             }
         }
     }

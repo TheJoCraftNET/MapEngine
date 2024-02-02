@@ -107,7 +107,8 @@ public interface IDrawingSpace extends IPipelineInput {
 
     /**
      * Draws a hollow circle in the drawing space with the border
-     * using the specified thickness.
+     * using the specified thickness.<br>
+     * If you use colors with alpha=255, significant faster methods are used internally.
      *
      * @param x         the x coordinate of the circle
      * @param y         the y coordinate of the circle
@@ -118,7 +119,8 @@ public interface IDrawingSpace extends IPipelineInput {
     void circle(int x, int y, int radius, int thickness, int color);
 
     /**
-     * Draws a filled circle in the drawing space.
+     * Draws a filled circle in the drawing space.<br>
+     * If you use colors with alpha=255, significant faster methods are used internally.
      *
      * @param x      the x coordinate of the circle
      * @param y      the y coordinate of the circle
@@ -129,7 +131,8 @@ public interface IDrawingSpace extends IPipelineInput {
 
     /**
      * Draws a hollow ellipse in the drawing space with the border
-     * using the specified thickness.
+     * using the specified thickness.<br>
+     * If you use colors with alpha=255, significant faster methods are used internally.
      *
      * @param x         the x coordinate of the ellipse
      * @param y         the y coordinate of the ellipse
@@ -141,7 +144,8 @@ public interface IDrawingSpace extends IPipelineInput {
     void ellipse(int x, int y, int radiusX, int radiusY, int thickness, int color);
 
     /**
-     * Draws a filled ellipse in the drawing space.
+     * Draws a filled ellipse in the drawing space.<br>
+     * If you use colors with alpha=255, significant faster methods are used internally.
      *
      * @param x         the x coordinate of the ellipse
      * @param y         the y coordinate of the ellipse
