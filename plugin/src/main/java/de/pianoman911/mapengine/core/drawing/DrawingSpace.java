@@ -9,10 +9,12 @@ import de.pianoman911.mapengine.api.util.ImageUtils;
 import de.pianoman911.mapengine.core.pipeline.PipelineContext;
 import de.pianoman911.mapengine.core.util.ComponentUtil;
 import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.apache.commons.lang3.StringUtils;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -310,7 +312,7 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void text(String text, Font font, int x, int y, int color) {
-        buffer(FontRegistry.convertText2Bytes(text, font, new Color(color)), x, y);
+        component(Component.text(text), font, x, y, Alignment.START, Alignment.CENTER, false);
     }
 
     @Override
@@ -330,46 +332,65 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
 
     @Override
     public void component(Component component, Font font, int x, int y, Alignment alignmentX, Alignment alignmentY, boolean antiAliasing, float lineHeight) {
-        int width = 0;
+        List<Component> inlined = ComponentUtil.inlineComponent(component);
 
-        List<FullSpacedColorBuffer> buffers = new ArrayList<>();
-        for (Component child : ComponentUtil.inlineComponent(component)) {
-            String content;
-            if (child instanceof TextComponent) {
-                content = ((TextComponent) child).content();
-            } else if (child instanceof TranslatableComponent) {
-                content = ((TranslatableComponent) child).key();
-            } else {
-                content = child.getClass().getSimpleName();
+        List<LinePartData> buffers = new ArrayList<>(inlined.size() * 2);
+        IntList lineWidths = new IntArrayList();
+        int lastWidth = 0;
+        for (Component child : inlined) {
+            String content = PlainTextComponentSerializer.plainText().serialize(child);
+            if (content.isEmpty()) {
+                continue;
             }
 
             TextColor componentColor = child.color();
             Color color = componentColor == null ? Color.WHITE :
                     new Color(componentColor.value());
 
-            FullSpacedColorBuffer childBuf = null;
+            FullSpacedColorBuffer childBuf;
 
-            String[] parts = content.split("\n");
-            for (String part : parts) {
-                if (childBuf != null) {
-                    width = Math.max(width, childBuf.width());
+            String[] parts = StringUtils.splitPreserveAllTokens(content, '\n');
+            for (int i = 0; i < parts.length; i++) {
+                boolean breakLine = i > 0;
+                String part = parts[i];
+
+                if (part.isEmpty()) {
+                    childBuf = FontRegistry.EMPTY_BUFFER;
+                } else {
+                    childBuf = FontRegistry.convertText2Bytes(part, font, color, antiAliasing);
                 }
-                childBuf = FontRegistry.convertText2Bytes(part,
-                        font, color, antiAliasing);
+                buffers.add(new LinePartData(childBuf, breakLine));
+                int bufWidth = childBuf.width();
+                int currentWidth = breakLine ? bufWidth : (bufWidth + lastWidth);
 
-                buffers.add(childBuf);
-            }
-            if (childBuf != null) {
-                width = Math.max(width, childBuf.width());
+                if (breakLine) {
+                    lineWidths.add(lastWidth);
+                }
+                lastWidth = currentWidth;
             }
         }
+        lineWidths.add(lastWidth);
 
-        int offsetX = alignmentX.getOffset(width);
-        int offsetY = alignmentY.getOffset((int) (font.getSize() * lineHeight * buffers.size()));
-        for (FullSpacedColorBuffer renderedLine : buffers) {
-            int lineOffsetX = (width - renderedLine.width()) / 2;
-            buffer.buffer(renderedLine, x + offsetX + lineOffsetX, y + offsetY);
-            y += (int) (font.getSize() * lineHeight);
+        int offsetY = alignmentY.getOffset((int) (font.getSize() * lineHeight * lineWidths.size()));
+
+        int currentX = 0;
+        int line = 0;
+
+        for (LinePartData part : buffers) {
+            FullSpacedColorBuffer renderedLine = part.buffer();
+            if (part.breakLine()) {
+                line++;
+                y += (int) (font.getSize() * lineHeight);
+                currentX = 0;
+            }
+            if (renderedLine.size() > 0) {
+                int lineWidth = lineWidths.getInt(line);
+                int lineOffsetX = alignmentX.getOffset(lineWidth);
+                int posX = x + lineOffsetX + currentX;
+
+                buffer.buffer(renderedLine, posX, y + offsetY);
+                currentX += renderedLine.width();
+            }
         }
     }
 
@@ -381,5 +402,8 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     @Override
     public Pair<FullSpacedColorBuffer, IPipelineContext> combined() {
         return Pair.of(buffer, context);
+    }
+
+    private record LinePartData(FullSpacedColorBuffer buffer, boolean breakLine) {
     }
 }

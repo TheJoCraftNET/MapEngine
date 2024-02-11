@@ -21,7 +21,8 @@ public class FullSpacedColorBuffer {
      * @param height the height of the buffer, must match the data
      */
     public FullSpacedColorBuffer(int[] data, int width, int height) {
-        Preconditions.checkState(data.length / width == height,
+        Preconditions.checkState((data.length == 0 && width == 0 && height == 0) ||
+                        (data.length / width == height),
                 "Width %s and height %s invalid for rgb array with length %s",
                 width, height, data.length);
 

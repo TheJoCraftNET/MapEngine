@@ -1,14 +1,22 @@
 package de.pianoman911.mapengine.api.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.bukkit.util.NumberConversions;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.Rectangle;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public final class FontRegistry {
 
     public static final Font DEFAULT = new Font("Arial", Font.PLAIN, 10);
+    private static final Rectangle2D ZERO_RECT = new Rectangle.Float(0f, 0f, 0f, 0f);
+    public static final FullSpacedColorBuffer EMPTY_BUFFER = new FullSpacedColorBuffer(0, 0);
 
     private FontRegistry() {
     }
@@ -36,24 +44,70 @@ public final class FontRegistry {
      * @return a rendered image of the specified text
      */
     public static BufferedImage convertText(String text, Font font, Color color, boolean antiAliasing) {
+        return convertTextBuffer(text, font, color, antiAliasing).snapshot();
+    }
+
+    private static FullSpacedColorBuffer convertTextBuffer(String text, Font font, Color color, boolean antiAliasing) {
         if (font == null) {
             font = DEFAULT;
         }
-
-        BufferedImage image = new BufferedImage(text.length() * font.getSize(),
-                (int) (font.getSize() * (5 / 4.0)), BufferedImage.TYPE_INT_ARGB);
-        {
-            Graphics2D graphics = (Graphics2D) image.getGraphics();
-            graphics.setFont(font);
-            graphics.setColor(color);
-            if (antiAliasing) {
-                graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            }
-            graphics.drawString(text, 0, font.getSize());
-            graphics.dispose();
+        BufferedImage img = renderMultiLineText(text, font, color, antiAliasing);
+        if (img == null) {
+            return EMPTY_BUFFER;
         }
 
-        return ImageUtils.cutImage(image);
+        return new FullSpacedColorBuffer(ImageUtils.rgb(img), img.getWidth(), img.getHeight());
+    }
+
+
+    private static BufferedImage renderMultiLineText(String text, Font font, Color color, boolean antiAliasing) {
+        String[] lines = StringUtils.splitPreserveAllTokens(text, '\n');
+        if (lines.length < 1) {
+            return null;
+        }
+
+        FontRenderContext ctx = new FontRenderContext(null, antiAliasing, false);
+
+        LineData[] data = new LineData[lines.length];
+        Rectangle2D totalRect = (Rectangle2D) ZERO_RECT.clone();
+        for (int i = 0; i < lines.length; i++) {
+            GlyphVector vec = font.createGlyphVector(ctx, lines[i]);
+
+            // line heights are managed outside of this method
+            Rectangle2D widthBounds = vec.getLogicalBounds();
+            Rectangle2D heightBounds = vec.getVisualBounds();
+
+            Rectangle2D bounds = new Rectangle2D.Double(
+                    widthBounds.getX(), heightBounds.getY(),
+                    widthBounds.getWidth(), heightBounds.getHeight()
+            );
+            totalRect.setRect(
+                    0d, 0d,
+                    Math.max(totalRect.getWidth(), bounds.getWidth()),
+                    totalRect.getHeight() + bounds.getHeight()
+            );
+            // save for later use
+            data[i] = new LineData(vec, bounds);
+        }
+
+        if (totalRect.getWidth() == 0 || totalRect.getHeight() == 0) {
+            return null;
+        }
+
+        BufferedImage img = new BufferedImage(
+                NumberConversions.ceil(totalRect.getWidth()),
+                NumberConversions.ceil(totalRect.getHeight()),
+                BufferedImage.TYPE_INT_ARGB
+        );
+        Graphics2D graphics = img.createGraphics();
+        graphics.setColor(color);
+
+        for (LineData datum : data) {
+            graphics.drawGlyphVector(datum.vec(), 0f, (float) -datum.bounds().getY());
+            graphics.translate(0d, datum.bounds().getHeight());
+        }
+
+        return img;
     }
 
     /**
@@ -71,9 +125,8 @@ public final class FontRegistry {
      * @see #convertText(String, Font, Color, boolean)
      */
     public static FullSpacedColorBuffer convertText2Bytes(String text, Font font, Color color, boolean antiAliasing) {
-        BufferedImage image = convertText(text, font, color, antiAliasing);
-        int[] bytes = new int[image.getWidth() * image.getHeight()];
-        image.getRGB(0, 0, image.getWidth(), image.getHeight(), bytes, 0, image.getWidth());
-        return new FullSpacedColorBuffer(bytes, image.getWidth(), image.getHeight());
+        return convertTextBuffer(text, font, color, antiAliasing);
     }
+
+    private record LineData(GlyphVector vec, Rectangle2D bounds) {}
 }
