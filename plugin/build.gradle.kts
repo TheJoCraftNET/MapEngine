@@ -6,16 +6,22 @@ import java.time.temporal.Temporal
 import java.util.stream.Stream
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.3"
+    id("io.github.goooler.shadow")
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+}
+
+val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3")
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
-    runtimeOnly(project(":platform-paper-1.19.3"))
-    runtimeOnly(project(":platform-paper-1.19.4"))
-    runtimeOnly(project(":platform-paper-1.20"))
-    runtimeOnly(project(":platform-paper-1.20.2"))
-    runtimeOnly(project(":platform-paper-1.20.3"))
+    platforms.forEach {
+        runtimeOnly(project(":platform-paper-$it"))
+    }
 
     api(project(":platform-common"))
     api("org.bstats:bstats-bukkit:3.0.2")
@@ -60,6 +66,7 @@ tasks {
 
             "Build-Date" to compileDate,
             "Build-Timestamp" to compileTime.toString(),
+            "Platforms" to platforms.joinToString(", "),
 
             "Git-Commit" to gitHash,
             "Git-Branch" to gitBranch,
