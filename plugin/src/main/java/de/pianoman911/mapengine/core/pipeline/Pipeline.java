@@ -55,4 +55,12 @@ public final class Pipeline implements IPipeline {
         }
         this.output.output(buffer, context);
     }
+
+    @Override
+    public void destroy() {
+        for (IPipelineStream stream : this.streams) {
+            stream.destroy();
+        }
+        this.output.destroy();
+    }
 }
