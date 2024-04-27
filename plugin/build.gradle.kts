@@ -47,8 +47,8 @@ val compileDate: String = DateTimeFormatter.ISO_DATE_TIME.format(compileTime)
 
 tasks {
     shadowJar {
-        destinationDirectory.set(rootProject.buildDir.resolve("libs"))
-        archiveBaseName.set(rootProject.name)
+        destinationDirectory = rootProject.layout.buildDirectory.map { it.dir("libs") }
+        archiveBaseName = rootProject.name
 
         relocate("org.bstats", "de.pianoman911.mapengine.bstats")
     }
