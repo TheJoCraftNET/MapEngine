@@ -12,12 +12,6 @@ plugins {
 
 val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5")
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 dependencies {
     platforms.forEach {
         runtimeOnly(project(":platform-paper-$it"))
