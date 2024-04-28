@@ -6,6 +6,8 @@ import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.common.platform.IPlatformProvider;
 import org.bukkit.plugin.Plugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +21,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class PlatformUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("MapEngine");
 
     private PlatformUtil() {
     }
@@ -62,10 +67,14 @@ public final class PlatformUtil {
                     .map(className -> {
                         try {
                             return loader.loadClass(className).getConstructor().newInstance();
+                        } catch (UnsupportedClassVersionError exception) {
+                            LOGGER.debug("Can't load provider class {} due to unsupported class version, skipping...", className);
+                            return null;
                         } catch (ReflectiveOperationException exception) {
                             throw new RuntimeException(exception);
                         }
                     })
+                    .filter(Objects::nonNull)
                     .map(obj -> (IPlatformProvider) obj)
                     .forEach(providers::add);
         } catch (IOException exception) {
