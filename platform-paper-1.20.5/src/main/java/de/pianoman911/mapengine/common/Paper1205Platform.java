@@ -4,6 +4,7 @@ import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.common.platform.PacketContainer;
+import de.pianoman911.mapengine.common.util.ReflectionUtil;
 import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -21,13 +22,10 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SyncedDataHolder;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.projectile.ThrownEgg;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
@@ -48,8 +46,6 @@ import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,39 +54,28 @@ import java.util.UUID;
 
 public class Paper1205Platform implements IPlatform<Packet<ClientGamePacketListener>>, Listener {
 
-    private static final Entity FAKED_ENTITY = new ThrownEgg(MinecraftServer.getServer().overworld(), 0, 0, 0);
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
     private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_WIDTH_ID = EntityDataSerializers.FLOAT.createAccessor(8);
     private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_HEIGHT_ID = EntityDataSerializers.FLOAT.createAccessor(9);
     private static final EntityDataAccessor<Boolean> DATA_INTERACTION_BOX_RESPONSIVE_ID = EntityDataSerializers.BOOLEAN.createAccessor(10);
 
-    private static final SynchedEntityData.DataItem<?>[] MAP_DATA_FIELDS = new SynchedEntityData.DataItem[]{
-            new SynchedEntityData.DataItem<>(ItemFrame.DATA_ITEM, ItemStack.EMPTY),
-            new SynchedEntityData.DataItem<>(DATA_SHARED_FLAGS_ID, (byte) 0x00)
-    };
+    private static final Paper1205SynchedDataBuilder ITEM_FRAME_DATA = Paper1205SynchedDataBuilder.builder()
+            .setDataItem(DATA_SHARED_FLAGS_ID, (byte) 0x00)
+            .setDataItem(ItemFrame.DATA_ITEM, ItemStack.EMPTY)
+            .setDataItem(ItemFrame.DATA_ROTATION, 0);
+    private static final Paper1205SynchedDataBuilder INTERACTION_DATA = Paper1205SynchedDataBuilder.builder()
+            .setDataItem(DATA_SHARED_FLAGS_ID, (byte) 0x00)
+            .setDataItem(DATA_INTERACTION_BOX_WIDTH_ID, 0f)
+            .setDataItem(DATA_INTERACTION_BOX_HEIGHT_ID, 0f)
+            .setDataItem(DATA_INTERACTION_BOX_RESPONSIVE_ID, false);
 
-    private static final SynchedEntityData.DataItem<?>[] MAP_ROTATION_FIELDS = new SynchedEntityData.DataItem[]{
-            new SynchedEntityData.DataItem<>(ItemFrame.DATA_ROTATION, 0)
-    };
-
-    private static final SynchedEntityData.DataItem<?>[] INTERACTION_FIELDS = new SynchedEntityData.DataItem[]{
-            new SynchedEntityData.DataItem<>(DATA_INTERACTION_BOX_WIDTH_ID, 0f),
-            new SynchedEntityData.DataItem<>(DATA_INTERACTION_BOX_HEIGHT_ID, 0f),
-            new SynchedEntityData.DataItem<>(DATA_INTERACTION_BOX_RESPONSIVE_ID, false),
-            new SynchedEntityData.DataItem<>(DATA_SHARED_FLAGS_ID, (byte) 0x00)
-    };
-
-    private static final MethodHandle SYNCHED_ENTITY_DATA_CONSTRUCTOR;
     private static final MethodHandle CLIENTBOUND_TELEPORT_ENTITY_PACKET_CONSTRUCTOR;
 
     static {
         try {
-            SYNCHED_ENTITY_DATA_CONSTRUCTOR = MethodHandles.privateLookupIn(SynchedEntityData.class, MethodHandles.lookup())
-                    .findConstructor(SynchedEntityData.class, MethodType.methodType(void.class, SyncedDataHolder.class, SynchedEntityData.DataItem[].class));
-
-            CLIENTBOUND_TELEPORT_ENTITY_PACKET_CONSTRUCTOR = MethodHandles.privateLookupIn(ClientboundTeleportEntityPacket.class, MethodHandles.lookup())
-                    .findConstructor(ClientboundTeleportEntityPacket.class, MethodType.methodType(void.class, FriendlyByteBuf.class));
-        } catch (NoSuchMethodException | IllegalAccessException exception) {
+            CLIENTBOUND_TELEPORT_ENTITY_PACKET_CONSTRUCTOR =
+                    ReflectionUtil.getConstructor(ClientboundTeleportEntityPacket.class, FriendlyByteBuf.class);
+        } catch (ReflectiveOperationException exception) {
             throw new RuntimeException(exception);
         }
     }
@@ -168,12 +153,7 @@ public class Paper1205Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public PacketContainer<Packet<ClientGamePacketListener>> createMapSetIdPacket(int entityId, int mapId, boolean invisible) {
-        SynchedEntityData entityData;
-        try {
-            entityData = (SynchedEntityData) SYNCHED_ENTITY_DATA_CONSTRUCTOR.invoke(FAKED_ENTITY, MAP_DATA_FIELDS);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
+        SynchedEntityData entityData = ITEM_FRAME_DATA.build();
 
         ItemStack mapItem = Items.FILLED_MAP.getDefaultInstance();
 
@@ -201,12 +181,7 @@ public class Paper1205Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public PacketContainer<?> createInteractionEntityBlockSizePacket(int interactionId) {
-        SynchedEntityData entityData;
-        try {
-            entityData = (SynchedEntityData) SYNCHED_ENTITY_DATA_CONSTRUCTOR.invoke(FAKED_ENTITY, INTERACTION_FIELDS);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
+        SynchedEntityData entityData = INTERACTION_DATA.build();
 
         entityData.set(DATA_INTERACTION_BOX_WIDTH_ID, 1f);
         entityData.set(DATA_INTERACTION_BOX_HEIGHT_ID, 1f);
@@ -240,12 +215,7 @@ public class Paper1205Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public PacketContainer<?> createItemRotationPacket(int entityId, int rotation) {
-        SynchedEntityData entityData;
-        try {
-            entityData = (SynchedEntityData) SYNCHED_ENTITY_DATA_CONSTRUCTOR.invoke(FAKED_ENTITY, MAP_ROTATION_FIELDS);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
+        SynchedEntityData entityData = ITEM_FRAME_DATA.build();
 
         entityData.set(ItemFrame.DATA_ROTATION, rotation); // item rotation (0-7)
 
