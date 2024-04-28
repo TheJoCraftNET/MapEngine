@@ -39,17 +39,17 @@ public class ColorPalette implements IMapColors {
     public ColorPalette(MapEnginePlugin plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "colors.bin");
-        load();
+        this.load();
     }
 
     @Override
-    public byte color(Color color) {
-        return color(color.getRGB());
+    public final byte color(Color color) {
+        return this.color(color.getRGB());
     }
 
     @Override
-    public byte color(int rgb) {
-        return colors[rgb & 0xFFFFFF];
+    public final byte color(int rgb) {
+        return this.colors[rgb & 0xFFFFFF];
     }
 
     public byte[] colors(int[] rgb, int threads) {
@@ -65,7 +65,7 @@ public class ColorPalette implements IMapColors {
                 for (int j = start; j < end; j++) {
                     int color = rgb[j];
                     if (((color >> 24) & 0xFF) != 255) continue;
-                    result[j] = color(rgb[j]);
+                    result[j] = this.color(rgb[j]);
                 }
             });
         }
@@ -77,44 +77,44 @@ public class ColorPalette implements IMapColors {
     public byte[] convertImage(BufferedImage image) {
         int[] rgb = new int[image.getWidth() * image.getHeight()];
         image.getRGB(0, 0, image.getWidth(), image.getHeight(), rgb, 0, image.getWidth());
-        return colors(rgb);
+        return this.colors(rgb);
     }
 
     @Override
     public FullSpacedColorBuffer adjustColors(FullSpacedColorBuffer buffer, Converter converter) {
         return switch (converter) {
             case DIRECT -> {
-                ColorBuffer mc = convertDirect(buffer);
-                yield new FullSpacedColorBuffer(plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
+                ColorBuffer mc = this.convertDirect(buffer);
+                yield new FullSpacedColorBuffer(this.plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
             }
             case FLOYD_STEINBERG -> {
-                ColorBuffer mc = FloydSteinbergDithering.dither(buffer, plugin.colorPalette(), buffer.height() / MapUtil.MAP_HEIGHT + 1);
-                yield new FullSpacedColorBuffer(plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
+                ColorBuffer mc = FloydSteinbergDithering.dither(buffer, this.plugin.colorPalette(), buffer.height() / MapUtil.MAP_HEIGHT + 1);
+                yield new FullSpacedColorBuffer(this.plugin.colorPalette().toRGBs(mc.data()), mc.width(), mc.height());
             }
         };
     }
 
     @Override
-    public Color toColor(byte color) {
-        return new Color(toRGB(color));
+    public final Color toColor(byte color) {
+        return new Color(this.toRGB(color));
     }
 
     @Override
-    public byte color(int r, int g, int b) {
-        return colors[dataIndex(r, g, b)];
+    public final byte color(int r, int g, int b) {
+        return this.colors[this.dataIndex(r, g, b)];
     }
 
-    private int dataIndex(int r, int g, int b) {
+    private final int dataIndex(int r, int g, int b) {
         return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF));
     }
 
     @SuppressWarnings("deprecation")
     private void generateColors() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            plugin.getLogger().info("Generating palette...");
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            this.plugin.getLogger().info("Generating palette...");
 
-            colors = new byte[256 * 256 * 256];
-            reverseColors = new int[256 * 256 * 256];
+            this.colors = new byte[256 * 256 * 256];
+            this.reverseColors = new int[256 * 256 * 256];
             long start = System.currentTimeMillis();
             long last = start;
 
@@ -126,8 +126,10 @@ public class ColorPalette implements IMapColors {
                     futures[green] = CompletableFuture.supplyAsync(() -> {
                         for (int blue = 0; blue < 256; blue++) {
                             byte color = MapPalette.matchColor(finalRed, finalGreen, blue);
-                            colors[dataIndex(finalRed, finalGreen, blue)] = color;
-                            reverseColors[dataIndex(finalRed, finalGreen, blue)] = dataIndex(finalRed, finalGreen, blue);
+                            int index = this.dataIndex(finalRed, finalGreen, blue);
+
+                            this.colors[index] = color;
+                            this.reverseColors[index] = index;
                             usedColors.add(color);
                         }
                         return null;
@@ -135,7 +137,7 @@ public class ColorPalette implements IMapColors {
                 }
 
                 if (last + 250 < System.currentTimeMillis() || red == 255) {
-                    plugin.getLogger().info("Generating palette... " + String.format("%.2f", (red * 100 / 255.0))
+                    this.plugin.getLogger().info("Generating palette... " + String.format("%.2f", (red * 100 / 255.0))
                             + "% - Working threads: " + futures.length);
                     last = System.currentTimeMillis();
                 }
@@ -143,136 +145,147 @@ public class ColorPalette implements IMapColors {
                 CompletableFuture.allOf(futures).join();
             }
 
-            available = new byte[usedColors.size()];
-            rgb = new int[255];
+            this.available = new byte[usedColors.size()];
+            this.rgb = new int[255];
 
             int i = 0;
             for (Byte color : usedColors) {
-                available[i++] = color;
-                rgb[color >= 0 ? color : color + 256] = MapPalette.getColor(color).getRGB();
+                this.available[i++] = color;
+                this.rgb[color >= 0 ? color : color + 256] = MapPalette.getColor(color).getRGB();
             }
 
-            plugin.getLogger().info("Palette generated! Took " + (System.currentTimeMillis() - start) + "ms");
-            save();
-            loadFuture.complete(this);
+            this.plugin.getLogger().info("Palette generated! Took " + (System.currentTimeMillis() - start) + "ms");
+            this.save();
+            this.loadFuture.complete(this);
 
-            checkValidity();
+            this.checkRetry();
         });
     }
 
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
     private void save() {
-        plugin.getLogger().info("Saving palette...");
+        this.plugin.getLogger().info("Saving palette...");
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
 
         output.writeInt(Bukkit.getUnsafe().getDataVersion());
-        output.writeInt(colors.length);
+        output.writeInt(this.colors.length);
 
-        for (byte color : colors) {
+        for (byte color : this.colors) {
             output.writeByte(color);
         }
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file); GZIPOutputStream gzip = new GZIPOutputStream(fileOutputStream)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(this.file); GZIPOutputStream gzip = new GZIPOutputStream(fileOutputStream)) {
             gzip.write(output.toByteArray());
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
 
-        plugin.getLogger().info("Palette saved!");
+        this.plugin.getLogger().info("Palette saved!");
     }
 
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
     private void load() {
-        if (!file.exists()) {
-            file.getParentFile().mkdir();
-            generateColors();
+        if (!this.file.exists()) {
+            this.file.getParentFile().mkdir();
+            this.generateColors();
             return;
         }
 
-        try (FileInputStream fileInput = new FileInputStream(file);
+        try (FileInputStream fileInput = new FileInputStream(this.file);
              GZIPInputStream gzipInput = new GZIPInputStream(fileInput)) {
             ByteArrayDataInput input = ByteStreams.newDataInput(gzipInput.readAllBytes());
 
             if (input.readInt() == Bukkit.getUnsafe().getDataVersion()) {
                 Set<Byte> usedColors = new HashSet<>();
-                colors = new byte[input.readInt()];
-                reverseColors = new int[colors.length];
+                this.colors = new byte[input.readInt()];
+                this.reverseColors = new int[this.colors.length];
 
-                for (int i = 0; i < colors.length; i++) {
-                    colors[i] = input.readByte();
-                    reverseColors[i] = MapPalette.getColor(colors[i]).getRGB();
-                    usedColors.add(colors[i]);
+                for (int i = 0; i < this.colors.length; i++) {
+                    this.colors[i] = input.readByte();
+                    this.reverseColors[i] = MapPalette.getColor(this.colors[i]).getRGB();
+                    usedColors.add(this.colors[i]);
                 }
 
-                available = new byte[usedColors.size()];
-                rgb = new int[255];
+                this.available = new byte[usedColors.size()];
+                this.rgb = new int[255];
 
                 int i = 0;
                 for (Byte color : usedColors) {
-                    available[i++] = color;
-                    rgb[color >= 0 ? color : color + 256] = MapPalette.getColor(color).getRGB();
+                    this.available[i++] = color;
+                    this.rgb[color >= 0 ? color : color + 256] = MapPalette.getColor(color).getRGB();
                 }
 
-                plugin.getLogger().info("Loaded color palette");
-                loadFuture.complete(this);
+                if (!this.checkValidity()) {
+                    this.plugin.getLogger().warning("Incompatible color palette saved, regenerating...");
+                    this.generateColors();
+                    return;
+                }
+
+                this.plugin.getLogger().info("Loaded color palette");
+                this.loadFuture.complete(this);
                 return;
             }
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
 
-        plugin.getLogger().info("Incompatible color palette saved");
-        generateColors();
+        this.plugin.getLogger().info("Incompatible color palette saved");
+        this.generateColors();
     }
 
     @Override
-    public int toRGB(byte color) {
-        return rgb[color >= 0 ? color : color + 256];
+    public final int toRGB(byte color) {
+        return this.rgb[color >= 0 ? color : color + 256];
     }
 
     @Override
-    public int[] toRGBs(byte[] colors) {
+    public final int[] toRGBs(byte[] colors) {
         int[] rgb = new int[colors.length];
         for (int i = 0; i < colors.length; i++) {
-            rgb[i] = toRGB(colors[i]);
+            rgb[i] = this.toRGB(colors[i]);
         }
         return rgb;
     }
 
-    public int closestColor(int rgb) {
-        return reverseColors[rgb & 0xFFFFFF];
+    public final int closestColor(int rgb) {
+        return this.reverseColors[rgb & 0xFFFFFF];
     }
 
-    @SuppressWarnings("deprecation") // magic value
-    public void checkValidity() {
-        loadFuture.thenAccept($ -> {
-            boolean valid = true;
-            try {
-                for (byte i = -128; i < 127; i++) {
-                    int engine = toRGB(i);
-                    int bukkit = MapPalette.getColor(i).getRGB();
-
-                    if (engine != bukkit) {
-                        plugin.getLogger().warning("Color " + i + " is invalid! MapEngine: " + engine + " Bukkit: " + bukkit);
-                        valid = false;
-                    }
-                }
-            } catch (Throwable ignored) {
-            }
-
+    private void checkRetry() {
+        this.loadFuture.thenAccept($ -> {
+            boolean valid = checkValidity();
             if (valid) {
-                plugin.getLogger().info("Color palette is valid!" + (retries > 0 ? " (Retried " + retries + " times)" : ""));
+                this.plugin.getLogger().info("Color palette is valid!" + (this.retries > 0 ? " (Retried " + this.retries + " times)" : ""));
                 return;
             }
 
-            plugin.getLogger().warning("Color palette is invalid!" + (retries > 0 ? " (Retried " + retries + " times)" : ""));
-            if (retries < 10) {
-                retries++;
-                plugin.getLogger().warning("Retrying... (" + retries + "/10)");
-                generateColors();
+            this.plugin.getLogger().warning("Color palette is invalid!" + (this.retries > 0 ? " (Retried " + this.retries + " times)" : ""));
+            if (this.retries < 10) {
+                this.retries++;
+                this.plugin.getLogger().warning("Retrying... (" + this.retries + "/10)");
+                this.generateColors();
             } else {
-                plugin.getLogger().warning("Failed to load color palette!");
+                this.plugin.getLogger().warning("Failed to load color palette!");
+                Bukkit.getPluginManager().disablePlugin(this.plugin);
             }
         });
+    }
+
+    @SuppressWarnings("deprecation") // magic value
+    private boolean checkValidity() {
+        boolean valid = true;
+        try {
+            for (byte i = -128; i < 127; i++) {
+                int engine = this.toRGB(i);
+                int bukkit = MapPalette.getColor(i).getRGB();
+
+                if (engine != bukkit) {
+                    this.plugin.getLogger().warning("Color " + i + " is invalid! MapEngine: " + engine + " Bukkit: " + bukkit);
+                    valid = false;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return valid;
     }
 }
