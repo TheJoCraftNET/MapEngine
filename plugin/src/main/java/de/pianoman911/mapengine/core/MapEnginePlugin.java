@@ -33,6 +33,9 @@ public class MapEnginePlugin extends JavaPlugin {
         this.saveDefaultConfig();
 
         this.platform = PlatformUtil.getPlatform(this, this.getClassLoader(), new ImplListenerBridge(this));
+
+        this.getSLF4JLogger().info("Using platform: {}", this.platform.getDisplayedName());
+
         this.colorPalette = new ColorPalette(this);
 
         this.mapManager = new MapManager(this);
