@@ -65,6 +65,10 @@ tasks {
             "Git-Commit" to gitHash,
             "Git-Branch" to gitBranch,
             "Git-Tag" to gitTag,
+
+            // starting with 1.20.5, paper runtime jars are only provided with mojang mappings
+            // mapengine uses mojang mappings and disables reobfuscation for 1.20.5+
+            "paperweight-mappings-namespace" to "mojang",
         )
     }
 }

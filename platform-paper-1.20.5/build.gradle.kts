@@ -1,3 +1,5 @@
+import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
+
 plugins {
     id("io.papermc.paperweight.userdev")
 }
@@ -12,8 +14,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-tasks {
-    assemble {
-        dependsOn(reobfJar)
-    }
+paperweight {
+    reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
+}
+
+tasks.reobfJar {
+    // hacky workaround to make the shadow plugin shadow our mojang-mapped jar
+    outputJar.set(tasks.jar.map { it.outputs.files.singleFile }.get())
+    enabled = false
 }
