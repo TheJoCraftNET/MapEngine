@@ -24,4 +24,12 @@ public interface IDisplay {
      * @return the default pipeline for this display
      */
     IPipeline pipeline();
+
+    /**
+     * Destroys the display and internal related resources.<br>
+     * <strong>WARNING: This method should be called when the display is no longer needed.
+     * It is not guaranteed that a display will work correctly after this method is called.
+     * </strong>
+     */
+    void destroy();
 }

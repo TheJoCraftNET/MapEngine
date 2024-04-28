@@ -114,4 +114,10 @@ public class MapManager {
         }
         return display;
     }
+
+    public void removeDisplay(FrameContainer display) {
+        synchronized (this.displays) {
+            this.displays.remove(display);
+        }
+    }
 }

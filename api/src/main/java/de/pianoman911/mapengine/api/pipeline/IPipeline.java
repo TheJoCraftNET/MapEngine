@@ -72,4 +72,14 @@ public interface IPipeline {
      * @see #streams()
      */
     void flush(IPipelineInput input);
+
+
+    /**
+     * Destroys the pipeline and internal related resources.<br>
+     * <strong>WARNING: This method should be called when the pipeline is no longer needed.
+     * It is not guaranteed that a pipeline will work correctly after this method is called.
+     * </strong>
+     */
+    default void destroy() {
+    }
 }

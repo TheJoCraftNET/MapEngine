@@ -44,6 +44,12 @@ public class MapItem extends FilledMap implements IHoldableDisplay {
         return this.pipeline;
     }
 
+    @Override
+    public void destroy() {
+        this.plugin.holdableManager().removeDisplay(this);
+        this.pipeline.destroy();
+    }
+
     public void update(Player receiver, MapUpdateData data, int z, MapCursorCollection cursors) {
         PacketContainer<?> packet = this.updatePacket(data, z, cursors);
         packet.send(receiver);

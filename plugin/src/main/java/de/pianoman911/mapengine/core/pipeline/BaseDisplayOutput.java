@@ -30,6 +30,7 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
     protected final MapEnginePlugin plugin;
     private final Map<UUID, Map<Integer, FrameCache>> cache = new HashMap<>();
     private final Set<Player> preventBuffering = Collections.newSetFromMap(new WeakHashMap<>());
+    private boolean destroyed = false;
 
     protected BaseDisplayOutput(MapEnginePlugin plugin) {
         this.plugin = plugin;
@@ -62,6 +63,10 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
     }
 
     protected FrameCache getFrameFileCache(Player receiver, int z, int size) {
+        if (this.destroyed) {
+            return NullFrameCache.INSTANCE;
+        }
+
         synchronized (this.cache) {
             synchronized (this.preventBuffering) {
                 if (this.preventBuffering.contains(receiver)) {
@@ -84,5 +89,21 @@ public abstract class BaseDisplayOutput implements IPipelineOutput {
     // ensures that only online players are used
     protected void removeOfflinePlayers(IPipelineContext ctx) {
         ctx.receivers().removeIf(player -> !player.isOnline());
+    }
+
+    @Override
+    public void destroy() {
+        this.destroyed = true;
+        synchronized (INSTANCES) {
+            INSTANCES.remove(this);
+        }
+
+        synchronized (this.cache) {
+            for (Map<Integer, FrameCache> caches : this.cache.values()) {
+                for (FrameCache cache : caches.values()) {
+                    cache.closeAndDelete();
+                }
+            }
+        }
     }
 }

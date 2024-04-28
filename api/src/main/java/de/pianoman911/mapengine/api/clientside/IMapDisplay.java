@@ -14,6 +14,16 @@ import org.jetbrains.annotations.Range;
 public interface IMapDisplay extends IDisplay {
 
     /**
+     * Destroys the display and internal related resources.
+     * You should call {@link #despawn(Player)} for all players after calling this method.<br>
+     * <strong>WARNING: This method should be called when the display is no longer needed.
+     * It is not guaranteed that a display will work correctly after this method is called.
+     * </strong>
+     */
+    @Override
+    void destroy();
+
+    /**
      * @return the display width (in blocks)
      */
     int width();

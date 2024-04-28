@@ -34,4 +34,8 @@ public class HoldableManager {
     public Set<IHoldableDisplay> displays() {
         return this.displays;
     }
+
+    public void removeDisplay(IHoldableDisplay display) {
+        this.displays.remove(display);
+    }
 }

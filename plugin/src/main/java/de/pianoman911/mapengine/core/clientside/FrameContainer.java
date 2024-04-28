@@ -217,6 +217,12 @@ public class FrameContainer implements IMapDisplay {
     }
 
     @Override
+    public void destroy() {
+        this.plugin.mapManager().removeDisplay(this);
+        this.pipeline.destroy();
+    }
+
+    @Override
     public void rotation(Player player, float yaw, float pitch) {
         for (Frame frame : frames) {
             frame.rotationPacket(yaw, pitch).send(player);
