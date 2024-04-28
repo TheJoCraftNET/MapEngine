@@ -5,7 +5,6 @@ import de.pianoman911.mapengine.api.drawing.ILayeredDrawingSpace;
 import de.pianoman911.mapengine.api.pipeline.IPipelineContext;
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.core.pipeline.PipelineContext;
-import it.unimi.dsi.fastutil.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +28,6 @@ public class LayeredDrawingSpace implements ILayeredDrawingSpace {
     @Override
     public FullSpacedColorBuffer resultBuffer() {
         return resultBuffer;
-    }
-
-    @Override
-    public Pair<FullSpacedColorBuffer, IPipelineContext> combined() {
-        return Pair.of(resultBuffer, context);
     }
 
     @Override

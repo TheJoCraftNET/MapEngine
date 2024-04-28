@@ -1,15 +1,8 @@
 package de.pianoman911.mapengine.api.pipeline;
 
 import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
-import it.unimi.dsi.fastutil.Pair;
 
 public interface IPipelineInput extends IPipelineNode {
-
-    /**
-     * @deprecated no longer used, use this object as a holder instead
-     */
-    @Deprecated
-    Pair<FullSpacedColorBuffer, IPipelineContext> combined();
 
     /**
      * @return the internal buffer of the drawing space

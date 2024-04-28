@@ -66,16 +66,6 @@ public class PipelineContext implements IPipelineContext {
     }
 
     @Override
-    public boolean full() {
-        return buffering;
-    }
-
-    @Override
-    public void full(boolean full) {
-        this.buffering = full;
-    }
-
-    @Override
     public boolean buffering() {
         return buffering;
     }

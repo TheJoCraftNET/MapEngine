@@ -8,7 +8,6 @@ import de.pianoman911.mapengine.api.util.FullSpacedColorBuffer;
 import de.pianoman911.mapengine.api.util.ImageUtils;
 import de.pianoman911.mapengine.core.pipeline.PipelineContext;
 import de.pianoman911.mapengine.core.util.ComponentUtil;
-import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.kyori.adventure.text.Component;
@@ -397,11 +396,6 @@ public record DrawingSpace(FullSpacedColorBuffer buffer, PipelineContext context
     @Override
     public void image(BufferedImage image, int x, int y) {
         this.buffer.pixels(ImageUtils.rgb(image), x, y, image.getWidth(), image.getHeight());
-    }
-
-    @Override
-    public Pair<FullSpacedColorBuffer, IPipelineContext> combined() {
-        return Pair.of(buffer, context);
     }
 
     private record LinePartData(FullSpacedColorBuffer buffer, boolean breakLine) {

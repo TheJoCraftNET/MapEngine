@@ -66,21 +66,6 @@ public interface IPipelineContext {
      */
     IDisplay getDisplay();
 
-    /**
-     * @return true if the buffer will update everything,
-     * false if it is a partial update
-     * @deprecated use {@link #buffering()} instead
-     */
-    @Deprecated(forRemoval = true)
-    boolean full();
-
-    /**
-     * @see #full()
-     * @deprecated use {@link #buffering()} instead
-     */
-    @Deprecated(forRemoval = true)
-    void full(boolean full);
-
     boolean buffering();
 
     /**
