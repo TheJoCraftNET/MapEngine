@@ -26,8 +26,8 @@ public class Frame extends FilledMap {
         this.pos = pos;
     }
 
-    protected PacketContainer<?> spawnPacket(BlockFace visualDirection) {
-        return plugin.platform().createMapEntitySpawnPacket(entityId, pos, visualDirection);
+    protected PacketContainer<?> spawnPacket(BlockFace visualDirection, boolean glowing) {
+        return plugin.platform().createMapEntitySpawnPacket(entityId, pos, visualDirection, glowing);
     }
 
     protected PacketContainer<?> interactionEntity() {

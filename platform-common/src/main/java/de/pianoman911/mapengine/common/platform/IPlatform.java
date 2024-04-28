@@ -20,7 +20,7 @@ public interface IPlatform<T> {
 
     PacketContainer<T> createMapDataPacket(MapUpdateData data, int mapId, MapCursorCollection cursors);
 
-    PacketContainer<T> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing);
+    PacketContainer<T> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing, boolean glowing);
 
     PacketContainer<T> createMapSetIdPacket(int entityId, int mapId, boolean invisible);
 

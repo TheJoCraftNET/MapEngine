@@ -60,6 +60,7 @@ public interface IMapDisplay extends IDisplay {
      * <p>
      * <strong>WARNING: Distances above 6 (creative) or 3 (other gamemodes) are only detected
      * by an attacking (left-click) interaction.</strong>
+     *
      * @param interactDistance the distance at which the player can interact with the map display
      */
     void interactDistance(double interactDistance);
@@ -137,6 +138,19 @@ public interface IMapDisplay extends IDisplay {
      * @param z               the z-layer map id group
      */
     void visualDirection(Player player, BlockFace visualDirection, int z);
+
+    /**
+     * @return whether the item frame is glowing
+     */
+    boolean glowing();
+
+    /**
+     * Use glowing item frames or normal item frames.
+     * MapEngine default is to use glowing item frames.
+     *
+     * @param glowing whether the item frame should glow
+     */
+    void glowing(boolean glowing);
 
     /**
      * Clones the map ids from the given display.<br>

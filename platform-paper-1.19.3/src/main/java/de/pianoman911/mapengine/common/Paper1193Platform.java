@@ -109,7 +109,7 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
     }
 
     @Override
-    public PacketContainer<Packet<ClientGamePacketListener>> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing) {
+    public PacketContainer<Packet<ClientGamePacketListener>> createMapEntitySpawnPacket(int entityId, BlockVector pos, BlockFace facing, boolean glowing) {
         int facingIndex = switch (facing) {
             case UP -> 1;
             case NORTH -> 2;
@@ -119,7 +119,9 @@ public class Paper1193Platform implements IPlatform<Packet<ClientGamePacketListe
             default -> 0;
         };
 
-        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(entityId, UUID.randomUUID(), pos.getX(), pos.getY(), pos.getZ(), 0, 0, EntityType.GLOW_ITEM_FRAME, facingIndex, Vec3.ZERO, 0));
+        return PacketContainer.wrap(this, new ClientboundAddEntityPacket(entityId, UUID.randomUUID(),
+                pos.getX(), pos.getY(), pos.getZ(), 0, 0,
+                glowing ? EntityType.GLOW_ITEM_FRAME : EntityType.ITEM_FRAME, facingIndex, Vec3.ZERO, 0));
     }
 
     @Override

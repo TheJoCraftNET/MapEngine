@@ -29,6 +29,7 @@ public class FrameContainer implements IMapDisplay {
     private final BoundingBox box;
     private final BoundingBox interactionBox;
     private double interactDistance = 6;
+    private boolean glowing = true;
 
     @Deprecated
     public FrameContainer(BlockVector a, BlockVector b, BlockFace direction, MapEnginePlugin plugin, Pipeline pipeline) {
@@ -249,6 +250,16 @@ public class FrameContainer implements IMapDisplay {
     }
 
     @Override
+    public boolean glowing() {
+        return this.glowing;
+    }
+
+    @Override
+    public void glowing(boolean glowing) {
+        this.glowing = glowing;
+    }
+
+    @Override
     public void cloneGroupIds(IMapDisplay source) {
         Preconditions.checkNotNull(source, "Source display cannot be null");
 
@@ -271,7 +282,7 @@ public class FrameContainer implements IMapDisplay {
 
     private void spawn0(Player player, BlockFace visualDirection, int z) {
         for (Frame frame : frames) {
-            frame.spawnPacket(visualDirection).send(player);
+            frame.spawnPacket(visualDirection, this.glowing).send(player);
             frame.interactionEntity().send(player);
             frame.interactionEntitySize().send(player);
             frame.setIdPacket(z, true).send(player);
