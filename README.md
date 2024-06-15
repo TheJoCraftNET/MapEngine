@@ -55,12 +55,8 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 
 | Server Version | Supported |
 |----------------|-----------|
-| Paper 1.20.6   | ✔️        |
-| Paper 1.20.5   | ✔️        |
-| Paper 1.20.4   | ✔️        |
-| Paper 1.20.3   | ✔️        |
-| Paper 1.20.2   | ✔️        |
-| Paper 1.20(.1) | ✔️        |
+| Paper 1.21     | ✔️        |
+| Paper 1.20.x   | ✔️        |
 | Paper 1.19.4   | ✔️        |
 | Paper 1.19.3   | ✔️        |
 
@@ -72,6 +68,7 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 <summary><strong>Maven</strong></summary>
 
 ```xml
+
 <repositories>
     <repository>
         <id>tjcserver</id>
@@ -81,15 +78,17 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 ```
 
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>de.pianoman911</groupId>
         <artifactId>mapengine-api</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.1</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
 ```
+
 </details>
 
 
@@ -105,7 +104,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'de.pianoman911:mapengine-api:1.8.0'
+    compileOnly 'de.pianoman911:mapengine-api:1.8.1'
 }
 ```
 
@@ -122,7 +121,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("de.pianoman911:mapengine-api:1.8.0")
+    compileOnly("de.pianoman911:mapengine-api:1.8.1")
 }
 ```
 
@@ -146,7 +145,7 @@ public class Bar {
         IDrawingSpace input = MAP_ENGINE.pipeline().createDrawingSpace(display);
 
         // draw the image to the input pipeline element
-        input.image(image,0,0);
+        input.image(image, 0, 0);
 
         // draw a triangle
         input.triangle(0, 0, 10, 10, 20, 0, 0xff0000ff);
