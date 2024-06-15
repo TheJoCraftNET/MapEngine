@@ -3,6 +3,7 @@ package de.pianoman911.mapengine.common;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.common.platform.IPlatformProvider;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -10,11 +11,16 @@ import java.util.Optional;
 
 public final class Paper1205Provider implements IPlatformProvider {
 
+    private static final IntSet SUPPORTED_PROTOCOLS = IntSet.of(
+            766, // 1.20.5
+            767 // 1.21
+    );
+
     @SuppressWarnings("deprecation") // bukkit unsafe
     @Override
     public Optional<IPlatform<?>> tryProvide(Plugin plugin, IListenerBridge bridge) {
         if (IPlatformProvider.existsClass("org.bukkit.craftbukkit.CraftServer")
-                && Bukkit.getUnsafe().getProtocolVersion() == 766) {
+                && SUPPORTED_PROTOCOLS.contains(Bukkit.getUnsafe().getProtocolVersion())) {
             return Optional.of(Paper1205StaticProvider.provide(plugin, bridge));
         }
         return Optional.empty();
