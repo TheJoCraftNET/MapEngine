@@ -16,7 +16,7 @@ allprojects {
     version = "1.8.2"
 
     repositories {
-        maven("https://repo.papermc.io/repository/maven-public/")
+        maven("https://repo.thejocraft.net/public/")
     }
 
     tasks.withType<JavaCompile> {
