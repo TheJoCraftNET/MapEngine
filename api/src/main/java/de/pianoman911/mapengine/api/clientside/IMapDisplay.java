@@ -1,9 +1,12 @@
 package de.pianoman911.mapengine.api.clientside;
 
+import de.pianoman911.mapengine.api.util.Vec2i;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Range;
+
+import java.util.function.BiConsumer;
 
 /**
  * A map display which creates packet-level item frame
@@ -174,4 +177,50 @@ public interface IMapDisplay extends IDisplay {
      * to update the map ids.</strong>
      */
     void cutOffCloneGroupIds();
+
+    /**
+     * Returns the frames of this display in a flattened 2d array.
+     * Frames are ordered from left to right, top to bottom.
+     * <p>
+     * x = 0 &and; y = 0 is positioned at the top left.
+     * The index of this is 0.
+     * <p>
+     * Use {@link #frameAt(int, int)} to easily get a specific
+     * frame of this display.
+     *
+     * @return the frames of this display
+     * @see #frameAt(int, int)
+     */
+    IFrame[] frames();
+
+    /**
+     * Returns the frame at the given x and y position.
+     *
+     * @param x the x position
+     * @param y the y position
+     * @return the frame at the given position
+     * @throws ArrayIndexOutOfBoundsException if the x or y position is out of bounds
+     */
+    default IFrame frameAt(int x, int y) {
+        int width = this.width();
+        if (x < 0 || x >= width || y < 0 || y >= this.height()) {
+            throw new ArrayIndexOutOfBoundsException("x or y position is out of bounds");
+        }
+        return this.frames()[x + y * width];
+    }
+
+    /**
+     * Consumes all frames of this display with a consumer.<br>
+     * The arguments provided to the specified consumer are immutable.
+     *
+     * @param consumer the consumer to consume the frames
+     */
+    default void consumeFrames(BiConsumer<IFrame, Vec2i> consumer) {
+        IFrame[] frames = this.frames();
+        for (int y = 0, w = this.width(), h = this.height(); y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                consumer.accept(frames[x + y * w], new Vec2i(x, y));
+            }
+        }
+    }
 }

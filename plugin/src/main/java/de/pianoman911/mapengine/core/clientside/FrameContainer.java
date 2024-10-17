@@ -280,6 +280,11 @@ public class FrameContainer implements IMapDisplay {
         }
     }
 
+    @Override
+    public Frame[] frames() {
+        return this.frames;
+    }
+
     private void spawn0(Player player, BlockFace visualDirection, int z) {
         for (Frame frame : frames) {
             frame.spawnPacket(visualDirection, this.glowing).send(player);

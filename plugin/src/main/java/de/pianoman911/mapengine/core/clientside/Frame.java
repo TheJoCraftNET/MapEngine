@@ -1,5 +1,6 @@
 package de.pianoman911.mapengine.core.clientside;
 
+import de.pianoman911.mapengine.api.clientside.IFrame;
 import de.pianoman911.mapengine.common.platform.PacketContainer;
 import de.pianoman911.mapengine.core.MapEnginePlugin;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -8,7 +9,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
-public class Frame extends FilledMap {
+public class Frame extends FilledMap implements IFrame {
 
     public static final double INVISIBLE_MAP_DEPTH = 0.0078125;
     public static final double INTERACTION_OFFSET = 0.0626;
@@ -84,5 +85,15 @@ public class Frame extends FilledMap {
 
     public PacketContainer<?> itemRotationPacket(int rotation) {
         return plugin.platform().createItemRotationPacket(entityId, rotation);
+    }
+
+    @Override
+    public int frameEntityId() {
+        return this.entityId;
+    }
+
+    @Override
+    public int interactionEntityId() {
+        return this.interactionId;
     }
 }
