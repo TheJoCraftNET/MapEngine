@@ -2,8 +2,8 @@ plugins {
     id("java-library")
     id("maven-publish")
 
-    id("io.papermc.paperweight.userdev") version "1.6.0" apply false
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.papermc.paperweight.userdev") version "1.7.2" apply false
+    id("com.gradleup.shadow") version "8.3.0"
 }
 
 tasks["jar"].enabled = false
@@ -22,6 +22,7 @@ allprojects {
     tasks.withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
         options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-Xlint:unchecked")
     }
 
     tasks.withType<Javadoc> {

@@ -6,11 +6,11 @@ import java.time.temporal.Temporal
 import java.util.stream.Stream
 
 plugins {
-    id("io.github.goooler.shadow")
+    id("com.gradleup.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
-val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5")
+val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5", "1.21.2")
 
 dependencies {
     platforms.forEach {
