@@ -52,7 +52,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Paper1205Platform implements IPlatform<Packet<ClientGamePacketListener>>, Listener {
+public class Paper1212Platform implements IPlatform<Packet<ClientGamePacketListener>>, Listener {
 
     private static final EntityDataAccessor<Byte> DATA_SHARED_FLAGS_ID = EntityDataSerializers.BYTE.createAccessor(0);
     private static final EntityDataAccessor<Float> DATA_INTERACTION_BOX_WIDTH_ID = EntityDataSerializers.FLOAT.createAccessor(8);
@@ -82,7 +82,7 @@ public class Paper1205Platform implements IPlatform<Packet<ClientGamePacketListe
 
     private final IListenerBridge bridge;
 
-    public Paper1205Platform(Plugin plugin, IListenerBridge bridge) {
+    public Paper1212Platform(Plugin plugin, IListenerBridge bridge) {
         this.bridge = bridge;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }

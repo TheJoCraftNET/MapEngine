@@ -32,6 +32,6 @@ final class Paper1212StaticProvider {
     }
 
     static IPlatform<?> provide(Plugin plugin, IListenerBridge bridge) {
-        return new Paper1205Platform(plugin, bridge);
+        return new Paper1212Platform(plugin, bridge);
     }
 }
