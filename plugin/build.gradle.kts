@@ -6,11 +6,12 @@ import java.time.temporal.Temporal
 import java.util.stream.Stream
 
 plugins {
-    id("io.github.goooler.shadow")
+    id("com.gradleup.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5")
+val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5", "1.21.2")
 
 dependencies {
     platforms.forEach {
@@ -70,6 +71,11 @@ tasks {
             // mapengine uses mojang mappings and disables reobfuscation for 1.20.5+
             "paperweight-mappings-namespace" to "mojang",
         )
+    }
+
+    runServer {
+        runDirectory = rootProject.layout.projectDirectory.dir("run")
+        minecraftVersion("1.21.1")
     }
 }
 
