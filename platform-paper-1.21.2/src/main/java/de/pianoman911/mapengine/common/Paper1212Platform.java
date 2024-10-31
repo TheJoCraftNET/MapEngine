@@ -4,14 +4,11 @@ import de.pianoman911.mapengine.common.data.MapUpdateData;
 import de.pianoman911.mapengine.common.platform.IListenerBridge;
 import de.pianoman911.mapengine.common.platform.IPlatform;
 import de.pianoman911.mapengine.common.platform.PacketContainer;
-import de.pianoman911.mapengine.common.util.ReflectionUtil;
-import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -25,6 +22,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,11 +43,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class Paper1212Platform implements IPlatform<Packet<ClientGamePacketListener>>, Listener {
@@ -68,17 +66,6 @@ public class Paper1212Platform implements IPlatform<Packet<ClientGamePacketListe
             .setDataItem(DATA_INTERACTION_BOX_WIDTH_ID, 0f)
             .setDataItem(DATA_INTERACTION_BOX_HEIGHT_ID, 0f)
             .setDataItem(DATA_INTERACTION_BOX_RESPONSIVE_ID, false);
-
-    private static final MethodHandle CLIENTBOUND_TELEPORT_ENTITY_PACKET_CONSTRUCTOR;
-
-    static {
-        try {
-            CLIENTBOUND_TELEPORT_ENTITY_PACKET_CONSTRUCTOR =
-                    ReflectionUtil.getConstructor(ClientboundTeleportEntityPacket.class, FriendlyByteBuf.class);
-        } catch (ReflectiveOperationException exception) {
-            throw new RuntimeException(exception);
-        }
-    }
 
     private final IListenerBridge bridge;
 
@@ -194,23 +181,10 @@ public class Paper1212Platform implements IPlatform<Packet<ClientGamePacketListe
 
     @Override
     public PacketContainer<?> createTeleportPacket(int entityId, Vector pos, float yaw, float pitch, boolean onGround) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer(5 + Double.BYTES * 3 + 2 + 1));
-        ClientboundTeleportEntityPacket packet;
-        try {
-            buf.writeVarInt(entityId);
-            buf.writeDouble(pos.getX());
-            buf.writeDouble(pos.getY());
-            buf.writeDouble(pos.getZ());
-            buf.writeByte((int) (yaw * 256f / 360f));
-            buf.writeByte((int) (pitch * 256f / 360f));
-            buf.writeBoolean(onGround);
-
-            packet = (ClientboundTeleportEntityPacket) CLIENTBOUND_TELEPORT_ENTITY_PACKET_CONSTRUCTOR.invoke(buf);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        } finally {
-            buf.release();
-        }
+        PositionMoveRotation posData = new PositionMoveRotation(
+                new Vec3(pos.getX(), pos.getY(), pos.getZ()), Vec3.ZERO, yaw, pitch);
+        ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(
+                entityId, posData, Set.of(), onGround);
         return PacketContainer.wrap(this, packet);
     }
 
