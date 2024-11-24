@@ -48,7 +48,10 @@ public class ColorPalette implements IMapColors {
     }
 
     @Override
-    public final byte color(int rgb) {
+    public final byte color(final int rgb) {
+        if (((rgb >> 24) & 0xFF) < 128) {
+            return 0;
+        }
         return this.colors[rgb & 0xFFFFFF];
     }
 
@@ -64,7 +67,7 @@ public class ColorPalette implements IMapColors {
                 if (finalI == threads - 1) end = rgb.length;
                 for (int j = start; j < end; j++) {
                     int color = rgb[j];
-                    if (((color >> 24) & 0xFF) != 255) continue;
+                    if (((color >> 24) & 0xFF) < 128) continue;
                     result[j] = this.color(rgb[j]);
                 }
             });
@@ -247,8 +250,13 @@ public class ColorPalette implements IMapColors {
         return rgb;
     }
 
-    public final int closestColor(int rgb) {
-        return this.reverseColors[rgb & 0xFFFFFF];
+    public final int closestColor(final int rgb) {
+        final int alpha = (rgb >> 24) & 0xFF;
+        if (alpha == 0) {
+            return 0;
+        }
+        final int ret = this.reverseColors[rgb & 0xFFFFFF];
+        return (ret & 0xFFFFFF) | (alpha << 24);
     }
 
     private void checkRetry() {
