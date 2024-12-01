@@ -1,5 +1,6 @@
 package de.pianoman911.mapengine.api.pipeline;
 
+import de.pianoman911.mapengine.api.MapEngineApi;
 import de.pianoman911.mapengine.api.clientside.IDisplay;
 import de.pianoman911.mapengine.api.clientside.IMapDisplay;
 import de.pianoman911.mapengine.api.util.Converter;
@@ -155,4 +156,9 @@ public interface IPipelineContext {
      * @see #previousBuffer()
      */
     void previousBuffer(@Nullable FullSpacedColorBuffer previousBuffer);
+
+    /**
+     * @return the {@link MapEngineApi} instance
+     */
+    MapEngineApi mapEngineApi();
 }

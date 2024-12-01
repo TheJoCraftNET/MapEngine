@@ -82,7 +82,7 @@ public class ImplMapEngineApi implements MapEngineApi {
 
             @Override
             public IPipelineContext createCtx(IDisplay display) {
-                return new PipelineContext(display);
+                return new PipelineContext(ImplMapEngineApi.this, display);
             }
         };
 

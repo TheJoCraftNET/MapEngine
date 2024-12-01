@@ -1,5 +1,6 @@
 package de.pianoman911.mapengine.core.pipeline;
 
+import de.pianoman911.mapengine.api.MapEngineApi;
 import de.pianoman911.mapengine.api.clientside.IDisplay;
 import de.pianoman911.mapengine.api.pipeline.IPipelineContext;
 import de.pianoman911.mapengine.api.util.Converter;
@@ -15,6 +16,7 @@ import java.util.WeakHashMap;
 public class PipelineContext implements IPipelineContext {
 
     private final Set<Player> receivers = Collections.newSetFromMap(new WeakHashMap<>());
+    private final MapEngineApi api;
     private final IDisplay display;
     private final MapCursorCollection cursors = new MapCursorCollection();
     private boolean buffering = false;
@@ -23,7 +25,8 @@ public class PipelineContext implements IPipelineContext {
     private Converter converter = Converter.DIRECT;
     private FullSpacedColorBuffer previousBuffer;
 
-    public PipelineContext(IDisplay display) {
+    public PipelineContext(MapEngineApi api, IDisplay display) {
+        this.api = api;
         this.display = display;
     }
 
@@ -113,6 +116,11 @@ public class PipelineContext implements IPipelineContext {
     @Override
     public void previousBuffer(FullSpacedColorBuffer previousBuffer) {
         this.previousBuffer = previousBuffer;
+    }
+
+    @Override
+    public MapEngineApi mapEngineApi() {
+        return this.api;
     }
 
     @Override
