@@ -1,6 +1,7 @@
 package de.pianoman911.mapengine.api.util;
 
 import com.google.common.base.Preconditions;
+import de.pianoman911.mapengine.api.colors.IMapColors;
 
 import java.awt.image.BufferedImage;
 
@@ -159,6 +160,29 @@ public class FullSpacedColorBuffer {
      */
     public void buffer(FullSpacedColorBuffer buffer, int x, int y) {
         this.pixels(buffer.buffer(), x, y, buffer.width(), buffer.height());
+    }
+
+    /**
+     * Replaces all occurrences of the old color with the new color.
+     *
+     * @param oldColor the color to replace
+     * @param newColor the color to replace with
+     */
+    public void replaceColor(int oldColor, int newColor) {
+        for (int i = 0; i < this.data.length; i++) {
+            if (this.data[i] == oldColor) {
+                this.data[i] = newColor;
+            }
+        }
+    }
+
+    /**
+     * Removes all occurrences of the given color, replacing them with transparent pixels.
+     *
+     * @param color the color to remove
+     */
+    public void removeColor(int color) {
+        this.replaceColor(color, IMapColors.TRANSPARENT);
     }
 
     /**
@@ -344,6 +368,40 @@ public class FullSpacedColorBuffer {
     }
 
     /**
+     * * Creates a new sub-buffer of this buffer with the alpha channel cropped.
+     *
+     * @return the copy of this buffer with the alpha channel cropped
+     */
+    public FullSpacedColorBuffer cropAlpha() {
+        return this.crop(IMapColors.TRANSPARENT);
+    }
+
+    /**
+     * Creates a new sub-buffer of this buffer with the given background color cropped.
+     * The rest of the background color will <b>not</b> be removed.
+     * If you want to remove the background color, use {@link #removeColor(int)} afterward.
+     *
+     * @return the copy of this buffer with the given background color cropped
+     */
+    public FullSpacedColorBuffer crop(int background) {
+        int minX = this.width;
+        int minY = this.height;
+        int maxX = 0;
+        int maxY = 0;
+        for (int y = 0; y < this.height; y++) {
+            for (int x = 0; x < this.width; x++) {
+                if (this.data[this.index(x, y)] != background) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+        }
+        return this.subBuffer(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    /**
      * @return a copy of this buffer
      */
     public FullSpacedColorBuffer copy() {
@@ -352,6 +410,17 @@ public class FullSpacedColorBuffer {
 
     private int index(int x, int y) {
         return index(x, y, this.width);
+    }
+
+    /**
+     * Returns the color of the pixel at the given position.
+     *
+     * @param x the x-coordinate of the pixel
+     * @param y the y-coordinate of the pixel
+     * @return the color of the pixel
+     */
+    public int pixel(int x, int y) {
+        return this.data[index(x, y)];
     }
 
     /**
