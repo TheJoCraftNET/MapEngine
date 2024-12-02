@@ -94,16 +94,18 @@ public final class FontRegistry {
             return null;
         }
 
+        // add small buffer zone around image to allow
+        // for antialiasing to work correctly
         BufferedImage img = new BufferedImage(
-                NumberConversions.ceil(totalRect.getWidth()),
-                NumberConversions.ceil(totalRect.getHeight()),
+                NumberConversions.ceil(totalRect.getWidth()) + 2,
+                NumberConversions.ceil(totalRect.getHeight()) + 2,
                 BufferedImage.TYPE_INT_ARGB
         );
         Graphics2D graphics = img.createGraphics();
         graphics.setColor(color);
 
         for (LineData datum : data) {
-            graphics.drawGlyphVector(datum.vec(), 0f, (float) -datum.bounds().getY());
+            graphics.drawGlyphVector(datum.vec(), 1f, (float) -datum.bounds().getY() + 1f);
             graphics.translate(0d, datum.bounds().getHeight());
         }
 
