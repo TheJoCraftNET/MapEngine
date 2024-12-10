@@ -384,21 +384,47 @@ public class FullSpacedColorBuffer {
      * @return the copy of this buffer with the given background color cropped
      */
     public FullSpacedColorBuffer crop(int background) {
-        int minX = this.width;
-        int minY = this.height;
-        int maxX = 0;
-        int maxY = 0;
-        for (int y = 0; y < this.height; y++) {
-            for (int x = 0; x < this.width; x++) {
-                if (this.data[this.index(x, y)] != background) {
-                    minX = Math.min(minX, x);
-                    minY = Math.min(minY, y);
-                    maxX = Math.max(maxX, x);
-                    maxY = Math.max(maxY, y);
-                }
+        int minX = 0;
+        int minY = 0;
+        int maxX = this.width - 1;
+        int maxY = this.height - 1;
+        // determine y min bound
+        for (int len = this.height - 1; minY < len; ++minY) {
+            if (colorInLineY(background, minY)) break;
+        }
+        // determine y max bound
+        for (; maxY >= minY; --maxY) {
+            if (colorInLineY(background, maxY)) break;
+        }
+
+        // determine x min bound
+        for (int len = this.width - 1; minX < len; ++minX) {
+            if (colorInLineX(background, minX, minY, maxY)) break;
+        }
+        // determine x max bound
+        for (; maxX >= minX; --maxX) {
+            if (colorInLineX(background, maxX, minY, maxY)) break;
+        }
+
+        return this.subBuffer(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    private final boolean colorInLineY(int background, int maxY) {
+        for (int x = 0, len = this.width - 1; x < len; ++x) {
+            if (this.pixel(x, maxY) != background) {
+                return true;
             }
         }
-        return this.subBuffer(minX, minY, maxX - minX + 1, maxY - minY + 1);
+        return false;
+    }
+
+    private final boolean colorInLineX(int background, int minX, int minY, int maxY) {
+        for (int y = minY; y <= maxY; ++y) {
+            if (this.pixel(minX, y) != background) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
