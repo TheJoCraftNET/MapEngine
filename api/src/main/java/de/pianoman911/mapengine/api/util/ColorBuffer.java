@@ -53,28 +53,28 @@ public class ColorBuffer {
     /**
      * @return the raw color data wrapped by this buffer, mutable
      */
-    public byte[] data() {
+    public final byte[] data() {
         return this.data;
     }
 
     /**
      * @return the internal length of the data
      */
-    public int size() {
+    public final int size() {
         return this.data.length;
     }
 
     /**
      * @return the width in pixels
      */
-    public int width() {
+    public final int width() {
         return this.width;
     }
 
     /**
      * @return the height in pixels
      */
-    public int height() {
+    public final int height() {
         return this.height;
     }
 }

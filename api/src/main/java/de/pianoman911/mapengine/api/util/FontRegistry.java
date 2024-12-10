@@ -56,7 +56,7 @@ public final class FontRegistry {
             return EMPTY_BUFFER;
         }
 
-        return new FullSpacedColorBuffer(ImageUtils.rgb(img), img.getWidth(), img.getHeight());
+        return new FullSpacedColorBuffer(ImageUtils.rgb(img), img.getWidth(), img.getHeight()).cropAlpha();
     }
 
 
@@ -73,14 +73,7 @@ public final class FontRegistry {
         for (int i = 0; i < lines.length; i++) {
             GlyphVector vec = font.createGlyphVector(ctx, lines[i]);
 
-            // line heights are managed outside of this method
-            Rectangle2D widthBounds = vec.getLogicalBounds();
-            Rectangle2D heightBounds = vec.getVisualBounds();
-
-            Rectangle2D bounds = new Rectangle2D.Double(
-                    widthBounds.getX(), heightBounds.getY(),
-                    widthBounds.getWidth(), heightBounds.getHeight()
-            );
+            Rectangle2D bounds = vec.getLogicalBounds();
             totalRect.setRect(
                     0d, 0d,
                     Math.max(totalRect.getWidth(), bounds.getWidth()),
@@ -103,7 +96,7 @@ public final class FontRegistry {
         graphics.setColor(color);
 
         for (LineData datum : data) {
-            graphics.drawGlyphVector(datum.vec(), 0f, (float) -datum.bounds().getY());
+            graphics.drawGlyphVector(datum.vec(), 0, (float) -datum.bounds().getY());
             graphics.translate(0d, datum.bounds().getHeight());
         }
 
