@@ -56,7 +56,7 @@ public final class FontRegistry {
             return EMPTY_BUFFER;
         }
 
-        return new FullSpacedColorBuffer(ImageUtils.rgb(img), img.getWidth(), img.getHeight());
+        return new FullSpacedColorBuffer(ImageUtils.rgb(img), img.getWidth(), img.getHeight()).cropAlpha();
     }
 
 
@@ -73,14 +73,7 @@ public final class FontRegistry {
         for (int i = 0; i < lines.length; i++) {
             GlyphVector vec = font.createGlyphVector(ctx, lines[i]);
 
-            // line heights are managed outside of this method
-            Rectangle2D widthBounds = vec.getLogicalBounds();
-            Rectangle2D heightBounds = vec.getVisualBounds();
-
-            Rectangle2D bounds = new Rectangle2D.Double(
-                    widthBounds.getX(), heightBounds.getY(),
-                    widthBounds.getWidth(), heightBounds.getHeight()
-            );
+            Rectangle2D bounds = vec.getLogicalBounds();
             totalRect.setRect(
                     0d, 0d,
                     Math.max(totalRect.getWidth(), bounds.getWidth()),
@@ -94,18 +87,16 @@ public final class FontRegistry {
             return null;
         }
 
-        // add small buffer zone around image to allow
-        // for antialiasing to work correctly
         BufferedImage img = new BufferedImage(
-                NumberConversions.ceil(totalRect.getWidth()) + 2,
-                NumberConversions.ceil(totalRect.getHeight()) + 2,
+                NumberConversions.ceil(totalRect.getWidth()),
+                NumberConversions.ceil(totalRect.getHeight()),
                 BufferedImage.TYPE_INT_ARGB
         );
         Graphics2D graphics = img.createGraphics();
         graphics.setColor(color);
 
         for (LineData datum : data) {
-            graphics.drawGlyphVector(datum.vec(), 1f, (float) -datum.bounds().getY() + 1f);
+            graphics.drawGlyphVector(datum.vec(), 0, (float) -datum.bounds().getY());
             graphics.translate(0d, datum.bounds().getHeight());
         }
 
