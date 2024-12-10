@@ -389,20 +389,20 @@ public class FullSpacedColorBuffer {
         int maxX = this.width - 1;
         int maxY = this.height - 1;
         // determine y min bound
-        for (int len = this.height - 1; minY < len; ++minY) {
+        for (; minY < maxY; ++minY) {
             if (colorInLineY(background, minY)) break;
         }
         // determine y max bound
-        for (; maxY >= minY; --maxY) {
+        for (; maxY > minY; --maxY) {
             if (colorInLineY(background, maxY)) break;
         }
 
         // determine x min bound
-        for (int len = this.width - 1; minX < len; ++minX) {
+        for (; minX < maxX; ++minX) {
             if (colorInLineX(background, minX, minY, maxY)) break;
         }
         // determine x max bound
-        for (; maxX >= minX; --maxX) {
+        for (; maxX > minX; --maxX) {
             if (colorInLineX(background, maxX, minY, maxY)) break;
         }
 
@@ -419,7 +419,7 @@ public class FullSpacedColorBuffer {
     }
 
     private final boolean colorInLineX(int background, int minX, int minY, int maxY) {
-        for (int y = minY; y <= maxY; ++y) {
+        for (int y = minY; y < maxY; ++y) {
             if (this.pixel(minX, y) != background) {
                 return true;
             }
