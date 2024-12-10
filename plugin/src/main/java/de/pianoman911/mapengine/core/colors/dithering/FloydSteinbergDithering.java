@@ -54,6 +54,7 @@ public class FloydSteinbergDithering {
 
                         int mc = palette.closestColor(rgb);
 
+                        int a;
                         int r = (mc >> 16) & 0xFF;
                         int g = (mc >> 8) & 0xFF;
                         int b = (mc) & 0xFF;
@@ -67,36 +68,40 @@ public class FloydSteinbergDithering {
                         if (!(x == w - 1)) {
                             index = x + 1 + y * w;
                             rgb = src[index];
+                            a = (rgb >> 24) & 0xFF;
                             r = Math.max(0, Math.min(255, (int) (((rgb >> 16) & 0xFF) + (errorR * FS_ERROR))));
                             g = Math.max(0, Math.min(255, (int) (((rgb >> 8) & 0xFF) + (errorG * FS_ERROR))));
                             b = Math.max(0, Math.min(255, (int) (((rgb) & 0xFF) + (errorB * FS_ERROR))));
-                            src[index] = (r << 16) | (g << 8) | b;
+                            src[index] = (a << 24) | (r << 16) | (g << 8) | b;
 
                             if (!(y == h - 1)) {
                                 index = x + 1 + (y + 1) * w;
                                 rgb = src[index];
+                                a = (rgb >> 24) & 0xFF;
                                 r = Math.max(0, Math.min(255, (int) (((rgb >> 16) & 0xFF) + (errorR * FS_ERROR2))));
                                 g = Math.max(0, Math.min(255, (int) (((rgb >> 8) & 0xFF) + (errorG * FS_ERROR2))));
                                 b = Math.max(0, Math.min(255, (int) (((rgb) & 0xFF) + (errorB * FS_ERROR2))));
-                                src[index] = (r << 16) | (g << 8) | b;
+                                src[index] = (a << 24) | (r << 16) | (g << 8) | b;
                             }
                         }
 
                         if (!(y == h - 1)) {
                             index = x + (y + 1) * w;
                             rgb = src[index];
+                            a = (rgb >> 24) & 0xFF;
                             r = Math.max(0, Math.min(255, (int) (((rgb >> 16) & 0xFF) + (errorR * FS_ERROR3))));
                             g = Math.max(0, Math.min(255, (int) (((rgb >> 8) & 0xFF) + (errorG * FS_ERROR3))));
                             b = Math.max(0, Math.min(255, (int) (((rgb) & 0xFF) + (errorB * FS_ERROR3))));
-                            src[index] = (r << 16) | (g << 8) | b;
+                            src[index] = (a << 24) | (r << 16) | (g << 8) | b;
 
                             if (!(x == 0)) {
                                 index = x - 1 + (y + 1) * w;
                                 rgb = src[index];
+                                a = (rgb >> 24) & 0xFF;
                                 r = Math.max(0, Math.min(255, (int) (((rgb >> 16) & 0xFF) + (errorR * FS_ERROR4))));
                                 g = Math.max(0, Math.min(255, (int) (((rgb >> 8) & 0xFF) + (errorG * FS_ERROR4))));
                                 b = Math.max(0, Math.min(255, (int) (((rgb) & 0xFF) + (errorB * FS_ERROR4))));
-                                src[index] = (r << 16) | (g << 8) | b;
+                                src[index] = (a << 24) | (r << 16) | (g << 8) | b;
                             }
                         }
                     }
