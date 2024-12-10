@@ -54,7 +54,7 @@ public class FullSpacedColorBuffer {
         this(new int[width * height], width, height);
     }
 
-    private static int index(int x, int y, int width) {
+    private static final int index(int x, int y, int width) {
         return x + y * width;
     }
 
@@ -139,7 +139,7 @@ public class FullSpacedColorBuffer {
      * @param width  the width of the area
      * @param height the height of the area
      */
-    public void pixels(int[] pixels, int x, int y, int width, int height) {
+    public final void pixels(int[] pixels, int x, int y, int width, int height) {
         for (int h = 0; h < height; h++) {
             for (int w = 0; w < width; w++) {
                 if (x + w >= 0 && x + w < width() && y + h >= 0 && y + h < height()) {
@@ -158,7 +158,7 @@ public class FullSpacedColorBuffer {
      * @param x      the x position of the buffer
      * @param y      the y position of the buffer
      */
-    public void buffer(FullSpacedColorBuffer buffer, int x, int y) {
+    public final void buffer(FullSpacedColorBuffer buffer, int x, int y) {
         this.pixels(buffer.buffer(), x, y, buffer.width(), buffer.height());
     }
 
@@ -168,7 +168,7 @@ public class FullSpacedColorBuffer {
      * @param oldColor the color to replace
      * @param newColor the color to replace with
      */
-    public void replaceColor(int oldColor, int newColor) {
+    public final void replaceColor(int oldColor, int newColor) {
         for (int i = 0; i < this.data.length; i++) {
             if (this.data[i] == oldColor) {
                 this.data[i] = newColor;
@@ -181,7 +181,7 @@ public class FullSpacedColorBuffer {
      *
      * @param color the color to remove
      */
-    public void removeColor(int color) {
+    public final void removeColor(int color) {
         this.replaceColor(color, IMapColors.TRANSPARENT);
     }
 
@@ -192,7 +192,7 @@ public class FullSpacedColorBuffer {
      * @param smooth whether to use a smooth scaling algorithm
      * @return the scaled copy
      */
-    public FullSpacedColorBuffer scale(double scale, boolean smooth) {
+    public final FullSpacedColorBuffer scale(double scale, boolean smooth) {
         return this.scale(scale, scale, smooth);
     }
 
@@ -335,7 +335,7 @@ public class FullSpacedColorBuffer {
      * @param smooth    whether to use a smooth scaling algorithm
      * @return the scaled copy
      */
-    public FullSpacedColorBuffer scale(int newWidth, int newHeight, boolean smooth) {
+    public final FullSpacedColorBuffer scale(int newWidth, int newHeight, boolean smooth) {
         return scale((double) newWidth / this.width, (double) newHeight / this.height, smooth);
     }
 
@@ -358,7 +358,7 @@ public class FullSpacedColorBuffer {
      * @param height the height of the sub-buffer
      * @return the new sub-buffer
      */
-    public FullSpacedColorBuffer subBuffer(int x, int y, int width, int height) {
+    public final FullSpacedColorBuffer subBuffer(int x, int y, int width, int height) {
         int[] newData = new int[width * height];
         for (int h = 0; h < height; h++) {
             // can't copy everything directly, as this isn't a 2d-array
@@ -372,7 +372,7 @@ public class FullSpacedColorBuffer {
      *
      * @return the copy of this buffer with the alpha channel cropped
      */
-    public FullSpacedColorBuffer cropAlpha() {
+    public final FullSpacedColorBuffer cropAlpha() {
         return this.crop(IMapColors.TRANSPARENT);
     }
 
@@ -404,11 +404,11 @@ public class FullSpacedColorBuffer {
     /**
      * @return a copy of this buffer
      */
-    public FullSpacedColorBuffer copy() {
+    public final FullSpacedColorBuffer copy() {
         return new FullSpacedColorBuffer(this.data.clone(), this.width, this.height);
     }
 
-    private int index(int x, int y) {
+    private final int index(int x, int y) {
         return index(x, y, this.width);
     }
 
@@ -419,35 +419,35 @@ public class FullSpacedColorBuffer {
      * @param y the y-coordinate of the pixel
      * @return the color of the pixel
      */
-    public int pixel(int x, int y) {
+    public final int pixel(int x, int y) {
         return this.data[index(x, y)];
     }
 
     /**
      * @return the raw argb data wrapped by this buffer, mutable
      */
-    public int[] buffer() {
+    public final int[] buffer() {
         return this.data;
     }
 
     /**
      * @return the internal length of the data
      */
-    public int size() {
+    public final int size() {
         return this.data.length;
     }
 
     /**
      * @return the width in pixels
      */
-    public int width() {
+    public final int width() {
         return this.width;
     }
 
     /**
      * @return the height in pixels
      */
-    public int height() {
+    public final int height() {
         return this.height;
     }
 }
