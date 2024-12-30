@@ -269,7 +269,7 @@ public class FrameContainer implements IMapDisplay {
 
         for (int i = 0; i < this.frames.length; i++) {
             Frame frame = this.frames[i];
-            frame.mapIds(other.frames[i].mapIds());
+            frame.mapIds(other.frames[i].mapIds0());
         }
     }
 

@@ -8,7 +8,7 @@ package de.pianoman911.mapengine.api.clientside;
  * <b>Note: Frames only exist on the network level,
  * so the server doesn't know about this frame entity.
  */
-public interface IFrame {
+public interface IFrame extends IMap {
 
     /**
      * <b>Note: Frames only exist on the network level,
