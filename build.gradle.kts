@@ -13,7 +13,7 @@ allprojects {
     apply(plugin = "maven-publish")
 
     group = "de.pianoman911"
-    version = "1.8.7"
+    version = "1.8.8"
 
     repositories {
         maven("https://repo.thejocraft.net/public/")
