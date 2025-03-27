@@ -13,7 +13,8 @@ public final class Paper1212Provider implements IPlatformProvider {
 
     private static final IntSet SUPPORTED_PROTOCOLS = IntSet.of(
             768, // 1.21.2
-            769  // 1.21.4
+            769, // 1.21.4
+            770  // 1.21.5
     );
 
     @SuppressWarnings("deprecation") // bukkit unsafe
