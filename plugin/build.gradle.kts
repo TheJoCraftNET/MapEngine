@@ -1,4 +1,3 @@
-import java.io.ByteArrayOutputStream
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -28,13 +27,10 @@ val gitHash = git("rev-parse --short HEAD")
 val gitBranch = git("rev-parse --abbrev-ref HEAD")
 val gitTag = git("describe --tags --abbrev=0")
 
-fun git(git: String): String {
-    val out = ByteArrayOutputStream()
-    rootProject.exec {
+fun git(git: String): Provider<String> {
+    return providers.exec {
         commandLine(Stream.concat(Stream.of("git"), git.split(" ").stream()).toList())
-        standardOutput = out
-    }
-    return out.toString().trim()
+    }.standardOutput.asText.map { it.trim() }
 }
 
 val compileTime: Temporal = ZonedDateTime.now(ZoneOffset.UTC)
@@ -63,9 +59,9 @@ tasks {
             "Build-Timestamp" to compileTime.toString(),
             "Platforms" to platforms.joinToString(", "),
 
-            "Git-Commit" to gitHash,
-            "Git-Branch" to gitBranch,
-            "Git-Tag" to gitTag,
+            "Git-Commit" to gitHash.get(),
+            "Git-Branch" to gitBranch.get(),
+            "Git-Tag" to gitTag.get(),
 
             // starting with 1.20.5, paper runtime jars are only provided with mojang mappings
             // mapengine uses mojang mappings and disables reobfuscation for 1.20.5+
@@ -85,5 +81,5 @@ bukkit {
     authors = listOf("pianoman911")
 
     name = rootProject.name
-    description = "$gitHash/$gitBranch ($gitTag), $compileDate"
+    description = "${gitHash.get()}/${gitBranch.get()} (${gitTag.get()}), $compileDate"
 }
