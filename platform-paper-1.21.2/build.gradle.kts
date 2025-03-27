@@ -14,6 +14,11 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+// hack to allow depending on this platform in java 17 projects
+configurations.runtimeElements.configure {
+    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+}
+
 paperweight {
     reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
 }

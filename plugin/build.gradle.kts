@@ -1,4 +1,3 @@
-import java.io.ByteArrayOutputStream
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -11,11 +10,14 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5", "1.21.2")
+val reobfPlatforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3")
+val mojangPlatforms = listOf("1.20.5", "1.21.2")
+val allPlatforms: List<String> = reobfPlatforms + mojangPlatforms
 
 dependencies {
-    platforms.forEach {
-        runtimeOnly(project(":platform-paper-$it"))
+    allPlatforms.forEach {
+        val configuration = if (reobfPlatforms.contains(it)) "reobf" else "runtimeElements"
+        runtimeOnly(project(":platform-paper-$it", configuration))
     }
 
     api(project(":platform-common"))
@@ -28,13 +30,10 @@ val gitHash = git("rev-parse --short HEAD")
 val gitBranch = git("rev-parse --abbrev-ref HEAD")
 val gitTag = git("describe --tags --abbrev=0")
 
-fun git(git: String): String {
-    val out = ByteArrayOutputStream()
-    rootProject.exec {
+fun git(git: String): Provider<String> {
+    return providers.exec {
         commandLine(Stream.concat(Stream.of("git"), git.split(" ").stream()).toList())
-        standardOutput = out
-    }
-    return out.toString().trim()
+    }.standardOutput.asText.map { it.trim() }
 }
 
 val compileTime: Temporal = ZonedDateTime.now(ZoneOffset.UTC)
@@ -61,11 +60,11 @@ tasks {
 
             "Build-Date" to compileDate,
             "Build-Timestamp" to compileTime.toString(),
-            "Platforms" to platforms.joinToString(", "),
+            "Platforms" to allPlatforms.joinToString(", "),
 
-            "Git-Commit" to gitHash,
-            "Git-Branch" to gitBranch,
-            "Git-Tag" to gitTag,
+            "Git-Commit" to gitHash.get(),
+            "Git-Branch" to gitBranch.get(),
+            "Git-Tag" to gitTag.get(),
 
             // starting with 1.20.5, paper runtime jars are only provided with mojang mappings
             // mapengine uses mojang mappings and disables reobfuscation for 1.20.5+
@@ -85,5 +84,5 @@ bukkit {
     authors = listOf("pianoman911")
 
     name = rootProject.name
-    description = "$gitHash/$gitBranch ($gitTag), $compileDate"
+    description = "${gitHash.get()}/${gitBranch.get()} (${gitTag.get()}), $compileDate"
 }
