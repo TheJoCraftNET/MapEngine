@@ -10,11 +10,14 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-val platforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3", "1.20.5", "1.21.2")
+val reobfPlatforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3")
+val mojangPlatforms = listOf("1.20.5", "1.21.2")
+val allPlatforms: List<String> = reobfPlatforms + mojangPlatforms
 
 dependencies {
-    platforms.forEach {
-        runtimeOnly(project(":platform-paper-$it"))
+    allPlatforms.forEach {
+        val configuration = if (reobfPlatforms.contains(it)) "reobf" else "runtimeElements"
+        runtimeOnly(project(":platform-paper-$it", configuration))
     }
 
     api(project(":platform-common"))
@@ -57,7 +60,7 @@ tasks {
 
             "Build-Date" to compileDate,
             "Build-Timestamp" to compileTime.toString(),
-            "Platforms" to platforms.joinToString(", "),
+            "Platforms" to allPlatforms.joinToString(", "),
 
             "Git-Commit" to gitHash.get(),
             "Git-Branch" to gitBranch.get(),
