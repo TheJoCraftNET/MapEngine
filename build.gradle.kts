@@ -16,7 +16,7 @@ allprojects {
     version = "1.8.8"
 
     repositories {
-        maven("https://repo.thejocraft.net/public/")
+        maven("https://repo.minceraft.dev/public/")
     }
 
     tasks.withType<JavaCompile> {
@@ -44,8 +44,8 @@ subprojects {
             artifactId = "${rootProject.name}-${project.name}".lowercase()
             from(components["java"])
         }
-        repositories.maven("https://repo.thejocraft.net/releases/") {
-            name = "tjcserver"
+        repositories.maven("https://repo.minceraft.dev/releases/") {
+            name = "minceraft"
             authentication { create<BasicAuthentication>("basic") }
             credentials(PasswordCredentials::class)
         }
