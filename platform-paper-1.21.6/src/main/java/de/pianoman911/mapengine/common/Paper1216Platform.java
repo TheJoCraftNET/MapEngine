@@ -84,7 +84,7 @@ public class Paper1216Platform implements IPlatform<Packet<ClientGamePacketListe
     @Override
     public String getDisplayedName() {
         return MinecraftServer.getServer().getServerModName()
-                + " " + SharedConstants.getCurrentVersion().getName();
+                + " " + SharedConstants.getCurrentVersion().name();
     }
 
     @Override

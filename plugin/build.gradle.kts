@@ -74,7 +74,7 @@ tasks {
 
     runServer {
         runDirectory = rootProject.layout.projectDirectory.dir("run")
-        minecraftVersion("1.21.1")
+        minecraftVersion("1.21.6")
     }
 }
 
