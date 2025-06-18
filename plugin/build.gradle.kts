@@ -11,7 +11,7 @@ plugins {
 }
 
 val reobfPlatforms = listOf("1.19.3", "1.19.4", "1.20", "1.20.2", "1.20.3")
-val mojangPlatforms = listOf("1.20.5", "1.21.2")
+val mojangPlatforms = listOf("1.20.5", "1.21.2", "1.21.6")
 val allPlatforms: List<String> = reobfPlatforms + mojangPlatforms
 
 dependencies {
