@@ -2,7 +2,7 @@ plugins {
     id("java-library")
     id("maven-publish")
 
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.16" apply false
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17" apply false
     id("com.gradleup.shadow") version "8.3.6"
 }
 
@@ -16,7 +16,7 @@ allprojects {
     version = "1.8.8"
 
     repositories {
-        maven("https://repo.thejocraft.net/public/")
+        maven("https://repo.minceraft.dev/public/")
     }
 
     tasks.withType<JavaCompile> {
@@ -44,8 +44,8 @@ subprojects {
             artifactId = "${rootProject.name}-${project.name}".lowercase()
             from(components["java"])
         }
-        repositories.maven("https://repo.thejocraft.net/releases/") {
-            name = "tjcserver"
+        repositories.maven("https://repo.minceraft.dev/releases/") {
+            name = "minceraft"
             authentication { create<BasicAuthentication>("basic") }
             credentials(PasswordCredentials::class)
         }
