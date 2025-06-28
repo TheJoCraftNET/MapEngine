@@ -77,7 +77,7 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 <repositories>
     <repository>
         <id>tjcserver</id>
-        <url>https://repo.thejocraft.net/releases/</url>
+        <url>https://repo.minceraft.dev/releases/</url>
     </repository>
 </repositories>
 ```
@@ -103,7 +103,7 @@ A hosted version of the javadoc can be found [here](https://mapengine.finndohrma
 ```groovy
 repositories {
     maven {
-        url = 'https://repo.thejocraft.net/releases/'
+        url = 'https://repo.minceraft.dev/releases/'
         name = 'tjcserver'
     }
 }
@@ -120,7 +120,7 @@ dependencies {
 
 ```kotlin
 repositories {
-    maven("https://repo.thejocraft.net/releases/") {
+    maven("https://repo.minceraft.dev/releases/") {
         name = "tjcserver"
     }
 }
